@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1781392807963,
+      "tag": "0000_graceful_namor",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1783065256933,
+      "tag": "0001_sour_outlaw_kid",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1789901417116,
+      "tag": "0002_same_mockingbird",
+      "breakpoints": true
+    }
+  ]
+}

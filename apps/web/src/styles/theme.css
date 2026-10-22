@@ -1,0 +1,72 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* dark (default) — channels for hsl(var(--x) / alpha) */
+  --bg: 220 14% 7%;
+  --surface: 220 13% 10%;
+  --surface-2: 220 12% 13.5%;
+  --border: 220 10% 18%;
+  --text: 210 16% 92%;
+  --text-dim: 220 8% 58%;
+  --accent: 152 58% 46%;
+  --accent-2: 38 92% 56%;
+  --danger: 2 68% 60%;
+
+  --font-ui: 'Hanken Grotesk Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  color-scheme: dark;
+}
+
+[data-theme='light'] {
+  --bg: 40 22% 97%;
+  --surface: 40 24% 99.5%;
+  --surface-2: 40 16% 94%;
+  --border: 40 10% 85%;
+  --text: 220 20% 13%;
+  --text-dim: 220 8% 40%;
+  /* Darkened for WCAG AA (~4.5:1) when used as text on surface in light mode. */
+  --accent: 152 55% 30%;
+  --accent-2: 30 90% 34%;
+  --danger: 2 65% 46%;
+  color-scheme: light;
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: hsl(var(--bg));
+  color: hsl(var(--text));
+  font-family: var(--font-ui);
+  font-feature-settings: 'ss01';
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Tabular, aligned numerics everywhere we show odds/money. */
+.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+::selection {
+  background: hsl(var(--accent) / 0.25);
+}
+
+/* Thin, unobtrusive scrollbars. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--border)) transparent;
+}

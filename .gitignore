@@ -1,0 +1,25 @@
+# deps
+node_modules/
+.pnpm-store/
+
+# build
+dist/
+build/
+.turbo/
+*.tsbuildinfo
+
+# env & secrets
+.env
+.env.*
+!.env.example
+
+# db
+*.sqlite
+*.sqlite-*
+*.db
+data/
+
+# misc
+.DS_Store
+coverage/
+*.log

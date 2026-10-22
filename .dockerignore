@@ -1,0 +1,12 @@
+**/node_modules
+**/dist
+**/.turbo
+**/*.tsbuildinfo
+data
+*.sqlite
+*.sqlite-*
+*.db
+.git
+**/*.log
+docs
+.claude

@@ -1,0 +1,768 @@
+{
+ "7bet.lt": [
+  {
+   "fixtureId": "id1000004667126172",
+   "participant1Id": 1763,
+   "participant2Id": 1781,
+   "startTime": "2026-06-15T17:00:00.000Z",
+   "tournamentId": 46,
+   "sportId": 10,
+   "bookmakerOdds": {
+    "7bet.lt": {
+     "fixturePath": "https://www.7bet.lt/15627829",
+     "suspended": false,
+     "markets": {
+      "101": {
+       "bookmakerMarketId": "1",
+       "marketActive": false,
+       "outcomes": {
+        "102": {
+         "players": {
+          "0": {
+           "active": true,
+           "betslip": null,
+           "bookmakerOutcomeId": "4098249443",
+           "bookmakerChangedAt": null,
+           "changedAt": "2026-06-12T17:03:52.355Z",
+           "limit": null,
+           "playerName": null,
+           "price": 3.333,
+           "priceAmerican": "233",
+           "priceFractional": "7/3",
+           "mainLine": true,
+           "exchangeMeta": null
+          }
+         }
+        },
+        "103": {
+         "players": {
+          "0": {
+           "active": true,
+           "betslip": null,
+           "bookmakerOutcomeId": "4098249444",
+           "bookmakerChangedAt": null,
+           "changedAt": "2026-06-12T17:03:52.355Z",
+           "limit": null,
+           "playerName": null,
+           "price": 2.083,
+           "priceAmerican": "108",
+           "priceFractional": "13/12",
+           "mainLine": true,
+           "exchangeMeta": null
+          }
+         }
+        },
+        "101": {
+         "players": {
+          "0": {
+           "active": true,
+           "betslip": null,
+           "bookmakerOutcomeId": "4098249442",
+           "bookmakerChangedAt": null,
+           "changedAt": "2026-06-12T17:03:52.355Z",
+           "limit": null,
+           "playerName": null,
+           "price": 3.333,
+           "priceAmerican": "233",
+           "priceFractional": "7/3",
+           "mainLine": true,
+           "exchangeMeta": null
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "fixtureId": "id1000004667126166",
+   "participant1Id": 1769,
+   "participant2Id": 7101,
+   "startTime": "2026-06-15T17:05:00.000Z",
+   "tournamentId": 46,
+   "sportId": 10,
+   "bookmakerOdds": {
+    "7bet.lt": {
+     "fixturePath": "https://www.7bet.lt/15627830",
+     "suspended": false,
+     "markets": {
+      "101": {
+       "bookmakerMarketId": "1",
+       "marketActive": false,
+       "outcomes": {
+        "102": {
+         "players": {
+          "0": {
+           "active": true,
+           "betslip": null,
+           "bookmakerOutcomeId": "4098250237",
+           "bookmakerChangedAt": null,
+           "changedAt": "2026-06-10T17:56:36.721Z",
+           "limit": null,
+           "playerName": null,
+           "price": 3.5,
+           "priceAmerican": "250",
+           "priceFractional": "5/2",
+           "mainLine": true,
+           "exchangeMeta": null
+          }
+         }
+        },
+        "103": {
+         "players": {
+          "0": {
+           "active": true,
+           "betslip": null,
+           "bookmakerOutcomeId": "4098250239",
+           "bookmakerChangedAt": null,
+           "changedAt": "2026-06-10T17:56:36.721Z",
+           "limit": null,
+           "playerName": null,
+           "price": 3.143,
+           "priceAmerican": "214",
+           "priceFractional": "15/7",
+           "mainLine": true,
+           "exchangeMeta": null
+          }
+         }
+        },
+        "101": {
+         "players": {
+          "0": {
+           "active": true,
+           "betslip": null,
+           "bookmakerOutcomeId": "4098250235",
+           "bookmakerChangedAt": null,
+           "changedAt": "2026-06-12T17:14:27.494Z",
+           "limit": null,
+           "playerName": null,
+           "price": 2.1,
+           "priceAmerican": "110",
+           "priceFractional": "11/10",
+           "mainLine": true,
+           "exchangeMeta": null
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "fixtureId": "id1000004667126168",
+   "participant1Id": 1842,
+   "participant2Id": 1890,
+   "startTime": "2026-06-16T17:00:00.000Z",
+   "tournamentId": 46,
+   "sportId": 10,
+   "bookmakerOdds": {
+    "7bet.lt": {
+     "fixturePath": "https://www.7bet.lt/15612553",
+     "suspended": false,
+     "markets": {
+      "101": {
+       "bookmakerMarketId": "1",
+       "marketActive": false,
+       "outcomes": {
+        "102": {
+         "players": {
+          "0": {
+           "active": true,
+           "betslip": null,
+           "bookmakerOutcomeId": "4102459149",
+           "bookmakerChangedAt": null,
+           "changedAt": "2026-06-11T17:47:45.989Z",
+           "limit": null,
+           "playerName": null,
+           "price": 3.5,
+           "priceAmerican": "250",
+           "priceFractional": "5/2",
+           "mainLine": true,
+           "exchangeMeta": null
+          }
+         }
+        },
+        "101": {
+         "players": {
+          "0": {
+           "active": true,
+           "betslip": null,
+           "bookmakerOutcomeId": "4102459148",
+           "bookmakerChangedAt": null,
+           "changedAt": "2026-06-11T17:47:45.989Z",
+           "limit": null,
+           "playerName": null,
+           "price": 2.125,
+           "priceAmerican": "112",
+           "priceFractional": "9/8",
+           "mainLine": true,
+           "exchangeMeta": null
+          }
+         }
+        },
+        "103": {
+         "players": {
+          "0": {
+           "active": true,
+           "betslip": null,
+           "bookmakerOutcomeId": "4102459150",
+           "bookmakerChangedAt": null,
+           "changedAt": "2026-06-11T17:47:45.989Z",
+           "limit": null,
+           "playerName": null,
+           "price": 3.0,
+           "priceAmerican": "200",
+           "priceFractional": "2/1",
+           "mainLine": true,
+           "exchangeMeta": null
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ ],
+ "betsson": [
+  {
+   "fixtureId": "id1000004667126172",
+   "participant1Id": 1763,
+   "participant2Id": 1781,
+   "startTime": "2026-06-15T17:00:00.000Z",
+   "tournamentId": 46,
+   "sportId": 10,
+   "bookmakerOdds": {
+    "betsson": {
+     "fixturePath": "https://www.betsson.com/en/sportsbook/ice-hockey/e/e?tab=liveAndUpcoming&eti=0&mtg=all&fs=true&eventId=f-RGNZTLbOLkKZB7CzfjIqhw",
+     "suspended": false,
+     "markets": {
+      "101": {
+       "bookmakerMarketId": "m-f-RGNZTLbOLkKZB7CzfjIqhw-MW3W",
+       "marketActive": true,
+       "outcomes": {
+        "101": {
+         "players": {
+          "0": {
+           "active": true,
+           "betslip": null,
+           "bookmakerOutcomeId": "s-m-f-RGNZTLbOLkKZB7CzfjIqhw-MW3W-home",
+           "bookmakerChangedAt": null,
+           "changedAt": "2026-06-13T09:07:42.226Z",
+           "limit": null,
+           "playerName": null,
+           "price": 3.3,
+           "priceAmerican": "230",
+           "priceFractional": "23/10",
+           "mainLine": true,
+           "exchangeMeta": null
+          }
+         }
+        },
+        "103": {
+         "players": {
+          "0": {
+           "active": true,
+           "betslip": null,
+           "bookmakerOutcomeId": "s-m-f-RGNZTLbOLkKZB7CzfjIqhw-MW3W-away",
+           "bookmakerChangedAt": null,
+           "changedAt": "2026-06-13T09:07:42.226Z",
+           "limit": null,
+           "playerName": null,
+           "price": 2.08,
+           "priceAmerican": "108",
+           "priceFractional": "27/25",
+           "mainLine": true,
+           "exchangeMeta": null
+          }
+         }
+        },
+        "102": {
+         "players": {
+          "0": {
+           "active": true,
+           "betslip": null,
+           "bookmakerOutcomeId": "s-m-f-RGNZTLbOLkKZB7CzfjIqhw-MW3W-draw",
+           "bookmakerChangedAt": null,
+           "changedAt": "2026-06-13T09:07:42.226Z",
+           "limit": null,
+           "playerName": null,
+           "price": 3.4,
+           "priceAmerican": "240",
+           "priceFractional": "12/5",
+           "mainLine": true,
+           "exchangeMeta": null
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "fixtureId": "id1000004667126166",
+   "participant1Id": 1769,
+   "participant2Id": 7101,
+   "startTime": "2026-06-15T17:05:00.000Z",
+   "tournamentId": 46,
+   "sportId": 10,
+   "bookmakerOdds": {
+    "betsson": {
+     "fixturePath": "https://www.betsson.com/en/sportsbook/ice-hockey/e/e?tab=liveAndUpcoming&eti=0&mtg=all&fs=true&eventId=f-3Sl4ZYr520WfDoOIESPD8g",
+     "suspended": false,
+     "markets": {
+      "101": {
+       "bookmakerMarketId": "m-f-3Sl4ZYr520WfDoOIESPD8g-MW3W",
+       "marketActive": true,
+       "outcomes": {
+        "103": {
+         "players": {
+          "0": {
+           "active": true,
+           "betslip": null,
+           "bookmakerOutcomeId": "s-m-f-3Sl4ZYr520WfDoOIESPD8g-MW3W-away",
+           "bookmakerChangedAt": null,
+           "changedAt": "2026-06-14T16:16:20.812Z",
+           "limit": null,
+           "playerName": null,
+           "price": 3.2,
+           "priceAmerican": "220",
+           "priceFractional": "11/5",
+           "mainLine": true,
+           "exchangeMeta": null
+          }
+         }
+        },
+        "101": {
+         "players": {
+          "0": {
+           "active": true,
+           "betslip": null,
+           "bookmakerOutcomeId": "s-m-f-3Sl4ZYr520WfDoOIESPD8g-MW3W-home",
+           "bookmakerChangedAt": null,
+           "changedAt": "2026-06-14T16:16:20.812Z",
+           "limit": null,
+           "playerName": null,
+           "price": 2.12,
+           "priceAmerican": "112",
+           "priceFractional": "28/25",
+           "mainLine": true,
+           "exchangeMeta": null
+          }
+         }
+        },
+        "102": {
+         "players": {
+          "0": {
+           "active": true,
+           "betslip": null,
+           "bookmakerOutcomeId": "s-m-f-3Sl4ZYr520WfDoOIESPD8g-MW3W-draw",
+           "bookmakerChangedAt": null,
+           "changedAt": "2026-06-14T16:16:20.812Z",
+           "limit": null,
+           "playerName": null,
+           "price": 3.45,
+           "priceAmerican": "245",
+           "priceFractional": "49/20",
+           "mainLine": true,
+           "exchangeMeta": null
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "fixtureId": "id1000004667126164",
+   "participant1Id": 1772,
+   "participant2Id": 781030,
+   "startTime": "2026-06-16T17:00:00.000Z",
+   "tournamentId": 46,
+   "sportId": 10,
+   "bookmakerOdds": {
+    "betsson": {
+     "fixturePath": "https://www.betsson.com/en/sportsbook/ice-hockey/e/e?tab=liveAndUpcoming&eti=0&mtg=all&fs=true&eventId=f-5L5iyN-no0One64Kb9jnRg",
+     "suspended": false,
+     "markets": {
+      "101": {
+       "bookmakerMarketId": "m-f-5L5iyN-no0One64Kb9jnRg-MW3W",
+       "marketActive": true,
+       "outcomes": {
+        "101": {
+         "players": {
+          "0": {
+           "active": true,
+           "betslip": null,
+           "bookmakerOutcomeId": "s-m-f-5L5iyN-no0One64Kb9jnRg-MW3W-home",
+           "bookmakerChangedAt": null,
+           "changedAt": "2026-06-13T15:47:14.206Z",
+           "limit": null,
+           "playerName": null,
+           "price": 2.3,
+           "priceAmerican": "130",
+           "priceFractional": "13/10",
+           "mainLine": true,
+           "exchangeMeta": null
+          }
+         }
+        },
+        "102": {
+         "players": {
+          "0": {
+           "active": true,
+           "betslip": null,
+           "bookmakerOutcomeId": "s-m-f-5L5iyN-no0One64Kb9jnRg-MW3W-draw",
+           "bookmakerChangedAt": null,
+           "changedAt": "2026-06-13T15:47:14.206Z",
+           "limit": null,
+           "playerName": null,
+           "price": 3.5,
+           "priceAmerican": "250",
+           "priceFractional": "5/2",
+           "mainLine": true,
+           "exchangeMeta": null
+          }
+         }
+        },
+        "103": {
+         "players": {
+          "0": {
+           "active": true,
+           "betslip": null,
+           "bookmakerOutcomeId": "s-m-f-5L5iyN-no0One64Kb9jnRg-MW3W-away",
+           "bookmakerChangedAt": null,
+           "changedAt": "2026-06-13T15:47:14.206Z",
+           "limit": null,
+           "playerName": null,
+           "price": 2.82,
+           "priceAmerican": "182",
+           "priceFractional": "91/50",
+           "mainLine": true,
+           "exchangeMeta": null
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "fixtureId": "id1000004667126168",
+   "participant1Id": 1842,
+   "participant2Id": 1890,
+   "startTime": "2026-06-16T17:00:00.000Z",
+   "tournamentId": 46,
+   "sportId": 10,
+   "bookmakerOdds": {
+    "betsson": {
+     "fixturePath": "https://www.betsson.com/en/sportsbook/ice-hockey/e/e?tab=liveAndUpcoming&eti=0&mtg=all&fs=true&eventId=f-7JduBz3ohki8ua2o8M-40w",
+     "suspended": false,
+     "markets": {
+      "101": {
+       "bookmakerMarketId": "m-f-7JduBz3ohki8ua2o8M-40w-MW3W",
+       "marketActive": true,
+       "outcomes": {
+        "102": {
+         "players": {
+          "0": {
+           "active": true,
+           "betslip": null,
+           "bookmakerOutcomeId": "s-m-f-7JduBz3ohki8ua2o8M-40w-MW3W-draw",
+           "bookmakerChangedAt": null,
+           "changedAt": "2026-06-14T16:15:13.509Z",
+           "limit": null,
+           "playerName": null,
+           "price": 3.5,
+           "priceAmerican": "250",
+           "priceFractional": "5/2",
+           "mainLine": true,
+           "exchangeMeta": null
+          }
+         }
+        },
+        "101": {
+         "players": {
+          "0": {
+           "active": true,
+           "betslip": null,
+           "bookmakerOutcomeId": "s-m-f-7JduBz3ohki8ua2o8M-40w-MW3W-home",
+           "bookmakerChangedAt": null,
+           "changedAt": "2026-06-14T16:15:13.509Z",
+           "limit": null,
+           "playerName": null,
+           "price": 2.15,
+           "priceAmerican": "115",
+           "priceFractional": "23/20",
+           "mainLine": true,
+           "exchangeMeta": null
+          }
+         }
+        },
+        "103": {
+         "players": {
+          "0": {
+           "active": true,
+           "betslip": null,
+           "bookmakerOutcomeId": "s-m-f-7JduBz3ohki8ua2o8M-40w-MW3W-away",
+           "bookmakerChangedAt": null,
+           "changedAt": "2026-06-14T16:15:13.509Z",
+           "limit": null,
+           "playerName": null,
+           "price": 3.1,
+           "priceAmerican": "210",
+           "priceFractional": "21/10",
+           "mainLine": true,
+           "exchangeMeta": null
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ ],
+ "pinnacle": [
+  {
+   "fixtureId": "id1000004667126172",
+   "participant1Id": 1763,
+   "participant2Id": 1781,
+   "startTime": "2026-06-15T17:00:00.000Z",
+   "tournamentId": 46,
+   "sportId": 10,
+   "bookmakerOdds": {
+    "pinnacle": {
+     "fixturePath": "https://www.pinnacle.com/en/e/e/e/1631778111/#all",
+     "suspended": false,
+     "markets": {
+      "101": {
+       "bookmakerMarketId": "line/29/2476/1631778111/3639671012/0/moneyline",
+       "marketActive": true,
+       "outcomes": {
+        "102": {
+         "players": {
+          "0": {
+           "active": true,
+           "betslip": null,
+           "bookmakerOutcomeId": "draw",
+           "bookmakerChangedAt": "2026-06-14T18:12:42.587Z",
+           "changedAt": "2026-06-14T18:12:42.908Z",
+           "limit": 250.0,
+           "playerName": null,
+           "price": 3.41,
+           "priceAmerican": "241",
+           "priceFractional": "241/100",
+           "mainLine": true,
+           "exchangeMeta": null
+          }
+         }
+        },
+        "103": {
+         "players": {
+          "0": {
+           "active": true,
+           "betslip": null,
+           "bookmakerOutcomeId": "away",
+           "bookmakerChangedAt": "2026-06-14T18:12:42.587Z",
+           "changedAt": "2026-06-14T18:12:42.908Z",
+           "limit": 250.0,
+           "playerName": null,
+           "price": 2.09,
+           "priceAmerican": "109",
+           "priceFractional": "109/100",
+           "mainLine": true,
+           "exchangeMeta": null
+          }
+         }
+        },
+        "101": {
+         "players": {
+          "0": {
+           "active": true,
+           "betslip": null,
+           "bookmakerOutcomeId": "home",
+           "bookmakerChangedAt": "2026-06-14T18:12:42.587Z",
+           "changedAt": "2026-06-14T18:12:42.908Z",
+           "limit": 250.0,
+           "playerName": null,
+           "price": 3.59,
+           "priceAmerican": "259",
+           "priceFractional": "259/100",
+           "mainLine": true,
+           "exchangeMeta": null
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "fixtureId": "id1000004667126166",
+   "participant1Id": 1769,
+   "participant2Id": 7101,
+   "startTime": "2026-06-15T17:05:00.000Z",
+   "tournamentId": 46,
+   "sportId": 10,
+   "bookmakerOdds": {
+    "pinnacle": {
+     "fixturePath": "https://www.pinnacle.com/en/e/e/e/1631778025/#all",
+     "suspended": false,
+     "markets": {
+      "101": {
+       "bookmakerMarketId": "line/29/2476/1631778025/3639623602/0/moneyline",
+       "marketActive": true,
+       "outcomes": {
+        "103": {
+         "players": {
+          "0": {
+           "active": true,
+           "betslip": null,
+           "bookmakerOutcomeId": "away",
+           "bookmakerChangedAt": "2026-06-14T17:06:20.763Z",
+           "changedAt": "2026-06-14T17:06:21.164Z",
+           "limit": 250.0,
+           "playerName": null,
+           "price": 3.32,
+           "priceAmerican": "232",
+           "priceFractional": "58/25",
+           "mainLine": true,
+           "exchangeMeta": null
+          }
+         }
+        },
+        "101": {
+         "players": {
+          "0": {
+           "active": true,
+           "betslip": null,
+           "bookmakerOutcomeId": "home",
+           "bookmakerChangedAt": "2026-06-14T17:06:20.763Z",
+           "changedAt": "2026-06-14T17:06:21.164Z",
+           "limit": 250.0,
+           "playerName": null,
+           "price": 2.13,
+           "priceAmerican": "113",
+           "priceFractional": "113/100",
+           "mainLine": true,
+           "exchangeMeta": null
+          }
+         }
+        },
+        "102": {
+         "players": {
+          "0": {
+           "active": true,
+           "betslip": null,
+           "bookmakerOutcomeId": "draw",
+           "bookmakerChangedAt": "2026-06-14T17:06:20.763Z",
+           "changedAt": "2026-06-14T17:06:21.164Z",
+           "limit": 250.0,
+           "playerName": null,
+           "price": 3.59,
+           "priceAmerican": "259",
+           "priceFractional": "259/100",
+           "mainLine": true,
+           "exchangeMeta": null
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "fixtureId": "id1000004667126168",
+   "participant1Id": 1842,
+   "participant2Id": 1890,
+   "startTime": "2026-06-16T17:00:00.000Z",
+   "tournamentId": 46,
+   "sportId": 10,
+   "bookmakerOdds": {
+    "pinnacle": {
+     "fixturePath": "https://www.pinnacle.com/en/e/e/e/1631798941/#all",
+     "suspended": false,
+     "markets": {
+      "101": {
+       "bookmakerMarketId": "line/29/2476/1631798941/3638699291/0/moneyline",
+       "marketActive": true,
+       "outcomes": {
+        "101": {
+         "players": {
+          "0": {
+           "active": true,
+           "betslip": null,
+           "bookmakerOutcomeId": "home",
+           "bookmakerChangedAt": "2026-06-13T17:03:27.950Z",
+           "changedAt": "2026-06-13T17:03:28.252Z",
+           "limit": 187.0,
+           "playerName": null,
+           "price": 2.16,
+           "priceAmerican": "116",
+           "priceFractional": "29/25",
+           "mainLine": true,
+           "exchangeMeta": null
+          }
+         }
+        },
+        "103": {
+         "players": {
+          "0": {
+           "active": true,
+           "betslip": null,
+           "bookmakerOutcomeId": "away",
+           "bookmakerChangedAt": "2026-06-13T17:03:27.950Z",
+           "changedAt": "2026-06-13T17:03:28.252Z",
+           "limit": 187.0,
+           "playerName": null,
+           "price": 3.16,
+           "priceAmerican": "216",
+           "priceFractional": "54/25",
+           "mainLine": true,
+           "exchangeMeta": null
+          }
+         }
+        },
+        "102": {
+         "players": {
+          "0": {
+           "active": true,
+           "betslip": null,
+           "bookmakerOutcomeId": "draw",
+           "bookmakerChangedAt": "2026-06-13T17:03:27.950Z",
+           "changedAt": "2026-06-13T17:03:28.252Z",
+           "limit": 187.0,
+           "playerName": null,
+           "price": 3.56,
+           "priceAmerican": "256",
+           "priceFractional": "64/25",
+           "mainLine": true,
+           "exchangeMeta": null
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ ]
+}

@@ -1,0 +1,1 @@
+ALTER TABLE `opportunity_legs` ADD `price_updated_at` text;
