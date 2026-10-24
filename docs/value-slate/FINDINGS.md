@@ -240,9 +240,39 @@ Edge 3–12%, odds 1.5–4, liquid BFE ref, 4 books, one-winner rule. 2025/26: 2
 weeks, CLV **+2.27%**; 2026/27: 7 bets, CLV **+5.07%**. Right direction, far too few bets — real
 short-odds value at UK books appears about once every two weeks.
 
+**R6 — Where volume comes from (2026-10-24, after the user asked for 7+ games a week).**
+Short-odds rule (1X2, edge 3–12%, odds ≤ 4, BFE ≤3% overround, power de-vig), bets per week:
+
+| bookmakers you can bet at | 2025/26 | 2026/27 |
+|---|---|---|
+| 1 (Bet365) | 0.2 | 0.2 |
+| 4 (B365, BW, BV, BFD) | 0.5 | 0.5 |
+| 9 named UK books | 1.5 | 0.7 |
+| market best price ("Max", ~all books; upper bound, has bad values) | 3.0 | 1.2 |
+
+- **Buchdahl's archive averaged ~46 value bets per week** (median 46, 448 weeks), and the price came
+  from **96 different bookmakers** (Interwetten 20%, bet365 15%, Coolbet 10%, EFbet 6%, BetVictor
+  5%, …). The volume of a working value system comes from **how many books you can bet at** (and a
+  sharp reference that covers every league — Pinnacle), not from how many games exist.
+- **16 extra football leagues** (football-data `/new/{ARG,AUT,BRA,CHN,DNK,FIN,IRL,JPN,MEX,NOR,POL,
+  ROU,RUS,SWE,SWZ,USA}.csv`; closing prices only; ~89 matches/week since Jul 2025, many in the
+  European summer): B365 closing vs BFE closing gives 0.6 value bets/week; best market price 4.4.
+- **The one-winner rule and "7+ games" conflict.** To keep Σ1/odds ≤ 1 with 7 picks, the average
+  pick needs odds ≈ 7 — the longshot zone where value has historically failed (R4). With 7 picks at
+  odds ~2.5 instead (equal stakes), P(every bet loses) falls to 2.8% (vs ~34% under the rule), but
+  one winner returns only 36% of the stake; ~3 winners are needed to break even (58% chance at
+  fair odds). More short-odds picks reduce wipe-outs; they don't change the average result.
+- Other sports with far more fixtures (tennis, basketball, ice hockey) need other data: tennis-data
+  .co.uk (host currently blocked by the environment network policy) or OddsPapi historical (all
+  sports, includes 7bet.lt + betsson + pinnacle; needs `ODDSPAPI_API_KEY`).
+
 **Published page:** https://claude.ai/artifact/Mn9pnZ8tzUpUHgwCjAp1oP (private to the user;
 source `docs/value-slate/report.html`, regenerate with `pnpm --filter @quest/backtest report`
 then republish).
+
+**Plain-language guide:** https://claude.ai/artifact/RqFF7KXzQWmQVZQiDRw2WG (source
+`docs/value-slate/guide.html`, hand-written; numbers copied from R3–R6 — update by hand if they
+change). Glossary, the six strategies, a games×odds×edge calculator, volume levers, next steps.
 
 ## 6. Decisions & open questions
 
@@ -253,6 +283,10 @@ then republish).
   other sports.
 
 ## 7. Next steps (in order)
+
+User decision pending (2026-10-24): the user wants ≥5, ideally 7+ games per week. Explained (guide +
+R6) that 7+ picks and the one-winner rule conflict (forces odds ≈7); recommended 7+ short-odds picks
+with flat ~2%-of-bankroll weekly stakes and no one-winner rule, if volume allows.
 
 1. **LT prices.** Add `ODDSPAPI_API_KEY` to the environment → pull `/v4/historical-odds` for
    recent fixtures with `7bet.lt,betsson,pinnacle` (3 books = 1 request per fixture, ~200

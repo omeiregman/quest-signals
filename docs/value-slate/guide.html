@@ -1,0 +1,422 @@
+<title>Value Slate Guide</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: a field guide. One column of plain-language cards, a working calculator in the middle,
+   the action list at the end. Same visual family as the Value Slate Replay page. */
+:root {
+  --bg: #eef1f4;
+  --panel: #ffffff;
+  --ink: #12171d;
+  --ink-2: #4a5561;
+  --muted: #6f7a86;
+  --rule: #dbe1e7;
+  --grid: #e7ebef;
+  --axis: #c3cad1;
+  --accent: #1f47b8;
+  --accent-soft: #e4eafb;
+  --series: #2a78d6;
+  --loss: #e34948;
+  --won-ink: #0b6a2c;
+  --won-bg: #e2f3e7;
+  --lost-ink: #ad2a2a;
+  --lost-bg: #fbe7e6;
+  --warn-ink: #8a5a00;
+  --warn-bg: #fdf1d8;
+  --font-display: 'Barlow Condensed', 'Arial Narrow', 'Roboto Condensed', sans-serif;
+  --font-body: 'Source Sans 3', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1116; --panel: #151b22; --ink: #e8edf2; --ink-2: #aeb8c3; --muted: #8692a0;
+    --rule: #27313b; --grid: #212a33; --axis: #3a4550; --accent: #8ea6ff; --accent-soft: #1c2640;
+    --series: #3987e5; --loss: #e66767;
+    --won-ink: #5ccf85; --won-bg: #11301e; --lost-ink: #f39089; --lost-bg: #3a1716;
+    --warn-ink: #f1c062; --warn-bg: #352708;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1116; --panel: #151b22; --ink: #e8edf2; --ink-2: #aeb8c3; --muted: #8692a0;
+  --rule: #27313b; --grid: #212a33; --axis: #3a4550; --accent: #8ea6ff; --accent-soft: #1c2640;
+  --series: #3987e5; --loss: #e66767;
+  --won-ink: #5ccf85; --won-bg: #11301e; --lost-ink: #f39089; --lost-bg: #3a1716;
+  --warn-ink: #f1c062; --warn-bg: #352708;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font: 400 17px/1.6 var(--font-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 64px;
+}
+.wrap { max-width: 860px; margin: 0 auto; display: grid; gap: 52px; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing: 0.01em; text-wrap: balance; margin: 0; line-height: 1.1; }
+h1 { font-size: clamp(2.6rem, 7vw, 4rem); font-weight: 700; }
+h2 { font-size: 2rem; }
+h3 { font-size: 1.3rem; }
+p { margin: 0; }
+a { color: var(--accent); }
+.eyebrow { font: 600 0.78rem/1 var(--font-body); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.lede { font-size: 1.2rem; color: var(--ink-2); max-width: 60ch; }
+.mono { font-family: var(--font-mono); font-size: 0.9em; }
+section { display: grid; gap: 18px; }
+.head { display: grid; gap: 8px; }
+.head p { color: var(--ink-2); max-width: 62ch; }
+header.mast { padding-top: 40px; display: grid; gap: 16px; }
+nav.toc { display: flex; flex-wrap: wrap; gap: 8px; }
+nav.toc a { font: 500 0.92rem/1 var(--font-body); color: var(--ink-2); text-decoration: none; background: var(--panel); border: 1px solid var(--rule); border-radius: 999px; padding: 8px 12px; }
+nav.toc a:hover { color: var(--accent); border-color: var(--accent); }
+
+.idea { background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; padding: 20px 22px; display: grid; gap: 10px; }
+.idea ol { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; color: var(--ink-2); }
+.idea strong { color: var(--ink); }
+
+/* Glossary */
+.terms { display: grid; gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: 12px; overflow: hidden; }
+.term { background: var(--panel); padding: 16px 20px; display: grid; grid-template-columns: minmax(150px, 210px) 1fr; gap: 6px 22px; }
+.term dt { font-weight: 700; color: var(--ink); }
+.term dt small { display: block; font-weight: 400; color: var(--muted); font-size: 0.85rem; }
+.term dd { margin: 0; color: var(--ink-2); display: grid; gap: 6px; min-width: 0; }
+.term .eg { font-size: 0.93rem; background: var(--bg); border-radius: 8px; padding: 8px 12px; color: var(--ink-2); }
+.term .eg b { color: var(--ink); font-variant-numeric: tabular-nums; }
+@media (max-width: 600px) { .term { grid-template-columns: 1fr; } }
+
+/* Strategy cards */
+.strats { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
+.strat { background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; padding: 16px 18px; display: grid; gap: 8px; align-content: start; }
+.strat h3 { font-size: 1.4rem; }
+.strat p { color: var(--ink-2); font-size: 0.97rem; }
+.strat .nums { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; font-size: 0.9rem; color: var(--ink-2); }
+.strat .nums b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
+.chip { justify-self: start; display: inline-flex; align-items: center; gap: 4px; font: 600 0.78rem/1 var(--font-body); padding: 5px 9px; border-radius: 999px; }
+.chip.good { color: var(--won-ink); background: var(--won-bg); }
+.chip.bad { color: var(--lost-ink); background: var(--lost-bg); }
+.chip.meh { color: var(--warn-ink); background: var(--warn-bg); }
+
+/* Calculator */
+.calc { background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; padding: 20px; display: grid; gap: 18px; position: relative; }
+.presets { display: flex; flex-wrap: wrap; gap: 6px; }
+.presets button { font: 500 0.92rem/1 var(--font-body); color: var(--ink-2); background: var(--bg); border: 1px solid var(--rule); border-radius: 8px; padding: 9px 12px; cursor: pointer; }
+.presets button:hover { color: var(--accent); border-color: var(--accent); }
+.presets button[aria-pressed="true"] { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); font-weight: 600; }
+.sliders { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px 24px; }
+.slider { display: grid; gap: 6px; }
+.slider label { display: flex; justify-content: space-between; gap: 10px; font-weight: 600; }
+.slider label output { font-variant-numeric: tabular-nums; color: var(--accent); }
+.slider input[type="range"] { width: 100%; accent-color: var(--accent); }
+.slider .hint { font-size: 0.85rem; color: var(--muted); }
+.outs { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; }
+.out { background: var(--panel); padding: 12px 14px; display: grid; gap: 2px; align-content: start; }
+.out .k { font-size: 0.85rem; color: var(--muted); }
+.out .v { font-size: 1.45rem; font-weight: 600; line-height: 1.2; }
+.out .s { font-size: 0.85rem; color: var(--ink-2); }
+.verdict-line { color: var(--ink-2); max-width: 70ch; }
+.verdict-line strong { color: var(--ink); }
+figure { margin: 0; display: grid; gap: 8px; position: relative; }
+.chart-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; align-items: baseline; }
+.chart-title { font-weight: 600; }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 0.86rem; color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.key-up { width: 10px; height: 10px; background: var(--series); border-radius: 2px; }
+.key-down { width: 10px; height: 10px; background: var(--loss); border-radius: 2px; }
+#dist svg { display: block; width: 100%; height: auto; }
+#dist text { fill: var(--muted); font: 12px var(--font-body); font-variant-numeric: tabular-nums; }
+.tooltip { position: absolute; pointer-events: none; background: var(--panel); border: 1px solid var(--rule); border-radius: 8px; padding: 8px 10px; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12); font-size: 0.86rem; display: grid; gap: 2px; z-index: 5; min-width: 170px; }
+.tooltip b { font-size: 1rem; }
+
+/* Tables and lists */
+.table-wrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 10px; background: var(--panel); }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
+th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--rule); }
+th { font: 600 0.76rem/1.2 var(--font-body); letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); }
+td { font-variant-numeric: tabular-nums; color: var(--ink-2); }
+td.r, th.r { text-align: right; }
+tbody tr:last-child td { border-bottom: 0; }
+.steps { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; counter-reset: step; }
+.steps li { background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; padding: 14px 18px 14px 56px; position: relative; color: var(--ink-2); counter-increment: step; display: grid; gap: 4px; }
+.steps li::before { content: counter(step); position: absolute; left: 16px; top: 13px; width: 26px; height: 26px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font: 700 0.95rem/26px var(--font-body); text-align: center; }
+.steps li strong { color: var(--ink); }
+.who { justify-self: start; font: 600 0.74rem/1 var(--font-body); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.callout { border-left: 3px solid var(--accent); padding: 4px 0 4px 14px; color: var(--ink-2); max-width: 70ch; }
+.callout strong { color: var(--ink); }
+button:focus-visible, input:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+footer { color: var(--muted); font-size: 0.88rem; border-top: 1px solid var(--rule); padding-top: 16px; }
+</style>
+
+<main class="wrap">
+  <header class="mast">
+    <p class="eyebrow">Quest · companion to the Value Slate Replay</p>
+    <h1>Value Slate Guide</h1>
+    <p class="lede">Every word from the replay page in plain language, with small examples. In the middle there is a calculator that shows why “7 games” and “one winner gets my money back” pull against each other. At the end: what we do next.</p>
+    <nav class="toc" aria-label="On this page">
+      <a href="#idea">The idea</a><a href="#odds">Odds and chance</a><a href="#value">Value</a><a href="#proof">Is it real?</a><a href="#money">Money words</a><a href="#strategies">The strategies</a><a href="#calculator">Calculator</a><a href="#more">More bets a week</a><a href="#next">Next steps</a>
+    </nav>
+  </header>
+
+  <section id="idea">
+    <div class="head"><h2>The idea in four lines</h2></div>
+    <div class="idea">
+      <ol>
+        <li>Bookmakers sometimes put a price on a team that is <strong>too generous</strong> compared with the real chance of it winning. That is a <strong>value bet</strong>.</li>
+        <li>We find the real chance by looking at the <strong>sharpest prices in the market</strong> (Betfair Exchange, Pinnacle), where professional money keeps prices honest.</li>
+        <li>Each week you put your budget on a few of those bets, split so that <strong>any one winner pays the whole week back</strong>.</li>
+        <li>No single bet is safe. The plan only wins if, over hundreds of bets, the prices you took were really too generous.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="odds">
+    <div class="head"><h2>Odds and chance</h2></div>
+    <dl class="terms">
+      <div class="term"><dt>Decimal odds</dt><dd><p>What you get back for every €1 if the bet wins, including your €1.</p><p class="eg">Odds <b>2.50</b>: stake €10, win and you get <b>€25</b> back (€15 profit).</p></dd></div>
+      <div class="term"><dt>Implied chance</dt><dd><p>The chance the odds suggest. Work it out as 1 ÷ odds.</p><p class="eg">Odds <b>2.50</b> → 1 ÷ 2.5 = <b>40%</b>. Odds <b>5.00</b> → <b>20%</b>.</p></dd></div>
+      <div class="term"><dt>Bookmaker’s cut<small>margin, overround, vig</small></dt><dd><p>Add up the implied chances of every outcome and you get more than 100%. The extra is the bookmaker’s built-in profit.</p><p class="eg">A coin flip priced <b>1.90 / 1.90</b> → 52.6% + 52.6% = <b>105.2%</b>. The cut is <b>5.2%</b>. Big UK bookmakers take about 5–6% on top leagues, 8–12% on small ones.</p></dd></div>
+      <div class="term"><dt>Fair odds</dt><dd><p>The odds with the cut taken out, so the chances add up to exactly 100%. This is our best guess at the real chance.</p><p class="eg">Coin flip <b>1.90 / 1.90</b> → fair odds <b>2.00 / 2.00</b> (50% each).</p></dd></div>
+      <div class="term"><dt>Removing the cut<small>de-vig, power method</small></dt><dd><p>There are a few ways to take the cut out. Bookmakers hide more of their cut in the long shots, so the method we use (the power method) takes more off the long shots and less off the favourites. A simpler method makes long shots look more likely than they are.</p></dd></div>
+      <div class="term"><dt>Favourite / long shot</dt><dd><p>The favourite is the likely winner (short odds, like 1.50). A long shot is unlikely (long odds, like 6.00 or 10.00).</p></dd></div>
+      <div class="term"><dt>Soft bookmaker</dt><dd><p>A normal bookmaker for the public: Bet365, bwin, Betsson, 7bet, Topsport. They copy and adjust prices, are sometimes slow, and limit people who win. This is where value bets are found and placed.</p></dd></div>
+      <div class="term"><dt>Sharp price<small>reference</small></dt><dd><p>A price that professionals bet into heavily, so it is usually very close to the real chance. We use it as the referee.</p><p class="eg"><b>Pinnacle</b> (a bookmaker that welcomes winners) and <b>Betfair Exchange</b> (people betting against each other). You most likely can’t bet at either from Lithuania, so we only <b>read</b> their prices.</p></dd></div>
+      <div class="term"><dt>Liquid vs thin market</dt><dd><p>Liquid: lots of money traded, so the exchange price is reliable (Premier League, Bundesliga). Thin: little money, so the price can be wide or out of date (Scottish League Two, Greek league). We only trust exchange prices when their cut is 3% or less.</p></dd></div>
+    </dl>
+  </section>
+
+  <section id="value">
+    <div class="head"><h2>Value</h2></div>
+    <dl class="terms">
+      <div class="term"><dt>Value bet</dt><dd><p>A bet where the soft bookmaker’s odds are higher than the fair odds.</p><p class="eg">Fair chance of an away win is <b>40%</b> (fair odds 2.50). Bet365 offers <b>2.65</b>. That is a value bet.</p></dd></div>
+      <div class="term"><dt>Edge</dt><dd><p>How much better than fair the price is: fair chance × odds − 1.</p><p class="eg">0.40 × 2.65 − 1 = <b>+6%</b>. On average, every €100 bet like this returns €106. Any single bet still wins €165 or loses €100. The +6% only shows up over many bets.</p></dd></div>
+      <div class="term"><dt>The long-shot trap<small>favourite–long-shot bias</small></dt><dd><p>Bookmakers overcharge most on long shots, and long-shot prices are the hardest to judge. So “value” flagged at odds of 4 and above is often fake.</p><p class="eg">A public record of <b>20,380</b> real value bets: odds under 4 made <b>+4.4%</b>; odds 4 and above lost <b>0.7%</b> (and <b>−13%</b> since 2022).</p></dd></div>
+      <div class="term"><dt>Edge too big to be true</dt><dd><p>Edges above about 12–15% are usually a wrong or out-of-date price, not a gift. Bookmakers can also cancel bets placed at an obvious mistake. We cap edges at 12% (Short odds) or 30% (the others).</p></dd></div>
+    </dl>
+  </section>
+
+  <section id="proof">
+    <div class="head"><h2>How we check it is real</h2></div>
+    <dl class="terms">
+      <div class="term"><dt>Backtest</dt><dd><p>Replaying the past as if we were there: we only use prices that existed before kickoff, place the bets, then look at the real result.</p></dd></div>
+      <div class="term"><dt>Closing price</dt><dd><p>The last price just before kickoff. By then all the news and the professional money are in, so it is the most accurate price there is.</p></dd></div>
+      <div class="term"><dt>Beating the closing price<small>CLV, closing-line value</small></dt><dd><p>Did you get a better price than the final one? If you bought at 2.65 and the fair closing odds were 2.50, you beat it by 6%, win or lose. People who beat the closing price over hundreds of bets make money in the long run. It is the fastest honest test of an edge.</p><p class="eg">Like buying a share for €95 that closes the day at €100: you did well, whatever happens next.</p></dd></div>
+      <div class="term"><dt>The ± number<small>standard error</small></dt><dd><p>How much a result wobbles from luck alone. A result counts as real only when it is more than <b>twice</b> its wobble away from zero.</p><p class="eg">CLV <b>+1.4% ± 0.7%</b>: 1.4 is twice 0.7, so it is just about real. ROI <b>+24% ± 29%</b>: smaller than its wobble, so it could easily be luck.</p></dd></div>
+      <div class="term"><dt>Sample size</dt><dd><p>How many bets the result rests on. To prove a 3% edge from profit alone needs about <b>9,000–22,000</b> bets. To prove it with closing prices needs a few <b>hundred</b>. That is why we watch closing prices first.</p></dd></div>
+      <div class="term"><dt>Out of sample</dt><dd><p>Testing rules on games they were not built from. Rules shaped on 2025/26 and then checked on 2026/27 are more trustworthy than rules that only look good on the season they came from.</p></dd></div>
+    </dl>
+  </section>
+
+  <section id="money">
+    <div class="head"><h2>Money words</h2></div>
+    <dl class="terms">
+      <div class="term"><dt>Bankroll</dt><dd><p>All the money set aside for betting. In the replay: <b>€1,000</b>.</p></dd></div>
+      <div class="term"><dt>Weekly budget</dt><dd><p>How much of the bankroll goes on one week’s slate. Fixed (€20, €50, €100) or a share of the bankroll (2%, 5%, 10%), which shrinks after losses and grows after wins.</p></dd></div>
+      <div class="term"><dt>Stake / return / profit</dt><dd><p>Stake: what you put on. Return: what comes back. Profit: return minus stake.</p></dd></div>
+      <div class="term"><dt>ROI<small>profit per €1 staked</small></dt><dd><p>Profit divided by everything you staked.</p><p class="eg">Staked €3,100 over the season, profit €749 → ROI <b>+24%</b>.</p></dd></div>
+      <div class="term"><dt>Worst drop<small>drawdown</small></dt><dd><p>The biggest fall from a high point before recovering.</p><p class="eg">Up to €1,500, then down to €1,200 before recovering → a <b>20%</b> drop.</p></dd></div>
+      <div class="term"><dt>Going broke<small>risk of ruin</small></dt><dd><p>The chance the bankroll runs out. It depends far more on stake size than on the edge. With a real 2% edge and €1,000: €100 a week has about an <b>18%</b> chance of going broke within three seasons; €50 a week about <b>2%</b>. About <b>2% of the bankroll a week</b> (€20 on €1,000) is the size the maths supports.</p></dd></div>
+    </dl>
+  </section>
+
+  <section id="rule">
+    <div class="head"><h2>Your rule, in words</h2></div>
+    <dl class="terms">
+      <div class="term"><dt>Slate</dt><dd><p>The group of bets for one week.</p></dd></div>
+      <div class="term"><dt>One-winner rule</dt><dd><p>Stakes are split so any single winner returns at least the whole week’s budget. That only works if 1/odds of all the picks add up to 1 or less.</p><p class="eg">Two picks at <b>2.00</b>, three at <b>3.00</b>, five at <b>5.00</b>, or mixed: 2.00 + 4.00 + 4.00.</p></dd></div>
+      <div class="term"><dt>Coverage</dt><dd><p>That sum of 1/odds. Under 1 means one winner pays back more than the budget; exactly 1 means it pays back exactly the budget.</p></dd></div>
+      <div class="term"><dt>Equal-return staking</dt><dd><p>Bigger stakes on shorter odds, smaller on longer odds, so every winner pays the same amount.</p><p class="eg">€100 on 2.00 and 4.00 → €66.67 on the 2.00, €33.33 on the 4.00. Either one winning returns <b>€133</b>.</p></dd></div>
+      <div class="term"><dt>Wipe-out week</dt><dd><p>A week where every pick loses. Under the one-winner rule this happens about <b>1 week in 3</b>, however many games you pick.</p></dd></div>
+    </dl>
+  </section>
+
+  <section id="strategies">
+    <div class="head">
+      <h2>The six strategies on the replay page</h2>
+      <p>Each one is a different set of rules for which bets count as value. The numbers are from replaying 2025/26 with €1,000, and from 2026/27 so far. “Beat closing price” is the average CLV with its wobble.</p>
+    </div>
+    <div class="strats">
+      <article class="strat"><h3>Strict value</h3><p>Only bets at least 2% better than fair, odds between 1.5 and 8, priced against a reliable exchange price, best of four bookmakers.</p><div class="nums"><span>2025/26 at €100 a week</span><b>€1,749</b><span>at €20 a week</span><b>€1,150</b><span>Bets in the season</span><b>59</b><span>Beat closing price</span><b>+1.4% ± 0.7%</b><span>2026/27 so far</span><b>+6.1% ± 2.7%</b></div><span class="chip good">▲ best result, small sample</span></article>
+      <article class="strat"><h3>Short odds</h3><p>Copied from the 20,380-bet public record, not from our data: edge 3–12%, odds 1.5 to 4 only. Avoids the long-shot trap.</p><div class="nums"><span>2025/26 at €100 a week</span><b>€1,093</b><span>at €20 a week</span><b>€1,019</b><span>Bets in the season</span><b>21</b><span>Beat closing price</span><b>+2.3% ± 0.8%</b><span>2026/27 so far</span><b>+5.1% ± 3.5%</b></div><span class="chip good">▲ cleanest signal, very few bets</span></article>
+      <article class="strat"><h3>Loose value</h3><p>Like Strict but accepts bets only 1% better than fair. More bets, but most of the extra ones have no real edge.</p><div class="nums"><span>2025/26 at €100 a week</span><b>€821</b><span>at €20 a week</span><b>€964</b><span>Bets in the season</span><b>93</b><span>Beat closing price</span><b>+0.8% ± 0.6%</b><span>2026/27 so far</span><b>+3.1% ± 2.2%</b></div><span class="chip meh">● not proven</span></article>
+      <article class="strat"><h3>One account</h3><p>Only Bet365, like holding a single Lithuanian account. The best price among several books is where most value comes from, so this finds the least.</p><div class="nums"><span>2025/26 at €100 a week</span><b>€530</b><span>at €20 a week</span><b>€906</b><span>Bets in the season</span><b>39</b><span>Beat closing price</span><b>−1.0% ± 1.0%</b><span>2026/27 so far</span><b>+1.3% ± 3.4%</b></div><span class="chip bad">▼ loses</span></article>
+      <article class="strat"><h3>Thin markets allowed</h3><p>Strict, but also trusts exchange prices in small leagues with little money traded. The referee is unreliable there, so much of the “value” is fake.</p><div class="nums"><span>2025/26 at €100 a week</span><b>€690</b><span>at €20 a week</span><b>€938</b><span>Bets in the season</span><b>81</b><span>Beat closing price</span><b>−0.7% ± 0.9%</b><span>2026/27 so far</span><b>+3.9% ± 2.0%</b></div><span class="chip bad">▼ the trap</span></article>
+      <article class="strat"><h3>Fill the slate</h3><p>Takes the best prices each week even with no real edge (0%), as many as the one-winner rule allows. Shows what the staking rule does with nothing behind it.</p><div class="nums"><span>2025/26 at €100 a week</span><b>€635</b><span>at €20 a week</span><b>€927</b><span>Bets in the season</span><b>114</b><span>Beat closing price</span><b>+0.8% ± 0.6%</b><span>2026/27 so far</span><b>+1.6% ± 2.0%</b></div><span class="chip bad">▼ loses</span></article>
+    </div>
+    <p class="callout">Read these with the wobble in mind. Only <strong>Strict</strong> and <strong>Short odds</strong> beat the closing price by more than twice their wobble, and on 59 and 21 bets. That is a hint worth chasing, not proof. Smaller weekly budgets (€20) kept every strategy close to €1,000; bigger budgets made both the wins and the losses bigger.</p>
+  </section>
+
+  <section id="calculator">
+    <div class="head">
+      <h2>Why 7 games and “one winner pays me back” pull against each other</h2>
+      <p>Pick how many games and the typical odds. The week’s budget is €100, split equally. Try the four buttons first.</p>
+    </div>
+    <div class="calc">
+      <div class="presets" id="presets" role="group" aria-label="Examples"></div>
+      <div class="sliders">
+        <div class="slider"><label for="in-n">Games this week <output id="out-n" for="in-n">5</output></label><input id="in-n" type="range" min="1" max="12" step="1" value="5"><span class="hint">One bet per game</span></div>
+        <div class="slider"><label for="in-o">Typical odds <output id="out-o" for="in-o">5.00</output></label><input id="in-o" type="range" min="1.5" max="10" step="0.1" value="5"><span class="hint">Value has only held up below 4</span></div>
+        <div class="slider"><label for="in-e">Edge <output id="out-e" for="in-e">0%</output></label><input id="in-e" type="range" min="0" max="5" step="1" value="0"><span class="hint">0% = fair odds, no advantage</span></div>
+      </div>
+      <div class="outs" id="outs"></div>
+      <p class="verdict-line" id="verdict"></p>
+      <figure>
+        <div class="chart-head"><span class="chart-title">Chance of each number of winners</span><div class="legend"><span><i class="key-up"></i>You get €100 or more back</span><span><i class="key-down"></i>You get less than €100 back</span></div></div>
+        <div id="dist"></div>
+        <div class="tooltip" id="tip" hidden></div>
+      </figure>
+    </div>
+    <p class="callout"><strong>The takeaway.</strong> With the one-winner rule, more games forces longer odds, so you keep losing everything about 1 week in 3, and those long odds are exactly where value fails. Seven or more games only makes sense at <strong>short odds without the one-winner rule</strong>: then a total wipe-out becomes rare (7 games at 2.50: under 3%), but you need about 3 winners to get your money back. Either way, the average result is set by the edge, never by the number of games.</p>
+  </section>
+
+  <section id="more">
+    <div class="head">
+      <h2>How to get more value bets each week</h2>
+      <p>The bottleneck is not the number of games. It is how many bookmakers you can compare prices at. Value bets per week using the Short odds rule, 2025/26:</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Bookmakers you can bet at</th><th class="r">Value bets per week</th></tr></thead>
+        <tbody>
+          <tr><td>1 (Bet365)</td><td class="r">0.2</td></tr>
+          <tr><td>4 (Bet365, bwin, BetVictor, Betfair Sportsbook)</td><td class="r">0.5</td></tr>
+          <tr><td>9 UK bookmakers</td><td class="r">1.5</td></tr>
+          <tr><td>The best price anywhere in the market</td><td class="r">about 3</td></tr>
+          <tr><td>The 20,380-bet public record (prices from 96 bookmakers)</td><td class="r">about 46</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <dl class="terms">
+      <div class="term"><dt>More bookmaker accounts</dt><dd><p>The biggest lever. Lithuania has about seven licensed books (Topsport, Optibet, 7bet, Betsson, OlyBet, Cbet, Twinsbet). Each one you can fund adds prices to compare.</p></dd></div>
+      <div class="term"><dt>Check prices more often</dt><dd><p>Value appears for minutes or hours when one bookmaker is slow to move. A price check once a week (what this data has) catches only a fraction. The system today checks twice a day.</p></dd></div>
+      <div class="term"><dt>More leagues</dt><dd><p>16 more football leagues (Sweden, Norway, Brazil, USA, Japan and others, many in summer) add about 89 games a week but only about 0.6 extra value bets a week at one bookmaker.</p></dd></div>
+      <div class="term"><dt>Other sports</dt><dd><p>Tennis (thousands of matches a month), basketball (NBA, EuroLeague, Lithuanian LKL), ice hockey (NHL, KHL, Swedish and Finnish leagues). Lithuanian bookmakers price basketball heavily. Testing these needs their past odds, which OddsPapi has for 7bet and Betsson.</p></dd></div>
+      <div class="term"><dt>More markets per game</dt><dd><p>Asian handicap and other goal lines sit at odds near 2.00, where value holds up best, and show almost no long-shot trap.</p></dd></div>
+    </dl>
+  </section>
+
+  <section id="next">
+    <div class="head"><h2>Next steps</h2></div>
+    <ol class="steps">
+      <li><span class="who">You · 5 minutes</span><strong>Add the OddsPapi key to the environment.</strong> Save it as <span class="mono">ODDSPAPI_API_KEY</span> under the environment’s settings (don’t paste it in chat). It unlocks 7bet and Betsson prices across football, basketball, tennis and hockey.</li>
+      <li><span class="who">You</span><strong>Tell me which Lithuanian bookmakers you have or can open.</strong> Every extra account multiplies the value bets found.</li>
+      <li><span class="who">You · optional</span><strong>Allow <span class="mono">tennis-data.co.uk</span> in the network settings</strong> if you want tennis tested on free history (thousands of matches a month).</li>
+      <li><span class="who">Me</span><strong>Re-run the whole test on Lithuanian prices and on more sports and markets.</strong> This answers the one question that decides the plan: do 7bet, Betsson and the others leave more value than UK books?</li>
+      <li><span class="who">Me</span><strong>Build the live weekly slate.</strong> Short odds (under 4), edge 3–12%, best price across your accounts, about 2% of the bankroll a week. Every bet records whether it beat the closing price.</li>
+      <li><span class="who">Both · 6–8 weeks</span><strong>Paper-trade first.</strong> Log the slates without money, or with the smallest stakes, until a few hundred bets show they beat the closing price. Only then raise stakes.</li>
+    </ol>
+  </section>
+
+  <footer>Numbers come from the Quest backtest (football-data.co.uk, 22 European leagues, 2025/26 and 2026/27 to 19 Oct 2026) and the research notes in <span class="mono">docs/value-slate/</span>. Week-by-week detail: the <a href="https://claude.ai/artifact/Mn9pnZ8tzUpUHgwCjAp1oP" target="_blank" rel="noopener">Value Slate Replay</a>.</footer>
+</main>
+
+<script>
+(function () {
+  'use strict';
+  var BUDGET = 100;
+  var PRESETS = [
+    { id: 'p55', label: 'Your rule: 5 games at 5.00', n: 5, o: 5 },
+    { id: 'p77', label: '7 games at 7.00', n: 7, o: 7 },
+    { id: 'p725', label: '7 games at 2.50', n: 7, o: 2.5 },
+    { id: 'p102', label: '10 games at 2.00', n: 10, o: 2 },
+  ];
+  var inN = document.getElementById('in-n'), inO = document.getElementById('in-o'), inE = document.getElementById('in-e');
+  var SVGNS = 'http://www.w3.org/2000/svg';
+  function sv(tag, attrs) { var n = document.createElementNS(SVGNS, tag); for (var k in attrs) n.setAttribute(k, attrs[k]); return n; }
+  function el(tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
+  function eur(x) { return '€' + Math.round(x).toLocaleString('en-GB'); }
+  function pct(x) { var v = x * 100; return (v < 1 && v > 0 ? v.toFixed(1) : Math.round(v)) + '%'; }
+  function binom(n, p) {
+    var out = [], q = 1 - p;
+    for (var k = 0; k <= n; k++) {
+      var c = 1; for (var j = 1; j <= k; j++) c = (c * (n - k + j)) / j;
+      out.push(c * Math.pow(p, k) * Math.pow(q, n - k));
+    }
+    return out;
+  }
+  function renderPresets() {
+    var host = document.getElementById('presets'); host.textContent = '';
+    PRESETS.forEach(function (p) {
+      var b = el('button', null, p.label);
+      b.type = 'button';
+      b.setAttribute('aria-pressed', String(Number(inN.value) === p.n && Math.abs(Number(inO.value) - p.o) < 1e-9));
+      b.addEventListener('click', function () { inN.value = p.n; inO.value = p.o; update(); });
+      host.appendChild(b);
+    });
+  }
+  function update() {
+    var n = Number(inN.value), o = Number(inO.value), edge = Number(inE.value) / 100;
+    document.getElementById('out-n').textContent = String(n);
+    document.getElementById('out-o').textContent = o.toFixed(2);
+    document.getElementById('out-e').textContent = (edge * 100).toFixed(0) + '%';
+    renderPresets();
+    var p = Math.min(0.99, (1 + edge) / o);
+    var stake = BUDGET / n, oneWin = stake * o;
+    var probs = binom(n, p);
+    var need = Math.ceil(n / o - 1e-9);
+    var back = 0; for (var k = need; k <= n; k++) back += probs[k];
+    var outs = document.getElementById('outs'); outs.textContent = '';
+    function out(k, v, s) { var d = el('div', 'out'); d.appendChild(el('span', 'k', k)); d.appendChild(el('span', 'v', v)); if (s) d.appendChild(el('span', 's', s)); outs.appendChild(d); }
+    out('Stake on each game', '€' + stake.toFixed(2), n + ' × €' + stake.toFixed(2) + ' = €100');
+    out('One winner pays back', eur(oneWin), oneWin >= BUDGET - 0.005 ? 'covers the week' : 'does not cover the week');
+    out('Chance every bet loses', pct(probs[0]), 'you lose the full €100');
+    out('Winners needed for €100 back', String(need), 'out of ' + n);
+    out('Chance of €100 or more back', pct(back), 'in a single week');
+    out('Average week, over many weeks', eur(BUDGET * (1 + edge)), edge > 0 ? 'set by the edge alone' : 'no edge, no profit on average');
+    var v = document.getElementById('verdict'); v.textContent = '';
+    var lead = el('strong', null, oneWin >= BUDGET - 0.005 ? 'One winner covers the week. ' : 'One winner does not cover the week. ');
+    v.appendChild(lead);
+    v.appendChild(document.createTextNode(
+      o >= 4 ? 'These odds are in the long-shot zone, where flagged value has historically disappeared. Expect to lose everything in about ' + pct(probs[0]) + ' of weeks.'
+             : 'These are short odds, where value has held up. A full wipe-out happens in ' + pct(probs[0]) + ' of weeks, but you need ' + need + ' winners to get your money back.'));
+    renderChart(probs, n, o, stake, need);
+  }
+  function renderChart(probs, n, o, stake, need) {
+    var host = document.getElementById('dist'); host.textContent = '';
+    var width = Math.max(280, host.clientWidth || 700), height = 210;
+    var m = { t: 12, r: 12, b: 34, l: 44 }, iw = width - m.l - m.r, ih = height - m.t - m.b;
+    var maxP = Math.max.apply(null, probs), top = Math.ceil(maxP * 10) / 10 || 0.1;
+    var band = iw / (n + 1), bw = Math.max(4, Math.min(24, band - 4));
+    var x = function (k) { return m.l + band * k + band / 2; };
+    var y = function (v) { return m.t + ih - (v / top) * ih; };
+    var svg = sv('svg', { viewBox: '0 0 ' + width + ' ' + height, width: '100%', role: 'img', 'aria-label': 'Chance of each number of winners' });
+    for (var g = 0; g <= top + 1e-9; g += top <= 0.3 ? 0.1 : 0.2) {
+      svg.appendChild(sv('line', { x1: m.l, x2: m.l + iw, y1: y(g), y2: y(g), stroke: g === 0 ? 'var(--axis)' : 'var(--grid)', 'stroke-width': 1 }));
+      var t = sv('text', { x: m.l - 6, y: y(g) + 4, 'text-anchor': 'end' }); t.textContent = Math.round(g * 100) + '%'; svg.appendChild(t);
+    }
+    var tip = document.getElementById('tip');
+    probs.forEach(function (pk, k) {
+      var h = (pk / top) * ih, r = Math.min(4, h, bw / 2), x0 = x(k) - bw / 2, y1 = y(pk), y0 = y(0);
+      if (h > 0.5) {
+        var d = 'M' + x0 + ' ' + y0 + 'V' + (y1 + r) + 'Q' + x0 + ' ' + y1 + ' ' + (x0 + r) + ' ' + y1 + 'H' + (x0 + bw - r) + 'Q' + (x0 + bw) + ' ' + y1 + ' ' + (x0 + bw) + ' ' + (y1 + r) + 'V' + y0 + 'Z';
+        svg.appendChild(sv('path', { d: d, fill: k >= need ? 'var(--series)' : 'var(--loss)' }));
+      }
+      var lab = sv('text', { x: x(k), y: height - 14, 'text-anchor': 'middle' }); lab.textContent = String(k); svg.appendChild(lab);
+      var hit = sv('rect', { x: m.l + band * k, y: m.t, width: band, height: ih, fill: 'transparent' });
+      hit.addEventListener('pointerenter', function () {
+        tip.textContent = '';
+        tip.appendChild(el('b', null, pct(pk)));
+        tip.appendChild(el('span', null, k + (k === 1 ? ' winner' : ' winners') + ' → ' + eur(stake * o * k) + ' back'));
+        tip.hidden = false;
+        var fig = host.parentNode, fr = fig.getBoundingClientRect(), hr = host.getBoundingClientRect(), sc = hr.width / width;
+        var left = hr.left - fr.left + x(k) * sc + 10;
+        if (left + tip.offsetWidth > fr.width - 8) left = hr.left - fr.left + x(k) * sc - tip.offsetWidth - 10;
+        tip.style.left = Math.max(4, left) + 'px'; tip.style.top = (hr.top - fr.top) + 'px';
+      });
+      hit.addEventListener('pointerleave', function () { tip.hidden = true; });
+      svg.appendChild(hit);
+    });
+    var xl = sv('text', { x: m.l + iw / 2, y: height - 1, 'text-anchor': 'middle' }); xl.textContent = 'Number of winners'; svg.appendChild(xl);
+    host.appendChild(svg);
+  }
+  [inN, inO, inE].forEach(function (i) { i.addEventListener('input', update); });
+  update();
+  if (typeof ResizeObserver !== 'undefined') {
+    var lastW = 0;
+    new ResizeObserver(function (en) { var w = Math.round(en[0].contentRect.width); if (Math.abs(w - lastW) > 4) { lastW = w; update(); } }).observe(document.getElementById('dist'));
+  }
+})();
+</script>

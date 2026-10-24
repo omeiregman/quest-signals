@@ -20,7 +20,8 @@ match) staked so any ONE winner returns the week's capital; backtest on real rec
   census / sweep / margins / report CLIs:
   `pnpm --filter @quest/backtest download | census | sweep | margins | report`.
 - `docs/value-slate/report.html` — the interactive **Value Slate Replay** page (also published
-  as a claude.ai artifact). `docs/value-slate/FINDINGS.md` — every finding with numbers.
+  as a claude.ai artifact). `docs/value-slate/guide.html` — plain-language **Value Slate Guide**
+  (glossary, strategies, calculator; artifact RqFF7KXzQWmQVZQiDRw2WG). `docs/value-slate/FINDINGS.md` — every finding with numbers.
   `docs/value-slate/research.md` — literature review.
 
 **Verdict so far:** the staking rule works as designed, but against a liquid Betfair Exchange
