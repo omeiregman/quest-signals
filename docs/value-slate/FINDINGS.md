@@ -83,6 +83,20 @@ sample sizes, then check out-of-sample.
 - Soft books in both seasons: **B365, BW, BV, BFD** → our stand-ins for an LT book. No Lithuanian
   book is in this data; LT validation needs OddsPapi historical (7bet.lt + betsson + pinnacle).
 
+**D3 — How sharp is each reference, by league? (median 1X2 overround, pre-match)**
+
+| league group | BFE (exchange) | PS (Pinnacle, 25/26) | B365 | BW |
+|---|---|---|---|---|
+| Top 5 (E0, D1, I1, SP1, F1) | **0.7–1.1%** | 3.4–3.5% | 5.4–5.5% | 5.8–5.9% |
+| 2nd tiers / mid leagues (E1, D2, I2, SP2, F2, N1, B1, P1, T1) | 1–3.7% | 4.3–5.3% | 5.6–11% | 5.8–10% |
+| Lower (E2, E3, SC0) | 1.9–3.2% | 5.3–6.3% | 7.6–8.8% | 7.3–7.6% |
+| Thin (EC, SC1, SC2, SC3, G1) | **4.7–10.2%**, p90 up to 42% | 5.8–8.5% | 7.7–11.5% | 7.1–12.3% |
+
+- Exchange back prices are near-fair where liquid, but in thin leagues they are wide and stale:
+  a BFE "true probability" there is unreliable. The sweep tests a reference-overround cap of
+  **3% (liquid only) vs 8%**. Soft-book margins are also higher in lower leagues (B365 ~8–11%).
+- O/U 2.5: BFE median 0.8–1.9% in top leagues; B365 O/U margin ≈ 5.3–6.2% everywhere.
+
 **D2 — LT-specific history.** OddsPapi advertises `/v4/historical-odds` on the free tier (3 books
 per call — exactly 7bet.lt + betsson + pinnacle; 250 req/mo ⇒ ~200 matches/month). Unverified
 until we have `ODDSPAPI_API_KEY` in the environment. Note: OddsPapi's betsson feed has been

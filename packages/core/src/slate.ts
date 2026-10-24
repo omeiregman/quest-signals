@@ -109,8 +109,9 @@ export function buildSlate<T extends SlateCandidate>(candidates: T[], rules: Sla
   const odds: number[] = [];
   for (const { c } of ranked) {
     if (picks.length >= rules.maxPicks) break;
+    const coverage = slateCoverage([...odds, c.odds], rules.staking);
     // Skip, don't stop: a lower-ranked, longer-priced pick may still fit under the cap.
-    if (slateCoverage([...odds, c.odds], rules.staking) > rules.maxCoverage + COVERAGE_EPS) continue;
+    if (coverage > rules.maxCoverage + COVERAGE_EPS) continue;
     picks.push(c);
     odds.push(c.odds);
   }

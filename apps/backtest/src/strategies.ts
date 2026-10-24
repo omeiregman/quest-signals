@@ -5,13 +5,15 @@ import type { MarketKey } from './types';
 /** Soft books present in both 2025/26 and 2026/27 football-data files: stand-ins for LT books. */
 export const SOFT_BOOKS = ['B365', 'BW', 'BV', 'BFD'] as const;
 
+/** One account (B365 or BW stand in for an LT book) vs holding all four. */
 export const BOOK_SETS: Record<string, string[]> = {
   B365: ['B365'],
   BW: ['BW'],
-  BV: ['BV'],
-  BFD: ['BFD'],
   all4: [...SOFT_BOOKS],
 };
+
+/** Max reference overround: 3% keeps only liquid markets (FINDINGS D3); 8% lets thin ones in. */
+export const REF_OVERROUND_CAPS = [0.03, 0.08] as const;
 
 export const MARKET_SETS: Record<string, MarketKey[]> = {
   '1x2': ['1x2'],
@@ -30,10 +32,11 @@ export function candidateGrid(references: string[]): CandidateVariant[] {
     for (const devig of DEVIG_METHODS)
       for (const [booksKey, books] of Object.entries(BOOK_SETS))
         for (const [marketsKey, markets] of Object.entries(MARKET_SETS))
-          out.push({
-            key: `${reference}/${devig}/${booksKey}/${marketsKey}`,
-            cfg: { reference, devig, books, markets },
-          });
+          for (const cap of REF_OVERROUND_CAPS)
+            out.push({
+              key: `${reference}/${devig}/${booksKey}/${marketsKey}/r${cap}`,
+              cfg: { reference, devig, books, markets, referenceOverround: [-0.03, cap] },
+            });
   return out;
 }
 
