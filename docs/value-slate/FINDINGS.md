@@ -382,6 +382,16 @@ win chance at a true edge of 3.3% (measured CLV), stake a fixed % of the current
   user places them by hand. Unlicensed foreign books are blocked by LT's 2025 payment law — not
   pursued.
 
+**R10 — Ceiling by hit rate, last full Pinnacle season 2024/25 (2026-10-24).** Pinnacle short odds,
+12 books: 164 bets, average odds 3.12, actual hit rate 33.5%, break-even ≈ 32%.
+€1,000 start, flat €10/bet profit (vs compounding 1% of bankroll per bet, end bankroll):
+100% won +€3,471 (€30,929) · 90% +€2,960 (€18,830) · 80% +€2,449 (€11,117) · 60% +€1,426
+(€4,001) · 50% +€915 (€2,438) · 40% +€404 (€1,487) · **actual −€7 (€976)**. €2,000 doubles every
+figure. At odds ~3 the bets are meant to win ~1 in 3; the edge lives between 32% and ~35%.
+User floated betting via non-LT payment routes / Nigerian identity while living in LT: noted that
+gambling rules and bookmaker KYC follow residence; not pursued, and it wouldn't fix soft-book
+limits anyway (sharp books that take big stakes are the reference this method can't beat).
+
 **Published page:** https://claude.ai/artifact/Mn9pnZ8tzUpUHgwCjAp1oP (private to the user;
 source `docs/value-slate/report.html`, regenerate with `pnpm --filter @quest/backtest report`
 then republish).
