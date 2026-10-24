@@ -7,11 +7,12 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { overround } from '@quest/core';
-import { buildCandidates } from '../candidates';
+import { bestPerEvent, flatByOddsBand, flatStats } from '../analysis';
+import { buildCandidates, type BacktestCandidate, type CandidateConfig } from '../candidates';
 import { CENSUS_SETUPS, censusBands, runCensus } from '../census';
 import { LEAGUE_NAMES } from '../download';
 import { loadMatches } from '../load';
-import { PRESETS } from '../presets';
+import { ALL_SOFT_BOOKS, PINNACLE_SEASONS, PRESETS } from '../presets';
 import { roundStarts, runRounds, strategyMetrics } from '../simulate';
 import type { HistoricalMatch, MarketKey } from '../types';
 
@@ -23,10 +24,29 @@ const args = process.argv.slice(2);
 const outIdx = args.indexOf('--out');
 const outFile = outIdx >= 0 && args[outIdx + 1] ? args[outIdx + 1]! : DEFAULT_OUT;
 
+const PIN_ROLE = 'Pinnacle-era history: the short-odds rule was not tuned on it';
 const SEASONS = [
-  { id: '2526', label: '2025/26', role: 'Full season, used to design the rules' },
+  { id: '1920', label: '2019/20', role: `${PIN_ROLE} (spring 2020 paused by COVID)` },
+  { id: '2021', label: '2020/21', role: PIN_ROLE },
+  { id: '2122', label: '2021/22', role: PIN_ROLE },
+  { id: '2223', label: '2022/23', role: PIN_ROLE },
+  { id: '2324', label: '2023/24', role: PIN_ROLE },
+  {
+    id: '2425',
+    label: '2024/25',
+    role: 'Last season with both Pinnacle and Betfair Exchange prices',
+  },
+  { id: '2526', label: '2025/26', role: 'Full season, used to design the exchange strategies' },
   { id: '2627', label: '2026/27', role: 'Season so far, a check on rules set from 2025/26' },
 ];
+
+/** The six-season Pinnacle check behind the "Six seasons with Pinnacle" section. */
+const HISTORY_SETUPS = [
+  { key: 'all', label: 'Best of all UK/EU bookmakers', books: ALL_SOFT_BOOKS },
+  { key: 'b365', label: 'Bet365 only', books: ['B365'] },
+];
+const isShortOdds = (c: BacktestCandidate) =>
+  c.edge >= 0.03 && c.edge <= 0.12 && c.odds >= 1.5 && c.odds <= 4;
 
 const LEAGUE_GROUPS: { label: string; leagues: string[] }[] = [
   { label: 'Top five leagues', leagues: ['E0', 'D1', 'I1', 'SP1', 'F1'] },
@@ -77,7 +97,7 @@ async function main() {
   const runs: Record<string, Record<string, unknown>> = {};
   for (const preset of PRESETS) {
     runs[preset.id] = {};
-    for (const s of SEASONS) {
+    for (const s of SEASONS.filter((x) => preset.seasons.includes(x.id))) {
       const ms = bySeason.get(s.id)!;
       const rounds = runRounds(
         buildCandidates(ms, preset.candidates),
@@ -110,7 +130,59 @@ async function main() {
     }
   }
 
-  const census = SEASONS.map((s) => {
+  const pinMatches = PINNACLE_SEASONS.flatMap((id) => bySeason.get(id)!);
+  const pinCfg = (books: string[], clvReference?: string): CandidateConfig => ({
+    reference: 'PS',
+    devig: 'power',
+    books,
+    markets: ['1x2', 'ou25'],
+    referenceOverround: [-0.03, 0.08],
+    ...(clvReference ? { clvReference } : {}),
+  });
+  const history = HISTORY_SETUPS.map((h) => {
+    const bets = bestPerEvent(buildCandidates(pinMatches, pinCfg(h.books)).filter(isShortOdds));
+    const perSeason = PINNACLE_SEASONS.map((id) => {
+      const weeks = roundStarts(bySeason.get(id)!.map((m) => m.date)).length;
+      const st = flatStats(
+        id,
+        bets.filter((b) => b.season === id),
+      );
+      return { ...st, season: id, perWeek: st.bets / weeks };
+    });
+    const weeks = roundStarts(pinMatches.map((m) => m.date)).length;
+    const pooled = flatStats('all', bets);
+    return {
+      key: h.key,
+      label: h.label,
+      perSeason,
+      pooled: { ...pooled, perWeek: pooled.bets / weeks },
+    };
+  });
+  const allBets = bestPerEvent(
+    buildCandidates(pinMatches, pinCfg(ALL_SOFT_BOOKS)).filter(isShortOdds),
+  );
+  const m2425 = bySeason.get('2425')!;
+  const historyChecks = {
+    bfeGraded2425: flatStats(
+      'BFE',
+      bestPerEvent(buildCandidates(m2425, pinCfg(ALL_SOFT_BOOKS, 'BFE')).filter(isShortOdds)),
+    ),
+    groups: LEAGUE_GROUPS.map((g) => ({
+      ...flatStats(
+        g.label,
+        allBets.filter((b) => g.leagues.includes(b.league)),
+      ),
+    })),
+    oddsBands: flatByOddsBand(
+      bestPerEvent(
+        buildCandidates(pinMatches, pinCfg(ALL_SOFT_BOOKS)).filter(
+          (c) => c.edge >= 0.03 && c.edge <= 0.12,
+        ),
+      ),
+    ),
+  };
+
+  const census = SEASONS.filter((s) => ['2526', '2627'].includes(s.id)).map((s) => {
     const ms = bySeason.get(s.id)!;
     const weeks = roundStarts(ms.map((m) => m.date)).length;
     return {
@@ -139,6 +211,8 @@ async function main() {
     presets: PRESETS,
     censusSetups: CENSUS_SETUPS.map(({ key, label }) => ({ key, label })),
     runs,
+    history,
+    historyChecks,
     census,
     margins,
     leagues: LEAGUE_NAMES,
@@ -153,7 +227,7 @@ async function main() {
   writeFileSync(outFile, html);
   console.log(`wrote ${outFile} (${(html.length / 1024).toFixed(0)} KB)`);
   for (const p of PRESETS)
-    for (const s of SEASONS) {
+    for (const s of SEASONS.filter((x) => p.seasons.includes(x.id))) {
       const m = (runs[p.id]![s.id] as { metrics: ReturnType<typeof strategyMetrics> }).metrics;
       console.log(
         `${p.id.padEnd(10)} ${s.id} weeks ${m.roundsPlayed}/${m.rounds} picks ${m.picks} (${m.avgPicks.toFixed(1)}/wk) odds ${m.avgOdds.toFixed(2)} hit ${(m.pickHitRate * 100).toFixed(0)}% ROI ${(m.roi * 100).toFixed(1)}% ±${(m.roiSe * 100).toFixed(1)} exp ${(m.expectedRoi * 100).toFixed(1)}% CLV ${m.avgClv === null ? 'n/a' : (m.avgClv * 100).toFixed(2) + '%'} wipe ${((1 - m.roundsWithWinner) * 100).toFixed(0)}% covered ${(m.roundsCovered * 100).toFixed(0)}%`,

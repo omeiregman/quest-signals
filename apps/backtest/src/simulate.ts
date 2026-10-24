@@ -88,7 +88,22 @@ export function runRounds(
 
 export type BudgetPolicy =
   | { kind: 'fixed'; amount: number } // stake this much per week (or whatever is left)
-  | { kind: 'fraction'; fraction: number }; // stake this share of the current bankroll
+  | { kind: 'fraction'; fraction: number } // stake this share of the current bankroll
+  | { kind: 'perPick'; amount: number } // this much per bet: the week's budget grows with its picks
+  | { kind: 'perPickFraction'; fraction: number }; // this share of the bankroll per bet
+
+function weekBudget(policy: BudgetPolicy, bankroll: number, picks: number): number {
+  switch (policy.kind) {
+    case 'fixed':
+      return policy.amount;
+    case 'fraction':
+      return bankroll * policy.fraction;
+    case 'perPick':
+      return policy.amount * picks;
+    case 'perPickFraction':
+      return bankroll * policy.fraction * picks;
+  }
+}
 
 export interface BankrollWeek {
   start: string;
@@ -124,7 +139,7 @@ export function simulateBankroll(
 
   for (const r of rounds) {
     const before = bankroll;
-    const wanted = policy.kind === 'fixed' ? policy.amount : before * policy.fraction;
+    const wanted = weekBudget(policy, before, r.picks.length);
     const staked = r.picks.length > 0 && before >= minStake ? Math.min(wanted, before) : 0;
     if (r.picks.length > 0 && before < minStake) busted = true;
     const returned = staked * r.multiple;

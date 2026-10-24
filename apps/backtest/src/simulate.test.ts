@@ -133,6 +133,19 @@ describe('simulateBankroll', () => {
     expect(path.final).toBeCloseTo(990, 10);
   });
 
+  it('per-pick budgets scale the week with its number of picks', () => {
+    const three = [
+      round('2025-08-11', 0, 0, 3), // 3 picks, all lose
+      round('2025-08-18', 2, 2, 1), // 1 pick, doubles
+    ];
+    const flat = simulateBankroll(three, 1000, { kind: 'perPick', amount: 10 });
+    expect(flat.weeks.map((w) => w.staked)).toEqual([30, 10]);
+    expect(flat.final).toBe(980);
+    const frac = simulateBankroll(three, 1000, { kind: 'perPickFraction', fraction: 0.01 });
+    expect(frac.weeks[0]!.staked).toBeCloseTo(30, 10);
+    expect(frac.weeks[1]!.staked).toBeCloseTo(9.7, 10);
+  });
+
   it('never stakes more than is left, and flags a bust', () => {
     const losing = [
       round('2025-08-11', 0, 0),

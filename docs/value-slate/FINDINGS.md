@@ -266,6 +266,57 @@ Short-odds rule (1X2, edge 3–12%, odds ≤ 4, BFE ≤3% overround, power de-vi
   .co.uk (host currently blocked by the environment network policy) or OddsPapi historical (all
   sports, includes 7bet.lt + betsson + pinnacle; needs `ODDSPAPI_API_KEY`).
 
+**R7 — Six seasons with Pinnacle as referee: the short-odds rule holds (2026-10-24, `pnpm … history`).**
+Data: 2019/20–2024/25, 22 leagues, **45,684 matches**, Pinnacle pre-match + closing on ~99–100% of
+matches (from Pinnacle's live API, before it closed in Jul 2025). Rule fixed in advance from
+Buchdahl's record: power de-vig of Pinnacle (skip if Pinnacle overround > 8%), bet odds 1.5–4 that
+a soft book prices 3–12% above fair, best book per match, one bet per match, 1X2 + O/U 2.5. Graded
+on Pinnacle closing.
+
+| setup | bets | per week | ROI per bet ± SE | CLV ± SE | seasons with CLV > 0 |
+|---|---|---|---|---|---|
+| best of 12 UK/EU books (B365, BW, IW, WH, VC, BV, BFD, BMGM, CL, LB, PP, SKB) | **1,619** | **6.0** | **+6.4% ± 3.5%** | **+3.32% ± 0.24%** | 6/6 (1.45% … 4.42%) |
+| Bet365 only | 826 | 3.0 | +8.4% ± 5.3% | +2.34% ± 0.33% | 6/6 (0.77% … 4.22%) |
+
+Per season (12 books): 19/20 CLV +4.42% (327 bets), 20/21 +1.45% (317), 21/22 +4.02% (383),
+22/23 +3.24% (224), 23/24 +3.32% (204), 24/25 +3.22% (164). ROI per season +5.2, +4.3, +16.6,
++11.0, −7.4, −0.4% (each ± 7–11%). Volume falls from ~8/wk (2020–22) to ~4/wk (2023–25).
+
+Robustness (12 books unless noted):
+- **Independent referee:** 2024/25 graded on *Betfair Exchange* closing instead: CLV **+2.54% ± 0.66%**
+  (vs +3.22% on Pinnacle closing). Not an artifact of Pinnacle's own data.
+- League groups: top 5 +2.80%, 2nd tiers/mid +2.88%, E2/E3/SC0 +3.05%, thin (EC/SC1–3/G1) +4.14%.
+- Markets: 1X2 +3.34% (1,533 bets), O/U 2.5 +3.04% (86). Selections: Home +4.67%, Draw +1.96%,
+  Away +4.10%, Over +2.20%, Under +3.73%.
+- By the book that had the best price: B365 +2.31% (798), WH +5.27% (410), IW +3.97%, VC +1.03%,
+  BW +5.04%. All positive.
+- Edge bands (odds 1.5–4): 1–2% → CLV +0.78%, 2–3% +1.19%, 3–5% +2.17%, 5–8% +4.36%, 8–12% +8.26%,
+  12–30% +11.2% (likely stale/error prices). Stricter **5–12%**: 615 bets (2.3/wk), CLV +5.28% ±
+  0.47%, ROI +15.4% ± 5.9% — chosen after seeing this table, so treat as a hypothesis.
+- Odds bands (edge 3–12%, any odds): CLV positive up to ~15 (+1.4% at 8–15) but ROI far noisier;
+  unlike Buchdahl's record, long odds don't turn CLV negative here. Odds cap 4 kept (his evidence).
+
+Weekly slates, €1,000 start, all six seasons in a row (272 weeks):
+- **Flat, every qualifying bet (≤15/wk), 12 books:** 6.2 picks per week played, ≥5 picks in 152
+  weeks, ≥7 in 105; 17% of weeks lost every bet. **€10 per bet → €1,832** (staked €15,810, +5.3%,
+  low €945, worst drop 20%); €5/bet → €1,416; 1% of bankroll per bet → €2,019 (worst drop 22%).
+  Fixed weekly budgets weight thin weeks too heavily: €20/wk → €1,059, €100/wk → €1,297.
+- **Flat, Bet365 only:** €10/bet → €1,705 (staked €8,250, +8.5%); 1%/bet → €1,839.
+- **One-winner rule, 12 books:** 2.3 picks/wk, CLV +4.5%, 35% of weeks lost every bet; €100/wk →
+  €1,652 (worst drop 45%).
+
+What this says:
+1. **The rule works on history when the referee covers every league.** Pinnacle prices every match
+   reliably; Betfair Exchange (≤3% overround) doesn't — that alone explains ~15× more bets for Bet365
+   (3.0/wk vs 0.2/wk). The 2025/26–2026/27 exchange results were a referee problem, not a rule problem.
+2. **Per-bet flat staking** (same € on every bet) fits this rule better than a weekly budget.
+3. **Caveats:** the rule comes from Buchdahl's record over the same years (a re-check with different
+   books and code, not a blind test); football-data prices may not all have been bettable at the
+   quoted stake; soft books limit winners; LT books untested; Pinnacle's free API is gone, so live
+   use needs a Pinnacle feed (OddsPapi lists `pinnacle`) or another sharp reference.
+4. **Tennis:** tennis-data.co.uk refuses automated downloads (site-side 403). Not worked around;
+   needs the user to download the files manually, or OddsPapi.
+
 **Published page:** https://claude.ai/artifact/Mn9pnZ8tzUpUHgwCjAp1oP (private to the user;
 source `docs/value-slate/report.html`, regenerate with `pnpm --filter @quest/backtest report`
 then republish).

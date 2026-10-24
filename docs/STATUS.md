@@ -24,7 +24,14 @@ match) staked so any ONE winner returns the week's capital; backtest on real rec
   (glossary, strategies, calculator; artifact RqFF7KXzQWmQVZQiDRw2WG). `docs/value-slate/FINDINGS.md` — every finding with numbers.
   `docs/value-slate/research.md` — literature review.
 
-**Verdict so far:** the staking rule works as designed, but against a liquid Betfair Exchange
+**UPDATE 2026-10-24 (later): six-season Pinnacle test (FINDINGS R7).** Short-odds rule (odds 1.5–4,
+edge 3–12% vs de-vigged Pinnacle, best of soft books, one bet per match) over 2019/20–2024/25
+(45,684 matches): 1,619 bets (~6/wk), CLV +3.3% ± 0.24%, positive every season, ROI +6.4% ± 3.5%;
+Bet365 alone 826 bets (~3/wk), CLV +2.3%. €10/bet from €1,000 → €1,832 over six seasons. The
+strategy to build live is "Pinnacle short odds" with per-bet flat stakes; it needs a live Pinnacle
+feed (OddsPapi) and LT prices.
+
+**Verdict before the six-season test:** the staking rule works as designed, but against a liquid Betfair Exchange
 price the big UK books offer only ~1–2 real value bets (edge ≥2%) per week across 22 leagues
 (~0.4 with one account) and no edge is proven overall (CLV ≈ 0). One hopeful sign: the "Strict"
 strategy (edge ≥2%, odds ≤8, liquid ref, best of 4 books) shows CLV +1.45% ± 0.69% (25/26) and

@@ -8,6 +8,7 @@
     "margins": "tsx src/cli/margins.ts",
     "sweep": "tsx src/cli/sweep.ts",
     "census": "tsx src/cli/census.ts",
+    "history": "tsx src/cli/history.ts",
     "report": "tsx src/cli/report.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"

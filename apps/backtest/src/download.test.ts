@@ -2,7 +2,13 @@ import { mkdtemp, readFile, readdir, rm, writeFile, mkdir } from 'node:fs/promis
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { FOOTBALL_DATA_BASE, LEAGUE_NAMES, MAIN_LEAGUES, loadSeasonCsv } from './download';
+import {
+  FOOTBALL_DATA_BASE,
+  LEAGUE_NAMES,
+  MAIN_LEAGUES,
+  decodeCsvBytes,
+  loadSeasonCsv,
+} from './download';
 
 const CSV = '﻿Div,Date,Time,HomeTeam,AwayTeam,FTHG,FTAG\r\nE0,15/08/2025,20:00,A,B,1,0\r\n';
 
@@ -111,5 +117,20 @@ describe('LEAGUE_NAMES', () => {
     expect(LEAGUE_NAMES.E0).toBe('Premier League');
     expect(LEAGUE_NAMES.SP2).toBe('Segunda División');
     expect(LEAGUE_NAMES.T1).toBe('Süper Lig');
+  });
+});
+
+describe('decodeCsvBytes', () => {
+  it('keeps UTF-8 as is and falls back to Windows-1252 instead of inserting U+FFFD', () => {
+    const utf8 = new TextEncoder().encode('Div,HomeTeam\nEC,Bayern München\n');
+    expect(decodeCsvBytes(utf8)).toContain('München');
+    const cp1252 = Uint8Array.from([
+      ...new TextEncoder().encode('EC,King'),
+      0x92,
+      ...new TextEncoder().encode('s Lynn'),
+    ]);
+    const text = decodeCsvBytes(cp1252);
+    expect(text).toBe('EC,King\u2019s Lynn');
+    expect(text).not.toContain('\ufffd');
   });
 });

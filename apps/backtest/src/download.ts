@@ -59,6 +59,59 @@ const LEAGUE_RE = /^[A-Z0-9]{1,4}$/; // football-data division codes (also keeps
 const SEASON_RE = /^\d{4}$/; // '2526' = 2025/26
 const FETCH_TIMEOUT_MS = 60_000;
 
+/**
+ * football-data CSVs are UTF-8, but a few older files carry Windows-1252 bytes (e.g. the 0x92
+ * apostrophe in "King’s Lynn"). Decode strictly as UTF-8 and fall back to Windows-1252, so no
+ * character is silently replaced with U+FFFD.
+ */
+export function decodeCsvBytes(bytes: Uint8Array): string {
+  try {
+    return new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+  } catch {
+    // Node's 'windows-1252' decoder behaves like Latin-1 for 0x80–0x9F, so map that block by hand.
+    let out = '';
+    for (const b of bytes)
+      out += b >= 0x80 && b <= 0x9f ? (CP1252_HIGH[b - 0x80] ?? '') : String.fromCharCode(b);
+    return out;
+  }
+}
+
+/** Windows-1252 characters for bytes 0x80–0x9F (unassigned bytes keep their Latin-1 code point). */
+const CP1252_HIGH = [
+  '\u20ac',
+  '\u0081',
+  '\u201a',
+  '\u0192',
+  '\u201e',
+  '\u2026',
+  '\u2020',
+  '\u2021',
+  '\u02c6',
+  '\u2030',
+  '\u0160',
+  '\u2039',
+  '\u0152',
+  '\u008d',
+  '\u017d',
+  '\u008f',
+  '\u0090',
+  '\u2018',
+  '\u2019',
+  '\u201c',
+  '\u201d',
+  '\u2022',
+  '\u2013',
+  '\u2014',
+  '\u02dc',
+  '\u2122',
+  '\u0161',
+  '\u203a',
+  '\u0153',
+  '\u009d',
+  '\u017e',
+  '\u0178',
+];
+
 function isNotFound(err: unknown): boolean {
   return (err as { code?: unknown } | null)?.code === 'ENOENT';
 }
@@ -95,7 +148,7 @@ export async function loadSeasonCsv(
   if (!res.ok) {
     throw new Error(`football-data ${league} ${season}: HTTP ${res.status} fetching ${url}`);
   }
-  const text = await res.text();
+  const text = decodeCsvBytes(new Uint8Array(await res.arrayBuffer()));
   if (!text.replace(/^﻿/, '').startsWith('Div,')) {
     throw new Error(
       `football-data ${league} ${season}: ${url} is not a football-data CSV ` +

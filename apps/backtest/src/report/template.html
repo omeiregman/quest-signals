@@ -505,6 +505,20 @@
   details.week[open] > .wk-row {
     border-bottom: 1px solid var(--rule);
   }
+  details.season-group {
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+  }
+  details.season-group[open] > .wk-row {
+    border-bottom: 1px solid var(--rule);
+  }
+  details.season-group > .weeks {
+    padding: 12px;
+  }
+  details.season-group > .wk-row .wk-date {
+    font-size: 1.08rem;
+  }
   .wk-date {
     font-weight: 600;
   }
@@ -638,6 +652,10 @@
           <div class="seg" id="ctl-budget" role="group" aria-labelledby="lbl-budget"></div>
         </div>
         <div class="control">
+          <span class="label" id="lbl-perbet">Or the same stake on every bet</span>
+          <div class="seg" id="ctl-perbet" role="group" aria-labelledby="lbl-perbet"></div>
+        </div>
+        <div class="control">
           <label class="label" for="ctl-start">Starting bankroll</label
           ><span class="field"
             ><span>€</span
@@ -694,6 +712,31 @@
     <div class="weeks" id="weeks"></div>
   </section>
 
+  <section id="history" aria-labelledby="hist-h">
+    <div class="section-head">
+      <h2 id="hist-h">Six seasons with Pinnacle</h2>
+      <p class="prose" id="hist-intro"></p>
+    </div>
+    <div class="table-wrap"><table id="hist-all"></table></div>
+    <div class="table-wrap"><table id="hist-b365"></table></div>
+    <div class="two-col">
+      <div class="section-head">
+        <h3>Checks</h3>
+        <ul class="plain" id="hist-checks"></ul>
+      </div>
+      <div class="table-wrap"><table id="hist-groups"></table></div>
+    </div>
+    <div class="section-head">
+      <h3>The same edge band at every price</h3>
+      <p class="prose">
+        Bets 3–12% above Pinnacle’s fair price, best of all bookmakers, split by odds. Closing-line
+        value stays positive up to odds of about 15 here, but profit gets far noisier above 4 and
+        the published record lost money there, so the strategy stops at 4.
+      </p>
+    </div>
+    <div class="table-wrap"><table id="hist-bands"></table></div>
+  </section>
+
   <section id="rule" aria-labelledby="rule-h">
     <div class="section-head"><h2 id="rule-h">How the one-winner rule works</h2></div>
     <div class="two-col">
@@ -724,9 +767,11 @@
     <div class="section-head">
       <h2 id="value-h">Is there value to find?</h2>
       <p class="prose">
-        Before any staking plan, the question is whether flagged “value” bets are real. Here every
-        flagged bet is a flat €1 single (one per match). Profit is noisy; closing-line value settles
-        faster. A real edge shows up as CLV clearly above zero, more than two standard errors.
+        Pinnacle’s prices fade out of the data from late 2025, so for the two newest seasons the
+        referee is Betfair Exchange, which is only reliable in liquid markets. The question is
+        whether flagged “value” bets are real. Here every flagged bet is a flat €1 single (one per
+        match). Profit is noisy; closing-line value settles faster. A real edge shows up as CLV
+        clearly above zero, more than two standard errors.
       </p>
     </div>
     <div class="panel">
@@ -766,8 +811,9 @@
     <p class="callout">
       Betfair Exchange is near-fair in big leagues but wide and stale in thin ones, so the replay
       only trusts exchange prices with a margin of 3% or less (except the “Thin markets allowed”
-      strategy). Pinnacle’s figures in this data fade out by February 2026 and look stale, so
-      Pinnacle is not used as the reference.
+      strategy). Pinnacle’s figures fade out by February 2026 and look stale, so from 2025/26 on
+      Pinnacle is not the referee; for 2019/20–2024/25, when they came from Pinnacle’s live feed, it
+      is.
     </p>
   </section>
 
@@ -903,7 +949,20 @@
   (function () {
     'use strict';
     var D = window.DATA;
-    var BOOKS = { B365: 'Bet365', BW: 'bwin', BV: 'BetVictor', BFD: 'Betfair Sportsbook' };
+    var BOOKS = {
+      B365: 'Bet365',
+      BW: 'bwin',
+      BV: 'BetVictor',
+      BFD: 'Betfair Sportsbook',
+      IW: 'Interwetten',
+      WH: 'William Hill',
+      VC: 'VCbet',
+      BMGM: 'BetMGM',
+      CL: 'Coral',
+      LB: 'Ladbrokes',
+      PP: 'Paddy Power',
+      SKB: 'Sky Bet',
+    };
     var BUDGETS = [
       { id: 'f20', label: '€20', kind: 'fixed', amount: 20 },
       { id: 'f50', label: '€50', kind: 'fixed', amount: 50 },
@@ -912,16 +971,20 @@
       { id: 'p2', label: '2% of bankroll', kind: 'fraction', fraction: 0.02 },
       { id: 'p5', label: '5%', kind: 'fraction', fraction: 0.05 },
       { id: 'p10', label: '10%', kind: 'fraction', fraction: 0.1 },
+      { id: 'b5', label: '€5 a bet', kind: 'perBet', amount: 5 },
+      { id: 'b10', label: '€10 a bet', kind: 'perBet', amount: 10 },
+      { id: 'bp1', label: '1% of bankroll a bet', kind: 'perBetFraction', fraction: 0.01 },
     ];
+    var PER_BET = { perBet: true, perBetFraction: true };
     var BANDS = [
       { id: 'model', label: 'Range if the edges are real' },
       { id: 'zero', label: 'Range with no edge' },
       { id: 'none', label: 'No range' },
     ];
     var state = {
-      preset: 'strict',
-      season: '2526',
-      budget: 'f100',
+      preset: 'pin-all',
+      season: 'all',
+      budget: 'b10',
       start: 1000,
       band: 'model',
       cSeason: '2526',
@@ -1060,8 +1123,15 @@
       });
       return m;
     }
-    function stakeFor(budget, before) {
-      var want = budget.kind === 'fixed' ? budget.amount : before * budget.fraction;
+    function stakeFor(budget, before, picks) {
+      var want =
+        budget.kind === 'fixed'
+          ? budget.amount
+          : budget.kind === 'fraction'
+            ? before * budget.fraction
+            : budget.kind === 'perBet'
+              ? budget.amount * picks
+              : before * budget.fraction * picks;
       return Math.min(want, before);
     }
     function replay(rounds, start, budget) {
@@ -1072,7 +1142,7 @@
       rounds.forEach(function (r) {
         var before = bank;
         var playing = r.p.length > 0 && before >= 1;
-        var staked = playing ? stakeFor(budget, before) : 0;
+        var staked = playing ? stakeFor(budget, before, r.p.length) : 0;
         var mult = weekMultiple(r);
         var returned = staked * mult;
         bank = before - staked + returned;
@@ -1107,7 +1177,7 @@
         for (var w2 = 0; w2 < W; w2++) {
           var r = rounds[w2];
           if (r.p.length > 0 && bank >= 1) {
-            var st = stakeFor(budget, bank),
+            var st = stakeFor(budget, bank, r.p.length),
               mult = 0;
             for (var j = 0; j < r.p.length; j++) {
               var p = r.p[j];
@@ -1132,6 +1202,50 @@
         }),
         above: above / n,
       };
+    }
+
+    // ---------- seasons per strategy ----------
+    function presetSeasons(p) {
+      return D.seasons.filter(function (s) {
+        return p.seasons.indexOf(s.id) >= 0;
+      });
+    }
+    function seasonOptions(p) {
+      var list = presetSeasons(p).map(function (s) {
+        return { id: s.id, label: s.label + (s.id === '2627' ? ' so far' : '') };
+      });
+      if (list.length > 3) list.unshift({ id: 'all', label: 'All ' + list.length + ' seasons' });
+      return list;
+    }
+    // A season, or (id 'all') every season of the strategy back to back.
+    function resolveSeason(p, id) {
+      var ss = presetSeasons(p);
+      if (id === 'all') {
+        var first = ss[0],
+          last = ss[ss.length - 1];
+        return {
+          id: 'all',
+          label: first.label + '–' + last.label,
+          role: ss.length + ' seasons back to back',
+          firstDate: first.firstDate,
+          lastDate: last.lastDate,
+          ids: ss.map(function (s) {
+            return s.id;
+          }),
+        };
+      }
+      var s = seasonById(id);
+      return Object.assign({}, s, { ids: [s.id] });
+    }
+    function roundsFor(presetId, season) {
+      return season.ids.reduce(function (acc, id) {
+        return acc.concat(
+          D.runs[presetId][id].rounds.map(function (r) {
+            r._s = id;
+            return r;
+          }),
+        );
+      }, []);
     }
 
     // ---------- controls ----------
@@ -1163,19 +1277,33 @@
       );
       seg(
         document.getElementById('ctl-season'),
-        D.seasons.map(function (s) {
-          return { id: s.id, label: s.label + (s.id === '2627' ? ' so far' : '') };
-        }),
+        seasonOptions(presetById(state.preset)),
         state.season,
         function (id) {
           state.season = id;
           renderReplay();
         },
       );
-      seg(document.getElementById('ctl-budget'), BUDGETS, state.budget, function (id) {
+      var pickBudget = function (id) {
         state.budget = id;
         renderReplay();
-      });
+      };
+      seg(
+        document.getElementById('ctl-budget'),
+        BUDGETS.filter(function (b) {
+          return !PER_BET[b.kind];
+        }),
+        state.budget,
+        pickBudget,
+      );
+      seg(
+        document.getElementById('ctl-perbet'),
+        BUDGETS.filter(function (b) {
+          return PER_BET[b.kind];
+        }),
+        state.budget,
+        pickBudget,
+      );
       seg(document.getElementById('ctl-band'), BANDS, state.band, function (id) {
         state.band = id;
         renderReplay();
@@ -1185,14 +1313,20 @@
     // ---------- replay section ----------
     var current = null;
     function renderReplay() {
+      var opts = seasonOptions(presetById(state.preset)).map(function (o) {
+        return o.id;
+      });
+      if (opts.indexOf(state.season) < 0)
+        state.season =
+          opts.indexOf('all') >= 0 ? 'all' : opts.indexOf('2526') >= 0 ? '2526' : opts[0];
       renderControls();
       var preset = presetById(state.preset),
-        season = seasonById(state.season),
+        season = resolveSeason(preset, state.season),
         budget = budgetById(state.budget);
-      var run = D.runs[state.preset][state.season];
-      var res = replay(run.rounds, state.start, budget);
-      var mc =
-        state.band === 'none' ? null : monteCarlo(run.rounds, state.start, budget, state.band);
+      var rounds = roundsFor(state.preset, season);
+      var run = { rounds: rounds };
+      var res = replay(rounds, state.start, budget);
+      var mc = state.band === 'none' ? null : monteCarlo(rounds, state.start, budget, state.band);
       current = { preset: preset, season: season, budget: budget, run: run, res: res, mc: mc };
 
       document.getElementById('preset-note').textContent =
@@ -1200,7 +1334,8 @@
         ' ' +
         season.label +
         ': ' +
-        season.role.toLowerCase() +
+        season.role.charAt(0).toLowerCase() +
+        season.role.slice(1) +
         ', ' +
         dmy(season.firstDate) +
         ' to ' +
@@ -1284,17 +1419,24 @@
     }
 
     // Month ticks at the first week of each month, thinned so labels never touch (phone widths).
+    // Long runs (several seasons) get one tick per year instead.
     function axisMonths(weeks, xAt) {
       var ticks = [],
         seen = {},
-        lastX = -Infinity;
+        lastX = -Infinity,
+        long = weeks.length > 80;
       weeks.forEach(function (x, i) {
-        var mid = addDays(x.r.s, 3).slice(0, 7);
-        if (seen[mid]) return;
-        seen[mid] = true;
+        var mid = addDays(x.r.s, 3);
+        var key = long ? mid.slice(0, 4) : mid.slice(0, 7);
+        if (seen[key]) return;
+        seen[key] = true;
         if (xAt(i) - lastX < 40) return;
         lastX = xAt(i);
-        ticks.push({ i: i, m: Number(mid.slice(5, 7)) - 1, y: mid.slice(0, 4) });
+        var m = Number(mid.slice(5, 7)) - 1;
+        ticks.push({
+          i: i,
+          label: long ? mid.slice(0, 4) : MONTHS[m] + (m === 0 ? ' ' + mid.slice(2, 4) : ''),
+        });
       });
       return ticks;
     }
@@ -1357,7 +1499,7 @@
       }
       axisMonths(weeks, x).forEach(function (t) {
         var tx = sv('text', { x: x(t.i), y: height - 8, 'text-anchor': 'middle' });
-        tx.textContent = MONTHS[t.m] + (t.m === 0 ? ' ' + t.y.slice(2) : '');
+        tx.textContent = t.label;
         svg.appendChild(tx);
       });
       // start line
@@ -1450,7 +1592,7 @@
         c.season.label +
         ' · ' +
         c.budget.label +
-        (c.budget.kind === 'fixed' ? ' a week' : '');
+        (PER_BET[c.budget.kind] ? '' : ' a week');
 
       var tip = document.getElementById('tip-bankroll');
       var idx = W - 1;
@@ -1573,7 +1715,7 @@
       }
       axisMonths(weeks, x).forEach(function (t) {
         var tx = sv('text', { x: x(t.i), y: height - 8, 'text-anchor': 'middle' });
-        tx.textContent = MONTHS[t.m] + (t.m === 0 ? ' ' + t.y.slice(2) : '');
+        tx.textContent = t.label;
         svg.appendChild(tx);
       });
       var tip = document.getElementById('tip-weekly');
@@ -1764,10 +1906,62 @@
       );
     }
 
+    // One season: every week in a list. Several seasons: one collapsible group per season,
+    // rendered when opened, so the page stays short.
     function renderWeeks() {
       var host = document.getElementById('weeks');
       host.textContent = '';
-      current.res.weeks.forEach(function (wk) {
+      if (current.season.ids.length === 1) {
+        current.res.weeks.forEach(function (wk) {
+          appendWeek(host, wk);
+        });
+        return;
+      }
+      current.season.ids.forEach(function (id) {
+        var wks = current.res.weeks.filter(function (wk) {
+          return wk.r._s === id;
+        });
+        var played = wks.filter(function (wk) {
+          return wk.playing;
+        });
+        var bets = played.reduce(function (a, wk) {
+          return a + wk.r.p.length;
+        }, 0);
+        var pl = wks.reduce(function (a, wk) {
+          return a + wk.returned - wk.staked;
+        }, 0);
+        var inner = el('div', { cls: 'weeks' });
+        var d = el('details', { cls: 'season-group' }, [
+          el('summary', { cls: 'wk-row' }, [
+            el('span', { cls: 'wk-date', text: seasonById(id).label }),
+            el('span', {
+              cls: 'wk-what',
+              text:
+                played.length +
+                ' weeks with bets · ' +
+                bets +
+                ' bets · ended at ' +
+                eur(wks.length ? wks[wks.length - 1].after : state.start),
+            }),
+            el('span', {
+              cls: 'wk-pl ' + (pl > 0.5 ? 'pos' : pl < -0.5 ? 'neg' : ''),
+              text: eur(pl, true),
+            }),
+          ]),
+          inner,
+        ]);
+        d.addEventListener('toggle', function () {
+          if (d.open && !inner.childNodes.length)
+            wks.forEach(function (wk) {
+              appendWeek(inner, wk);
+            });
+        });
+        host.appendChild(d);
+      });
+    }
+
+    function appendWeek(host, wk) {
+      {
         var r = wk.r,
           label = 'Week of ' + dmy(r.s);
         if (!wk.playing) {
@@ -1899,74 +2093,100 @@
           d.appendChild(inner);
         });
         host.appendChild(d);
-      });
+      }
     }
 
     // ---------- static sections ----------
-    function renderVerdict() {
-      var cs = D.census.filter(function (c) {
-        return c.season === '2526';
+    function historySetup(key) {
+      return D.history.filter(function (h) {
+        return h.key === key;
       })[0];
-      var find = function (setup, t) {
-        return cs.rows.filter(function (r) {
-          return r.setup === setup && Math.abs(r.threshold - t) < 1e-9;
-        })[0];
-      };
-      var all2 = find('all4-liquid', 0.02),
-        one2 = find('b365-both', 0.02),
-        thin2 = find('all4-thin', 0.02);
-      var strict = D.runs.strict['2526'].metrics,
-        strict27 = D.runs.strict['2627'].metrics;
-      var s2526 = seasonById('2526'),
-        s2627 = seasonById('2627');
+    }
+    function combinedRun(presetId) {
+      var p = presetById(presetId);
+      return roundsFor(
+        presetId,
+        resolveSeason(p, presetSeasons(p).length > 3 ? 'all' : p.seasons[0]),
+      );
+    }
+    function wipeRate(rounds) {
+      var played = rounds.filter(function (r) {
+        return r.p.length > 0;
+      });
+      var wiped = played.filter(function (r) {
+        return !r.p.some(function (x) {
+          return x[11];
+        });
+      });
+      return played.length ? wiped.length / played.length : 0;
+    }
+
+    function renderVerdict() {
+      var all = historySetup('all'),
+        one = historySetup('b365');
+      var total = D.seasons.reduce(function (a, s) {
+        return a + s.matches;
+      }, 0);
+      var first = D.seasons[0],
+        last = D.seasons[D.seasons.length - 1];
+      var pinRounds = combinedRun('pin-all');
+      var tenAbet = replay(pinRounds, 1000, budgetById('b10'));
+      var exch = D.runs.short && D.runs.short['2526'];
       document.getElementById('lede').textContent =
-        'Each week, pick value bets and stake them so that one winner returns the whole week’s money. This page replays that plan on ' +
-        (s2526.matches + s2627.matches).toLocaleString('en-GB') +
+        'Each week, find bets that a bookmaker has priced too generously, and stake them. This page replays that plan on ' +
+        total.toLocaleString('en-GB') +
         ' real matches from ' +
-        s2526.leagues +
-        ' European leagues, using only the odds on offer before kickoff, and settles every bet against what actually happened.';
+        first.leagues +
+        ' European leagues, ' +
+        first.label +
+        ' to ' +
+        last.label +
+        ', using only the odds on offer before kickoff, and settles every bet against what actually happened.';
+      var seasonsPositive = all.perSeason.filter(function (r) {
+        return r.avgClv > 0;
+      }).length;
       var items = [
         [
-          'Real value is scarce',
-          'Against a liquid Betfair Exchange price, four UK bookmakers offered ' +
-            all2.perWeek.toFixed(1) +
-            ' bets a week with an edge of 2% or more in 2025/26, across all ' +
-            s2526.leagues +
-            ' leagues. A single account offered ' +
-            one2.perWeek.toFixed(1) +
-            '. A five-to-eight-pick slate cannot be filled.',
-        ],
-        [
-          'No edge proven, one hopeful sign',
-          'All those bets together beat the closing price by only ' +
-            pct(all2.avgClv, 2, true) +
-            ' (± ' +
-            pct(all2.clvSe, 2) +
-            '), and trusting thin exchange markets turned it to ' +
-            pct(thin2.avgClv, 2, true) +
-            '. Leaving out odds above 8, the Strict picks did better: ' +
-            pct(strict.avgClv, 2, true) +
+          'A rule that held up for six seasons',
+          'Price every match against Pinnacle and bet odds of 1.5–4 that a bookmaker priced 3–12% above fair. In 2019/20–2024/25 that gave ' +
+            all.pooled.bets.toLocaleString('en-GB') +
+            ' bets that beat the closing price by ' +
+            pct(all.pooled.avgClv, 1, true) +
             ' ± ' +
-            pct(strict.clvSe, 2) +
-            ' in 2025/26 and ' +
-            pct(strict27.avgClv, 1, true) +
+            pct(all.pooled.clvSe, 1) +
+            ', positive in ' +
+            seasonsPositive +
+            ' of ' +
+            all.perSeason.length +
+            ' seasons. Profit was ' +
+            pct(all.pooled.roi, 1, true) +
             ' ± ' +
-            pct(strict27.clvSe, 1) +
-            ' in 2026/27, on ' +
-            (strict.picks + strict27.picks) +
-            ' bets. Encouraging, not yet proof.',
+            pct(all.pooled.roiSe, 1) +
+            ' per bet.',
         ],
         [
-          'The rule works, the volume doesn’t',
-          'With about ' +
-            strict.avgPicks.toFixed(1) +
-            ' picks a week, one winner rarely has to cover much, and ' +
-            Math.round((1 - strict.roundsWithWinner) * 100) +
-            '% of weeks played lost every bet. Results swing widely on luck either way.',
+          'Enough bets for a weekly slate',
+          'With the best price among several bookmakers that is about ' +
+            all.pooled.perWeek.toFixed(1) +
+            ' bets a week; with Bet365 alone about ' +
+            one.pooled.perWeek.toFixed(1) +
+            '. Staking €10 a bet from €1,000, the six seasons ended at ' +
+            eur(tenAbet.final) +
+            ' (worst drop ' +
+            pct(tenAbet.maxDd, 0) +
+            ').',
         ],
         [
-          'Open question: Lithuanian books',
-          'These are UK books, the most efficient in Europe. Whether 7bet, Betsson LT or Topsport leave more value is untested and decides whether this plan can work.',
+          'Flat stakes beat the one-winner rule',
+          'At odds under 4 the one-winner rule only fits 2–3 picks a week. Staking every qualifying bet the same spreads the risk: ' +
+            pct(wipeRate(pinRounds), 0) +
+            ' of weeks lost every bet, against about a third under the rule.',
+        ],
+        [
+          'Still to prove',
+          'Pinnacle’s free price feed closed in 2025, and with only Betfair Exchange as the referee the same rule found ' +
+            (exch ? (exch.metrics.picks / exch.metrics.rounds).toFixed(1) : 'about 0.5') +
+            ' bets a week in 2025/26. These are UK bookmakers, and winning accounts get limited. Next: live Pinnacle prices, Lithuanian bookmakers’ prices, and real bets that beat the closing price.',
         ],
       ];
       var v = document.getElementById('verdict');
@@ -1984,17 +2204,120 @@
       document.getElementById('foot-gen').textContent =
         'Generated ' +
         D.generatedAt.replace('T', ' ').slice(0, 16) +
-        ' UTC from football-data.co.uk (' +
-        s2526.label +
-        ': ' +
-        s2526.matches.toLocaleString('en-GB') +
-        ' matches; ' +
-        s2627.label +
+        ' UTC from football-data.co.uk: ' +
+        total.toLocaleString('en-GB') +
+        ' matches, ' +
+        dmy(first.firstDate) +
         ' to ' +
-        dmy(s2627.lastDate) +
-        ': ' +
-        s2627.matches.toLocaleString('en-GB') +
-        ').';
+        dmy(last.lastDate) +
+        '.';
+    }
+
+    function renderHistory() {
+      var all = historySetup('all'),
+        one = historySetup('b365'),
+        hc = D.historyChecks;
+      var pinMatches = D.seasons
+        .filter(function (s) {
+          return presetById('pin-all').seasons.indexOf(s.id) >= 0;
+        })
+        .reduce(function (a, s) {
+          return a + s.matches;
+        }, 0);
+      document.getElementById('hist-intro').textContent =
+        'Until Pinnacle closed its public price feed in mid-2025, football-data recorded its prices for every match. That gives six seasons (' +
+        pinMatches.toLocaleString('en-GB') +
+        ' matches) to test the short-odds rule: price each match against Pinnacle, then bet odds of 1.5–4 that a bookmaker prices 3–12% above fair, one bet per match, every bet graded against Pinnacle’s closing price. The rule comes from Buchdahl’s published record, which covers the same years, so this re-checks it with other bookmakers and our own code rather than testing it blind.';
+      function rows(h) {
+        var out = h.perSeason.map(function (r) {
+          return [
+            seasonById(r.season).label,
+            String(r.bets),
+            r.perWeek.toFixed(1),
+            r.avgOdds.toFixed(2),
+            pct(r.roi, 1, true) + ' ± ' + pct(r.roiSe, 1),
+            pct(r.avgClv, 2, true) + ' ± ' + pct(r.clvSe, 2),
+            verdictChip(r.avgClv, r.clvSe || 0, r.bets),
+          ];
+        });
+        var t = h.pooled;
+        out.push([
+          el('strong', { text: 'All six seasons' }),
+          el('strong', { text: String(t.bets) }),
+          el('strong', { text: t.perWeek.toFixed(1) }),
+          t.avgOdds.toFixed(2),
+          el('strong', { text: pct(t.roi, 1, true) + ' ± ' + pct(t.roiSe, 1) }),
+          el('strong', { text: pct(t.avgClv, 2, true) + ' ± ' + pct(t.clvSe, 2) }),
+          verdictChip(t.avgClv, t.clvSe || 0, t.bets),
+        ]);
+        return out;
+      }
+      var head = function (label) {
+        return [label, 'Bets', 'Per week', 'Avg odds', 'Profit per €1 ± SE', 'CLV ± SE', 'Verdict'];
+      };
+      table('hist-all', head(all.label), rows(all), [1, 2, 3, 4, 5]);
+      table('hist-b365', head(one.label), rows(one), [1, 2, 3, 4, 5]);
+      var checks = [
+        '2024/25 graded against Betfair Exchange’s closing price instead of Pinnacle’s, as an independent referee: CLV ' +
+          pct(hc.bfeGraded2425.avgClv, 2, true) +
+          ' ± ' +
+          pct(hc.bfeGraded2425.clvSe, 2) +
+          ' on ' +
+          hc.bfeGraded2425.bets +
+          ' bets.',
+        'Every league group beat the closing price (table), from the top five leagues to the thinnest.',
+        'Both markets (match result and over/under 2.5) and every bookmaker that supplied the best price showed positive closing-line value.',
+        'Not modelled: bookmakers limiting winning accounts, prices that moved before you could bet, Lithuanian bookmakers’ own prices.',
+      ];
+      var ul = document.getElementById('hist-checks');
+      ul.textContent = '';
+      checks.forEach(function (t) {
+        ul.appendChild(el('li', { text: t }));
+      });
+      table(
+        'hist-groups',
+        ['League group', 'Bets', 'Profit ± SE', 'CLV ± SE', 'Verdict'],
+        hc.groups.map(function (g) {
+          return [
+            el('span', { cls: 'wrap', text: g.label }),
+            String(g.bets),
+            pct(g.roi, 1, true) + ' ± ' + pct(g.roiSe, 1),
+            pct(g.avgClv, 2, true) + ' ± ' + pct(g.clvSe, 2),
+            verdictChip(g.avgClv, g.clvSe || 0, g.bets),
+          ];
+        }),
+        [1, 2, 3],
+      );
+      table(
+        'hist-bands',
+        [
+          'Odds',
+          'Bets',
+          'Avg odds',
+          'Edge flagged',
+          'Won',
+          'Profit per €1 ± SE',
+          'CLV ± SE',
+          'Verdict',
+        ],
+        hc.oddsBands
+          .filter(function (b) {
+            return b.bets > 0;
+          })
+          .map(function (b) {
+            return [
+              b.label,
+              String(b.bets),
+              b.avgOdds.toFixed(2),
+              pct(b.avgEdge, 1),
+              pct(b.hitRate, 0),
+              pct(b.roi, 1, true) + ' ± ' + pct(b.roiSe, 1),
+              b.avgClv === null ? '—' : pct(b.avgClv, 2, true) + ' ± ' + pct(b.clvSe, 2),
+              verdictChip(b.avgClv, b.clvSe || 0, b.bets),
+            ];
+          }),
+        [1, 2, 3, 4, 5, 6],
+      );
     }
 
     function renderRule() {
@@ -2003,11 +2326,10 @@
       });
       table('rule-table', ['Picks', 'Odds each', 'Chance all lose'], rows, [0, 1, 2]);
       var parts = D.presets.map(function (p) {
-        var m = D.runs[p.id]['2526'].metrics;
-        return p.name + ' ' + Math.round((1 - m.roundsWithWinner) * 100) + '%';
+        return p.name + ' ' + pct(wipeRate(combinedRun(p.id)), 0);
       });
       document.getElementById('rule-observed').textContent =
-        'In practice the slates were small, so weeks with no winner were more common than the table suggests. Share of weeks played that lost every bet in 2025/26: ' +
+        'Small one-winner slates lose everything more often than the table suggests; flat slates with many short-odds bets lose everything far less often. Share of weeks played that lost every bet, over each strategy’s seasons: ' +
         parts.join(', ') +
         '.';
     }
@@ -2133,34 +2455,33 @@
     }
 
     function renderMethod() {
-      var s1 = seasonById('2526'),
-        s2 = seasonById('2627');
+      var first = D.seasons[0],
+        last = D.seasons[D.seasons.length - 1];
+      var total = D.seasons.reduce(function (a, x) {
+        return a + x.matches;
+      }, 0);
       var items = [
         'Data: football-data.co.uk, ' +
-          s1.leagues +
-          ' European divisions. ' +
-          s1.label +
-          ': ' +
-          s1.matches.toLocaleString('en-GB') +
-          ' matches (' +
-          dmy(s1.firstDate) +
+          first.leagues +
+          ' European divisions, ' +
+          total.toLocaleString('en-GB') +
+          ' matches from ' +
+          dmy(first.firstDate) +
           ' to ' +
-          dmy(s1.lastDate) +
-          '). ' +
-          s2.label +
-          ': ' +
-          s2.matches.toLocaleString('en-GB') +
-          ' matches (' +
-          dmy(s2.firstDate) +
-          ' to ' +
-          dmy(s2.lastDate) +
+          dmy(last.lastDate) +
+          ' (' +
+          D.seasons
+            .map(function (x) {
+              return x.label + ' ' + x.matches.toLocaleString('en-GB');
+            })
+            .join(', ') +
           ').',
         'Prices: the pre-match odds football-data records (Friday afternoon for weekend games, Tuesday for midweek) are the prices bet; closing odds at kickoff are used only to grade the bet (CLV), never to choose it.',
-        'Fair odds: Betfair Exchange prices with the margin removed by the power method, which shifts the margin onto longshots instead of spreading it evenly. Markets where the exchange margin is above 3% are skipped (8% for “Thin markets allowed”).',
-        'Bookmakers: Bet365, bwin, BetVictor and Betfair Sportsbook stand in for Lithuanian books. With several accounts, the best price among them is taken. Markets: match result and over/under 2.5 goals. One bet per match.',
-        'A week runs Monday to Sunday. Each week’s budget is split by 1/odds so every winner pays the same, and picks are added best edge first only while one winner still covers the budget. Fewer qualifying bets means fewer picks; none means the week is skipped.',
+        'Fair odds: the referee’s prices with the margin removed by the power method, which takes more of the margin off long shots. Pinnacle strategies (2019/20–2024/25) skip markets where Pinnacle’s margin is above 8%. Exchange strategies (2024/25 on) use Betfair Exchange and skip markets where its margin is above 3% (8% for “Thin markets allowed”).',
+        'Bookmakers: Pinnacle strategies take the best price among the UK/EU bookmakers football-data carries that season (Bet365, bwin, Interwetten, William Hill, VCbet, BetVictor, Betfair Sportsbook, BetMGM, Coral, Ladbrokes, Paddy Power, Sky Bet), or Bet365 alone. Exchange strategies use Bet365, bwin, BetVictor and Betfair Sportsbook. All stand in for Lithuanian books. Markets: match result and over/under 2.5 goals. One bet per match.',
+        'A week runs Monday to Sunday. One-winner strategies split the week’s budget by 1/odds and add picks best edge first only while one winner still covers the budget. Flat strategies take every qualifying bet that week (up to 15) with equal stakes. A per-bet budget stakes the same on every bet, so busy weeks stake more.',
         'Assumed: every price was available at the stake needed, no account limits, no rounding, no tax. In reality soft bookmakers limit accounts that win; that cost is not modelled.',
-        'Strategies were set by hand, not tuned on profit: the odds cap of 8 and the 3% exchange-margin limit came from the 2025/26 census. Headline 2026/27 census numbers had also been seen, so treat 2026/27 as a lightly used check rather than a clean holdout; every new week from here on is truly unseen. The shaded range re-runs the same bets 1,500 times with outcomes drawn at random, either at the estimated fair chances or at break-even chances.',
+        'What was tuned: the Pinnacle short-odds rule (odds 1.5–4, edge 3–12%) was taken from Buchdahl’s published value-bet record before it was run here. That record covers the same years with Pinnacle as its referee, so the six seasons re-check it with other bookmakers rather than test it blind. The exchange strategies were set by hand from the 2025/26 census, and 2026/27 is a lightly used check. Every week from 24 Oct 2026 on is truly unseen. The shaded range re-runs the same bets 1,500 times with outcomes drawn at random, at the estimated fair chances or at break-even chances.',
       ];
       var ul = document.getElementById('method-list');
       ul.textContent = '';
@@ -2178,6 +2499,7 @@
     });
     renderVerdict();
     renderReplay();
+    renderHistory();
     renderRule();
     renderCensus();
     renderMargins();
