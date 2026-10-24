@@ -363,6 +363,25 @@ Monte Carlo of one half-season (bets resampled from history, true edge = measure
 5. What remains true: the edge looks real at small stakes (CLV +3.3% over 1,619 bets). Viable only
    as a small side activity, at stakes the books will take, until accounts get limited.
 
+**R9 — Compounding bankroll scenarios, accumulators, automation (2026-10-24).** Monte Carlo, bets
+resampled from the 1,619 Pinnacle short-odds bets (12 books, ~135 per half, ~270 per season),
+win chance at a true edge of 3.3% (measured CLV), stake a fixed % of the current bankroll per bet:
+- 1% per bet: half-season median ×1.032 (10th–90th pct ×0.84–×1.27), P(loss) 42%; season median
+  ×1.062 (×0.80–×1.42), P(loss) 39%; three seasons ×1.21 (×0.73–×2.03), P(loss) 32%.
+- 2% per bet: season median ×1.068 (×0.61–×1.92), P(loss) 44% — barely more typical profit, twice
+  the swings (above Kelly ≈ 1.6% per bet at odds ~3).
+- At a 2% true edge, 2% per bet has median ×1.00 per season: no growth.
+- Reinvesting from €1k to €10k at the median rate: ~35–39 seasons. Typical €10k profit in one season
+  needs ~€160k in play (≈ €1,600 per bet); €20k needs ~€320k.
+- Value accumulators (legs drawn from the same bets, 3.3% edge each): 3 legs odds ~26, wins 5.3%
+  of tickets, edge ~10%; 5 legs odds ~223, wins 0.8%, edge ~18%; 8 legs odds ~5,700, wins 0.04%,
+  edge ~30%. The edge compounds only if every leg has one; ordinary legs compound the bookmaker's
+  margin against you. Same capacity limits; far more lottery-like.
+- Automation: LT soft books offer no betting API and forbid automated betting; we declined to build
+  automation disguised to evade detection. Legitimate path: the system finds bets and alerts, the
+  user places them by hand. Unlicensed foreign books are blocked by LT's 2025 payment law — not
+  pursued.
+
 **Published page:** https://claude.ai/artifact/Mn9pnZ8tzUpUHgwCjAp1oP (private to the user;
 source `docs/value-slate/report.html`, regenerate with `pnpm --filter @quest/backtest report`
 then republish).
