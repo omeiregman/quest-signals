@@ -30,6 +30,25 @@ importers:
         specifier: ^2.1.5
         version: 2.1.9(@types/node@22.19.21)(jsdom@25.0.1)
 
+  apps/backtest:
+    dependencies:
+      '@quest/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+    devDependencies:
+      '@types/node':
+        specifier: ^22.9.0
+        version: 22.19.21
+      tsx:
+        specifier: ^4.19.2
+        version: 4.22.4
+      typescript:
+        specifier: ^5.6.3
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.5
+        version: 2.1.9(@types/node@22.19.21)(jsdom@25.0.1)
+
   apps/server:
     dependencies:
       '@hono/node-server':

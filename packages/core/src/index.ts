@@ -7,3 +7,5 @@ export * from './value';
 export * from './clv';
 export * from './dedupe';
 export * from './regions';
+export * from './devig';
+export * from './slate';
