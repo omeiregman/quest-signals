@@ -1,7 +1,39 @@
 # Quest — Project Status & Continuity Doc
 
-**Last updated:** 2026-09-20
+**Last updated:** 2026-10-24
 **Purpose:** Single source of truth for "what's built, what's decided, what's next" so any new session can continue without re-deriving context. Read this first, then `docs/PRD.md`, `docs/research.md`, the spec, and the plans.
+
+---
+
+## 000. VALUE SLATE — 2026-10-24 (newest work; read `docs/value-slate/FINDINGS.md`)
+
+**User's new direction:** arbitrage is too rare → weekly **value slate**: N value singles (one per
+match) staked so any ONE winner returns the week's capital; backtest on real recent data with a
+€1,000 bankroll and different weekly budgets, month by month.
+
+**Built (branch `claude/value-bet-simulation-ofb8cw`):**
+- `packages/core/src/devig.ts` — multiplicative / additive / power / Shin de-vig (+ tests).
+- `packages/core/src/slate.ts` — slate selection under the one-winner rule (Σ1/odds ≤ 1),
+  equal-return vs equal staking, settlement, P(no winner) (+ tests).
+- `apps/backtest` (`@quest/backtest`) — football-data.co.uk loader (22 leagues, pre-match +
+  closing odds, cached in `apps/backtest/data/`), candidate builder, weekly replay, bankroll sim,
+  census / sweep / margins / report CLIs:
+  `pnpm --filter @quest/backtest download | census | sweep | margins | report`.
+- `docs/value-slate/report.html` — the interactive **Value Slate Replay** page (also published
+  as a claude.ai artifact). `docs/value-slate/FINDINGS.md` — every finding with numbers.
+  `docs/value-slate/research.md` — literature review.
+
+**Verdict so far:** the staking rule works as designed, but against a liquid Betfair Exchange
+price the big UK books offer only ~1–2 real value bets (edge ≥2%) per week across 22 leagues
+(~0.4 with one account) and no edge is proven overall (CLV ≈ 0). One hopeful sign: the "Strict"
+strategy (edge ≥2%, odds ≤8, liquid ref, best of 4 books) shows CLV +1.45% ± 0.69% (25/26) and
++6.1% ± 2.7% (26/27) on 76 bets. **Decisive open question: are Lithuanian books (7bet, Betsson
+LT, Topsport, Optibet) softer?** Next step: put `ODDSPAPI_API_KEY` in the environment and pull
+`/v4/historical-odds` for 7bet.lt + betsson + pinnacle to rerun the census on LT prices.
+
+**Cloud-session gotchas:** `pnpm install` must go through the proxy (unset registry from
+NO_PROXY); Node fetch needs `NODE_USE_ENV_PROXY=1`; pushing to GitHub returned 403 on
+2026-10-24 (user to reconnect GitHub / install the Claude GitHub App).
 
 ---
 
