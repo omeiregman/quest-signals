@@ -32,8 +32,8 @@ LT, Topsport, Optibet) softer?** Next step: put `ODDSPAPI_API_KEY` in the enviro
 `/v4/historical-odds` for 7bet.lt + betsson + pinnacle to rerun the census on LT prices.
 
 **Cloud-session gotchas:** `pnpm install` must go through the proxy (unset registry from
-NO_PROXY); Node fetch needs `NODE_USE_ENV_PROXY=1`; pushing to GitHub returned 403 on
-2026-10-24 (user to reconnect GitHub / install the Claude GitHub App).
+NO_PROXY); Node fetch needs `NODE_USE_ENV_PROXY=1`; a GitHub push 403 ("Claude doesn't have
+GitHub access") is fixed by the user reconnecting GitHub at claude.ai/connect-github (done 2026-10-24).
 
 ---
 
