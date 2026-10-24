@@ -1,0 +1,2120 @@
+<title>Value Slate Replay</title>
+<meta name="claude:viewport-fit-sides" content="cover" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:wght@400;500;600;700&display=swap"
+/>
+<style>
+  /* Layout: a betting ledger. Summary first, then the replay you operate, then the evidence. */
+  :root {
+    --bg: #eef1f4;
+    --panel: #ffffff;
+    --ink: #12171d;
+    --ink-2: #4a5561;
+    --muted: #6f7a86;
+    --rule: #dbe1e7;
+    --grid: #e7ebef;
+    --axis: #c3cad1;
+    --accent: #1f47b8;
+    --accent-soft: #e4eafb;
+    --series: #2a78d6;
+    --band: rgba(42, 120, 214, 0.13);
+    --loss: #e34948;
+    --won-ink: #0b6a2c;
+    --won-bg: #e2f3e7;
+    --lost-ink: #ad2a2a;
+    --lost-bg: #fbe7e6;
+    --warn-ink: #8a5a00;
+    --warn-bg: #fdf1d8;
+    --font-display: 'Barlow Condensed', 'Arial Narrow', 'Roboto Condensed', sans-serif;
+    --font-body: 'Source Sans 3', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) {
+      --bg: #0d1116;
+      --panel: #151b22;
+      --ink: #e8edf2;
+      --ink-2: #aeb8c3;
+      --muted: #8692a0;
+      --rule: #27313b;
+      --grid: #212a33;
+      --axis: #3a4550;
+      --accent: #8ea6ff;
+      --accent-soft: #1c2640;
+      --series: #3987e5;
+      --band: rgba(57, 135, 229, 0.18);
+      --loss: #e66767;
+      --won-ink: #5ccf85;
+      --won-bg: #11301e;
+      --lost-ink: #f39089;
+      --lost-bg: #3a1716;
+      --warn-ink: #f1c062;
+      --warn-bg: #352708;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme='dark'] {
+    --bg: #0d1116;
+    --panel: #151b22;
+    --ink: #e8edf2;
+    --ink-2: #aeb8c3;
+    --muted: #8692a0;
+    --rule: #27313b;
+    --grid: #212a33;
+    --axis: #3a4550;
+    --accent: #8ea6ff;
+    --accent-soft: #1c2640;
+    --series: #3987e5;
+    --band: rgba(57, 135, 229, 0.18);
+    --loss: #e66767;
+    --won-ink: #5ccf85;
+    --won-bg: #11301e;
+    --lost-ink: #f39089;
+    --lost-bg: #3a1716;
+    --warn-ink: #f1c062;
+    --warn-bg: #352708;
+    color-scheme: dark;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font: 400 16px/1.55 var(--font-body);
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 0 64px;
+  }
+  .wrap {
+    max-width: 1120px;
+    margin: 0 auto;
+    display: grid;
+    gap: 56px;
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    text-wrap: balance;
+    margin: 0;
+    line-height: 1.1;
+  }
+  h1 {
+    font-size: clamp(2.6rem, 6vw, 4.2rem);
+    font-weight: 700;
+  }
+  h2 {
+    font-size: 2rem;
+  }
+  h3 {
+    font-size: 1.35rem;
+  }
+  p {
+    margin: 0;
+  }
+  .prose {
+    display: grid;
+    gap: 14px;
+    max-width: 68ch;
+    color: var(--ink-2);
+  }
+  .prose strong {
+    color: var(--ink);
+  }
+  a {
+    color: var(--accent);
+  }
+  .eyebrow {
+    font: 600 0.78rem/1 var(--font-body);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .num {
+    font-variant-numeric: tabular-nums;
+  }
+  .mono {
+    font-family: var(--font-mono);
+    font-size: 0.92em;
+  }
+  section {
+    display: grid;
+    gap: 22px;
+  }
+  .section-head {
+    display: grid;
+    gap: 8px;
+  }
+
+  /* Masthead */
+  .masthead {
+    padding-top: 40px;
+    display: grid;
+    gap: 18px;
+  }
+  .lede {
+    font-size: 1.2rem;
+    color: var(--ink-2);
+    max-width: 62ch;
+  }
+  .verdict {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+  }
+  .finding {
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 16px 18px;
+    display: grid;
+    gap: 6px;
+    align-content: start;
+  }
+  .finding .k {
+    font: 600 0.78rem/1.2 var(--font-body);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .finding .v {
+    font-size: 1.02rem;
+    color: var(--ink);
+  }
+
+  /* Controls */
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    padding: 20px;
+    display: grid;
+    gap: 18px;
+    min-width: 0;
+  }
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px 28px;
+    align-items: flex-end;
+  }
+  .control {
+    display: grid;
+    gap: 6px;
+    min-width: 0;
+  }
+  .control > .label {
+    font: 600 0.78rem/1 var(--font-body);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .seg {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    background: var(--bg);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 3px;
+  }
+  .seg button {
+    font: 500 0.95rem/1 var(--font-body);
+    color: var(--ink-2);
+    background: transparent;
+    border: 0;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .seg button:hover {
+    color: var(--ink);
+    background: var(--accent-soft);
+  }
+  .seg button[aria-pressed='true'] {
+    background: var(--panel);
+    color: var(--accent);
+    font-weight: 600;
+    box-shadow: 0 0 0 1px var(--rule);
+  }
+  .seg button:focus-visible,
+  select:focus-visible,
+  input:focus-visible,
+  summary:focus-visible,
+  svg:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .field {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--bg);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 0 10px;
+  }
+  .field input {
+    width: 6.5ch;
+    font: 500 1rem/1 var(--font-body);
+    color: var(--ink);
+    background: transparent;
+    border: 0;
+    padding: 9px 0;
+  }
+  .field span {
+    color: var(--muted);
+  }
+  .strategy-note {
+    color: var(--ink-2);
+    max-width: 80ch;
+  }
+
+  /* Tiles */
+  .tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .tile {
+    background: var(--panel);
+    padding: 14px 16px;
+    display: grid;
+    gap: 4px;
+    align-content: start;
+  }
+  .tile .k {
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  .tile .v {
+    font-size: 1.6rem;
+    font-weight: 600;
+    line-height: 1.15;
+  }
+  .tile .s {
+    font-size: 0.85rem;
+    color: var(--ink-2);
+  }
+  .pos {
+    color: var(--won-ink);
+  }
+  .neg {
+    color: var(--lost-ink);
+  }
+
+  /* Charts */
+  figure {
+    margin: 0;
+    display: grid;
+    gap: 10px;
+    min-width: 0;
+    position: relative;
+  }
+  .chart-head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10px;
+  }
+  .chart-title {
+    font-weight: 600;
+  }
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    font-size: 0.88rem;
+    color: var(--ink-2);
+  }
+  .legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .key-line {
+    width: 18px;
+    height: 2px;
+    background: var(--series);
+    border-radius: 2px;
+  }
+  .key-band {
+    width: 18px;
+    height: 10px;
+    background: var(--band);
+    border-radius: 2px;
+  }
+  .key-base {
+    width: 18px;
+    height: 0;
+    border-top: 1px solid var(--axis);
+  }
+  .key-up {
+    width: 10px;
+    height: 10px;
+    background: var(--series);
+    border-radius: 2px;
+  }
+  .key-down {
+    width: 10px;
+    height: 10px;
+    background: var(--loss);
+    border-radius: 2px;
+  }
+  .chart svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+  .chart text {
+    fill: var(--muted);
+    font: 12px var(--font-body);
+    font-variant-numeric: tabular-nums;
+  }
+  .chart .end-label {
+    fill: var(--ink);
+    font-weight: 600;
+  }
+  .tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 10px 12px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+    font-size: 0.86rem;
+    min-width: 190px;
+    display: grid;
+    gap: 4px;
+    z-index: 5;
+  }
+  .tooltip .tv {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--ink);
+  }
+  .tooltip .tr {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    color: var(--ink-2);
+  }
+  .tooltip .tr b {
+    color: var(--ink);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .band-toggle .seg button {
+    padding: 6px 10px;
+    font-size: 0.85rem;
+  }
+
+  /* Tables */
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    background: var(--panel);
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 0.93rem;
+  }
+  th,
+  td {
+    padding: 9px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--rule);
+    white-space: nowrap;
+  }
+  th {
+    font: 600 0.76rem/1.2 var(--font-body);
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: var(--panel);
+  }
+  td.r,
+  th.r {
+    text-align: right;
+  }
+  td {
+    font-variant-numeric: tabular-nums;
+  }
+  tbody tr:last-child td {
+    border-bottom: 0;
+  }
+  td.wrap {
+    white-space: normal;
+    min-width: 220px;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font: 600 0.78rem/1 var(--font-body);
+    padding: 4px 8px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .chip.won {
+    color: var(--won-ink);
+    background: var(--won-bg);
+  }
+  .chip.lost {
+    color: var(--lost-ink);
+    background: var(--lost-bg);
+  }
+  .chip.flat {
+    color: var(--warn-ink);
+    background: var(--warn-bg);
+  }
+
+  /* Week list */
+  .weeks {
+    display: grid;
+    gap: 6px;
+  }
+  .wk-row {
+    list-style: none;
+    cursor: pointer;
+    padding: 12px 16px;
+    display: grid;
+    gap: 4px 16px;
+    grid-template-columns: minmax(130px, 170px) 1fr auto;
+    align-items: center;
+  }
+  .wk-row::-webkit-details-marker {
+    display: none;
+  }
+  details.week[open] > .wk-row {
+    border-bottom: 1px solid var(--rule);
+  }
+  .wk-date {
+    font-weight: 600;
+  }
+  .wk-what {
+    color: var(--ink-2);
+    font-size: 0.93rem;
+    min-width: 0;
+  }
+  .wk-pl {
+    font-weight: 600;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .week {
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+  }
+  .week.idle {
+    background: transparent;
+    border-style: dashed;
+  }
+  .week.idle .wk-row {
+    cursor: default;
+  }
+  .week .inner {
+    padding: 12px 16px 16px;
+    display: grid;
+    gap: 10px;
+  }
+  .week .inner .table-wrap {
+    border-radius: 8px;
+  }
+  .wk-note {
+    font-size: 0.88rem;
+    color: var(--muted);
+  }
+  @media (max-width: 560px) {
+    .wk-row {
+      grid-template-columns: 1fr auto;
+    }
+    .wk-what {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
+  }
+  .formula {
+    font-family: var(--font-mono);
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 12px 14px;
+    color: var(--ink);
+    overflow-x: auto;
+  }
+  .two-col {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    align-items: start;
+  }
+  .two-col > * {
+    min-width: 0;
+  }
+  .callout {
+    border-left: 3px solid var(--accent);
+    padding: 4px 0 4px 14px;
+    color: var(--ink-2);
+    max-width: 75ch;
+  }
+  ol.steps,
+  ul.plain {
+    margin: 0;
+    padding-left: 1.2em;
+    display: grid;
+    gap: 8px;
+    color: var(--ink-2);
+    max-width: 75ch;
+  }
+  footer {
+    color: var(--muted);
+    font-size: 0.88rem;
+    border-top: 1px solid var(--rule);
+    padding-top: 18px;
+    display: grid;
+    gap: 6px;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .seg button {
+      transition:
+        background 120ms,
+        color 120ms;
+    }
+  }
+</style>
+
+<main class="wrap">
+  <header class="masthead">
+    <p class="eyebrow" id="stamp">Quest backtest</p>
+    <h1>Value Slate Replay</h1>
+    <p class="lede" id="lede">
+      Each week, pick value bets and stake them so that one winner returns the whole week’s money.
+      This page replays that plan on real matches, using only the odds that were on offer before
+      kickoff, and settles every bet against what actually happened.
+    </p>
+    <div class="verdict" id="verdict"></div>
+  </header>
+
+  <section id="replay" aria-labelledby="replay-h">
+    <div class="section-head">
+      <h2 id="replay-h">Replay a season</h2>
+      <p class="prose">
+        Pick a strategy, a season and a weekly budget. You start with the bankroll below; every week
+        the system finds the bets, you stake them, and the real results come in.
+      </p>
+    </div>
+    <div class="panel">
+      <div class="controls">
+        <div class="control">
+          <span class="label" id="lbl-strategy">Strategy</span>
+          <div class="seg" id="ctl-preset" role="group" aria-labelledby="lbl-strategy"></div>
+        </div>
+        <div class="control">
+          <span class="label" id="lbl-season">Season</span>
+          <div class="seg" id="ctl-season" role="group" aria-labelledby="lbl-season"></div>
+        </div>
+      </div>
+      <div class="controls">
+        <div class="control">
+          <span class="label" id="lbl-budget">Weekly budget</span>
+          <div class="seg" id="ctl-budget" role="group" aria-labelledby="lbl-budget"></div>
+        </div>
+        <div class="control">
+          <label class="label" for="ctl-start">Starting bankroll</label
+          ><span class="field"
+            ><span>€</span
+            ><input
+              id="ctl-start"
+              type="number"
+              min="50"
+              step="50"
+              value="1000"
+              inputmode="numeric"
+          /></span>
+        </div>
+      </div>
+      <p class="strategy-note" id="preset-note"></p>
+    </div>
+
+    <div class="tiles" id="tiles"></div>
+
+    <figure class="chart panel" id="fig-bankroll">
+      <div class="chart-head">
+        <span class="chart-title" id="bankroll-title">Bankroll, week by week</span>
+        <div class="band-toggle control">
+          <div class="seg" id="ctl-band" role="group" aria-label="Shaded range"></div>
+        </div>
+      </div>
+      <div class="legend" id="bankroll-legend"></div>
+      <div id="bankroll-svg"></div>
+      <div class="tooltip" id="tip-bankroll" hidden></div>
+    </figure>
+
+    <figure class="chart panel" id="fig-weekly">
+      <div class="chart-head">
+        <span class="chart-title">Profit or loss each week</span>
+        <div class="legend">
+          <span><i class="key-up"></i>Week finished up</span
+          ><span><i class="key-down"></i>Week finished down</span>
+        </div>
+      </div>
+      <div id="weekly-svg"></div>
+      <div class="tooltip" id="tip-weekly" hidden></div>
+    </figure>
+
+    <div class="section-head"><h3>Month by month</h3></div>
+    <div class="table-wrap"><table id="months"></table></div>
+
+    <div class="section-head">
+      <h3>Every week, every bet</h3>
+      <p class="prose">
+        Open a week to see each bet: the price taken, the fair price from the exchange, the stake,
+        the result, and whether the price beat the market’s final price at kickoff (closing-line
+        value, the best early sign of a real edge).
+      </p>
+    </div>
+    <div class="weeks" id="weeks"></div>
+  </section>
+
+  <section id="rule" aria-labelledby="rule-h">
+    <div class="section-head"><h2 id="rule-h">How the one-winner rule works</h2></div>
+    <div class="two-col">
+      <div class="prose">
+        <p>
+          Split the week’s budget <strong>C</strong> across picks at decimal odds o₁…oₙ, staking
+          each pick in proportion to 1/odds. Every winner then pays the same amount, and a single
+          winner returns the whole budget when
+        </p>
+        <p class="formula">1/o₁ + 1/o₂ + … + 1/oₙ ≤ 1</p>
+        <p>
+          With equal stakes the condition is stricter: every pick needs odds of at least n. Either
+          way, fitting more picks under the rule forces longer odds, so the chance that every pick
+          loses never falls much below one in three.
+        </p>
+        <p>
+          The rule changes how you win and lose, not how much you win on average. The average return
+          of a slate is the budget times one plus the average edge. All long-run profit has to come
+          from the edges being real.
+        </p>
+      </div>
+      <div class="table-wrap"><table id="rule-table"></table></div>
+    </div>
+    <p class="callout" id="rule-observed"></p>
+  </section>
+
+  <section id="value" aria-labelledby="value-h">
+    <div class="section-head">
+      <h2 id="value-h">Is there value to find?</h2>
+      <p class="prose">
+        Before any staking plan, the question is whether flagged “value” bets are real. Here every
+        flagged bet is a flat €1 single (one per match). Profit is noisy; closing-line value settles
+        faster. A real edge shows up as CLV clearly above zero, more than two standard errors.
+      </p>
+    </div>
+    <div class="panel">
+      <div class="controls">
+        <div class="control">
+          <span class="label" id="lbl-cs">Season</span>
+          <div class="seg" id="ctl-census-season" role="group" aria-labelledby="lbl-cs"></div>
+        </div>
+        <div class="control">
+          <span class="label" id="lbl-ct">Edge at least</span>
+          <div class="seg" id="ctl-census-t" role="group" aria-labelledby="lbl-ct"></div>
+        </div>
+      </div>
+    </div>
+    <div class="table-wrap"><table id="census"></table></div>
+    <div class="section-head">
+      <h3>Where the longshot trap bites</h3>
+      <p class="prose">
+        The same flagged bets split by odds, four bookmakers, edge of at least 1%, thin exchange
+        markets allowed. The one-winner rule pushes picks toward longer odds, which is where flagged
+        value turns into losses against the closing price.
+      </p>
+    </div>
+    <div class="table-wrap"><table id="bands"></table></div>
+  </section>
+
+  <section id="reference" aria-labelledby="ref-h">
+    <div class="section-head">
+      <h2 id="ref-h">How sharp is the reference price?</h2>
+      <p class="prose">
+        A value bet is only as good as the “true” price it is measured against. Median bookmaker
+        margin on match result (1X2) before kickoff, 2025/26. A margin near zero means a tight,
+        trustworthy price.
+      </p>
+    </div>
+    <div class="table-wrap"><table id="margins"></table></div>
+    <p class="callout">
+      Betfair Exchange is near-fair in big leagues but wide and stale in thin ones, so the replay
+      only trusts exchange prices with a margin of 3% or less (except the “Thin markets allowed”
+      strategy). Pinnacle’s figures in this data fade out by February 2026 and look stale, so
+      Pinnacle is not used as the reference.
+    </p>
+  </section>
+
+  <section id="research" aria-labelledby="res-h">
+    <div class="section-head">
+      <h2 id="res-h">What others have found</h2>
+    </div>
+    <div class="prose" id="research-body">
+      <p>Research summary pending.</p>
+    </div>
+  </section>
+
+  <section id="next" aria-labelledby="next-h">
+    <div class="section-head"><h2 id="next-h">What would change the verdict</h2></div>
+    <ol class="steps">
+      <li>
+        <strong>Lithuanian bookmakers’ own prices.</strong> This data only has UK bookmakers, the
+        most efficient soft books in Europe. If 7bet, Betsson LT, Topsport or Optibet are slower or
+        looser, there may be far more value. Testing this needs their historical odds: OddsPapi’s
+        historical endpoint covers 7bet.lt, Betsson and Pinnacle in one call (an
+        <span class="mono">ODDSPAPI_API_KEY</span> in the environment).
+      </li>
+      <li>
+        <strong>Prices through the week, not one Friday snapshot.</strong> Value usually appears for
+        minutes or hours when a soft bookmaker lags a market move. A single snapshot per match
+        misses most of it; the live poller (two polls a day today) needs to run more often to catch
+        it.
+      </li>
+      <li>
+        <strong>Positive closing-line value over a few hundred real bets.</strong> That is the gate
+        before raising stakes. The project’s live poller already records it.
+      </li>
+    </ol>
+  </section>
+
+  <section id="method" aria-labelledby="method-h">
+    <div class="section-head"><h2 id="method-h">Method and assumptions</h2></div>
+    <ul class="plain" id="method-list"></ul>
+  </section>
+
+  <footer>
+    <p id="foot-gen"></p>
+    <p>
+      Rebuild locally:
+      <span class="mono"
+        >pnpm --filter @quest/backtest download &amp;&amp; pnpm --filter @quest/backtest
+        report</span
+      >. Findings log: <span class="mono">docs/value-slate/FINDINGS.md</span>.
+    </p>
+  </footer>
+</main>
+
+<script>
+  window.DATA = {"generatedAt":"2026-10-24T13:29:45.643Z","seasons":[{"id":"2526","label":"2025/26","role":"Full season, used to design the rules","matches":7646,"weeks":45,"firstDate":"2025-07-25","lastDate":"2026-05-31","leagues":22},{"id":"2627","label":"2026/27","role":"Season so far, a check on rules set from 2025/26","matches":1792,"weeks":13,"firstDate":"2026-07-31","lastDate":"2026-10-21","leagues":22}],"presets":[{"id":"strict","name":"Strict value","summary":"Edge ≥ 2% against a liquid Betfair Exchange price, best of four bookmaker accounts, odds 1.5–8, up to 8 picks a week staked so any one winner returns the week’s budget.","candidates":{"reference":"BFE","devig":"power","books":["B365","BW","BV","BFD"],"markets":["1x2","ou25"],"referenceOverround":[-0.03,0.03]},"rules":{"minEdge":0.02,"maxEdge":0.3,"minOdds":1.5,"maxOdds":8,"maxPicks":8,"minPicks":1,"staking":"equal-return","maxCoverage":1,"rankBy":"edge"}},{"id":"loose","name":"Loose value","summary":"Same as Strict but accepts edges from 1%: more bets, thinner edges.","candidates":{"reference":"BFE","devig":"power","books":["B365","BW","BV","BFD"],"markets":["1x2","ou25"],"referenceOverround":[-0.03,0.03]},"rules":{"minEdge":0.01,"maxEdge":0.3,"minOdds":1.5,"maxOdds":8,"maxPicks":8,"minPicks":1,"staking":"equal-return","maxCoverage":1,"rankBy":"edge"}},{"id":"one-book","name":"One account","summary":"Only Bet365 (stand-in for holding a single Lithuanian account), edge ≥ 1%. Closest to the real setup today.","candidates":{"reference":"BFE","devig":"power","books":["B365"],"markets":["1x2","ou25"],"referenceOverround":[-0.03,0.03]},"rules":{"minEdge":0.01,"maxEdge":0.3,"minOdds":1.5,"maxOdds":8,"maxPicks":8,"minPicks":1,"staking":"equal-return","maxCoverage":1,"rankBy":"edge"}},{"id":"thin","name":"Thin markets allowed","summary":"Strict, but trusts exchange prices with up to 8% margin (lower leagues). More bets, but the reference is unreliable there: the longshot / fake-value trap.","candidates":{"reference":"BFE","devig":"power","books":["B365","BW","BV","BFD"],"markets":["1x2","ou25"],"referenceOverround":[-0.03,0.08]},"rules":{"minEdge":0.02,"maxEdge":0.3,"minOdds":1.5,"maxOdds":8,"maxPicks":8,"minPicks":1,"staking":"equal-return","maxCoverage":1,"rankBy":"edge"}},{"id":"fill","name":"Fill the slate","summary":"Takes the best-priced bets each week right down to a 0% edge (near-fair odds), as many as the one-winner rule allows (at most 5). Shows the staking structure with almost no edge behind it.","candidates":{"reference":"BFE","devig":"power","books":["B365","BW","BV","BFD"],"markets":["1x2","ou25"],"referenceOverround":[-0.03,0.03]},"rules":{"minEdge":0,"maxEdge":0.3,"minOdds":1.5,"maxOdds":8,"maxPicks":5,"minPicks":1,"staking":"equal-return","maxCoverage":1,"rankBy":"edge"}}],"censusSetups":[{"key":"b365-1x2","label":"Bet365 only · 1X2 · liquid exchange ref"},{"key":"b365-both","label":"Bet365 only · 1X2 + O/U 2.5 · liquid exchange ref"},{"key":"all4-liquid","label":"4 books · 1X2 + O/U 2.5 · liquid exchange ref"},{"key":"all4-thin","label":"4 books · thin exchange markets allowed (≤8%)"},{"key":"all4-avg","label":"4 books · market average as reference"},{"key":"all4-ps","label":"4 books · Pinnacle as reference (Aug–Jan only)"}],"runs":{"strict":{"2526":{"metrics":{"rounds":45,"roundsPlayed":31,"picks":59,"avgPicks":1.903225806451613,"avgOdds":3.7055932203389816,"pickHitRate":0.3050847457627119,"roundsWithWinner":0.5161290322580645,"roundsCovered":0.5161290322580645,"roi":0.2414953580025472,"roiSe":0.2867269778277146,"expectedRoi":0.03171449534980272,"avgEdge":0.03259856396491019,"avgClv":0.01445601967722603,"clvSe":0.006901416571199003,"clvPositiveShare":0.6440677966101694,"longestLosingRun":3,"longestWipeoutRun":3},"rounds":[{"s":"2025-07-21","a":0,"p":[]},{"s":"2025-07-28","a":0,"p":[]},{"s":"2025-08-04","a":1,"p":[["2025-08-09","E2","Stevenage","Rotherham","1x2","Away","BFD",5,0.2065,0.0323,1,0,"1-0",0.0699]]},{"s":"2025-08-11","a":2,"p":[["2025-08-16","N1","Excelsior","Feyenoord","1x2","Home","BFD",7,0.1564,0.0949,0.3333,0,"1-2",-0.0393],["2025-08-17","B1","Charleroi","Antwerp","1x2","Draw","BW",3.5,0.2995,0.0483,0.6667,1,"1-1",0.0485]]},{"s":"2025-08-18","a":1,"p":[["2025-08-24","B1","Antwerp","Mechelen","1x2","Home","BW",2.05,0.4979,0.0207,1,1,"2-1",-0.0292]]},{"s":"2025-08-25","a":4,"p":[["2025-08-31","F1","Monaco","Strasbourg","1x2","Away","BFD",6,0.1727,0.036,0.1948,0,"3-2",-0.1798],["2025-08-31","SP1","Vallecano","Barcelona","1x2","Home","BFD",7.5,0.137,0.0275,0.1558,0,"1-1",-0.0025],["2025-08-30","B1","Charleroi","Dender","1x2","Home","BW",1.8,0.5693,0.0248,0.6494,1,"3-1",0.0266]]},{"s":"2025-09-01","a":1,"p":[["2025-09-06","E3","Newport County","Bristol Rvs","1x2","Home","BFD",4,0.2578,0.0313,1,0,"2-3",-0.0129]]},{"s":"2025-09-08","a":4,"p":[["2025-09-14","B1","Cercle Brugge","Charleroi","1x2","Draw","BW",3.5,0.295,0.0326,0.3301,0,"2-3",0.0256],["2025-09-13","T1","Karagumruk","Kasimpasa","1x2","Draw","B365",3.4,0.3035,0.0317,0.3398,0,"0-1",0.0533],["2025-09-13","E2","Burton","Lincoln","1x2","Draw","B365",3.5,0.2939,0.0287,0.3301,0,"0-1",-0.0178]]},{"s":"2025-09-15","a":2,"p":[["2025-09-21","E1","Bristol City","Oxford","1x2","Draw","B365",4.2,0.2436,0.0233,0.4545,0,"1-3",-0.0385],["2025-09-20","T1","Antalyaspor","Kayserispor","1x2","Draw","B365",3.5,0.2921,0.0223,0.5455,1,"1-1",0.0368]]},{"s":"2025-09-22","a":3,"p":[["2025-09-28","B1","Cercle Brugge","Gent","1x2","Draw","B365",3.8,0.2745,0.0431,0.3059,0,"2-4",0.0172],["2025-09-28","P1","Alverca","Guimaraes","1x2","Draw","B365",3.4,0.3053,0.0382,0.3419,0,"2-0",0.0566],["2025-09-27","P1","Moreirense","Casa Pia","1x2","Draw","B365",3.3,0.3111,0.0267,0.3522,0,"2-1",-0.0278]]},{"s":"2025-09-29","a":6,"p":[["2025-10-04","B1","RAAL La Louviere","Waregem","1x2","Draw","B365",3.6,0.2966,0.0679,0.2968,1,"0-0",0.0505],["2025-10-04","B1","Antwerp","Cercle Brugge","1x2","Draw","BW",3.6,0.2851,0.0263,0.2968,1,"1-1",-0.0212],["2025-10-05","N1","Go Ahead Eagles","Nijmegen","1x2","Away","BFD",2.63,0.39,0.0258,0.4063,0,"1-1",0.0205]]},{"s":"2025-10-06","a":0,"p":[]},{"s":"2025-10-13","a":2,"p":[["2025-10-18","B1","RAAL La Louviere","Westerlo","1x2","Draw","BW",3.6,0.2859,0.0294,0.493,1,"0-0",0.0033],["2025-10-19","T1","Kayserispor","Samsunspor","1x2","Draw","BW",3.5,0.2915,0.0204,0.507,0,"1-3",-0.0054]]},{"s":"2025-10-20","a":3,"p":[["2025-10-20","B1","Standard","Antwerp","1x2","Draw","B365",3.5,0.2992,0.0473,0.3671,0,"1-0",-0.0101],["2025-10-25","B1","Gent","Standard","1x2","Draw","BW",3.7,0.2803,0.0372,0.3473,0,"4-0",0.0357],["2025-10-25","E3","Cheltenham","Walsall","1x2","Home","BFD",4.5,0.2287,0.0291,0.2856,1,"1-0",0.061]]},{"s":"2025-10-27","a":1,"p":[["2025-11-02","P1","AVS","Tondela","1x2","Draw","BW",3.25,0.3156,0.0255,1,1,"2-2",0.0039]]},{"s":"2025-11-03","a":5,"p":[["2025-11-08","B1","Cercle Brugge","Oud-Heverlee Leuven","1x2","Draw","BW",3.6,0.2888,0.0395,0.3508,0,"1-2",-0.0194],["2025-11-08","B1","Charleroi","Westerlo","1x2","Draw","BW",3.7,0.2794,0.0337,0.3413,0,"2-0",0.0228],["2025-11-08","N1","Excelsior","Heracles","1x2","Draw","B365",4.1,0.2504,0.0268,0.308,0,"1-2",0.011]]},{"s":"2025-11-10","a":0,"p":[]},{"s":"2025-11-17","a":1,"p":[["2025-11-22","E3","Oldham","Newport County","1x2","Away","BFD",5.5,0.1931,0.0618,1,0,"3-0",0.1208]]},{"s":"2025-11-24","a":1,"p":[["2025-11-30","N1","Go Ahead Eagles","Utrecht","1x2","Draw","BW",3.75,0.2729,0.0234,1,1,"2-2",0.0472]]},{"s":"2025-12-01","a":3,"p":[["2025-12-01","T1","Fenerbahce","Galatasaray","1x2","Draw","BW",3.7,0.2819,0.043,0.3179,1,"1-1",0.0057],["2025-12-05","F2","Guingamp","Annecy","1x2","Draw","B365",3.5,0.2958,0.0353,0.3361,0,"0-3",0.0406],["2025-12-07","T1","Goztep","Trabzonspor","1x2","Draw","BW",3.4,0.3036,0.0323,0.346,0,"1-2",0.0102]]},{"s":"2025-12-08","a":3,"p":[["2025-12-14","B1","Gent","Antwerp","1x2","Draw","BW",3.5,0.2933,0.0265,0.3119,0,"0-2",-0.0175],["2025-12-14","I1","Bologna","Juventus","1x2","Draw","B365",3.25,0.3149,0.0235,0.3359,0,"0-1",-0.0243],["2025-12-08","I1","Udinese","Genoa","1x2","Draw","BW",3.1,0.3293,0.0208,0.3522,0,"1-2",0.0315]]},{"s":"2025-12-15","a":0,"p":[]},{"s":"2025-12-22","a":0,"p":[]},{"s":"2025-12-29","a":0,"p":[]},{"s":"2026-01-05","a":1,"p":[["2026-01-07","I1","Lazio","Fiorentina","1x2","Draw","BV",3.2,0.3201,0.0244,1,1,"2-2",0.0213]]},{"s":"2026-01-12","a":1,"p":[["2026-01-18","E0","Wolves","Newcastle","1x2","Home","BFD",5,0.2046,0.0229,1,0,"0-0",-0.0102]]},{"s":"2026-01-19","a":4,"p":[["2026-01-25","B1","Antwerp","Charleroi","1x2","Draw","BW",3.4,0.3092,0.0513,0.3198,0,"0-2",0.0068],["2026-01-19","I1","Lazio","Como","1x2","Draw","BV",3.1,0.3354,0.0396,0.3507,0,"0-3",0.0544],["2026-01-24","T1","Samsunspor","Kocaelispor","1x2","Draw","B365",3.3,0.3106,0.025,0.3295,1,"0-0",0.0919]]},{"s":"2026-01-26","a":6,"p":[["2026-01-26","I1","Verona","Udinese","1x2","Draw","BW",3.2,0.328,0.0495,0.3694,0,"1-3",0.0755],["2026-01-31","D2","Kaiserslautern","Elversberg","1x2","Draw","BW",3.8,0.2711,0.0302,0.3111,0,"1-3",0.0017],["2026-01-31","I1","Napoli","Fiorentina","1x2","Draw","BW",3.7,0.2771,0.0252,0.3195,0,"2-1",0.1191]]},{"s":"2026-02-02","a":1,"p":[["2026-02-02","I1","Udinese","Roma","1x2","Away","BW",2,0.5109,0.0218,1,0,"1-0",-0.0238]]},{"s":"2026-02-09","a":2,"p":[["2026-02-15","I1","Napoli","Roma","1x2","Draw","BW",3.2,0.3227,0.0325,0.5362,1,"2-2",0.1059],["2026-02-13","B1","Mechelen","Genk","1x2","Draw","BW",3.7,0.277,0.0251,0.4638,0,"2-3",0.0339]]},{"s":"2026-02-16","a":1,"p":[["2026-02-22","SC0","Celtic","Hibernian","1x2","Away","BFD",7,0.1489,0.0424,1,1,"1-2",-0.1145]]},{"s":"2026-02-23","a":1,"p":[["2026-02-25","SP2","Ceuta","Cordoba","1x2","Draw","B365",3.3,0.3131,0.0333,1,0,"3-2",-0.0514]]},{"s":"2026-03-02","a":1,"p":[["2026-03-08","B1","Waregem","Standard","1x2","Home","BW",2.1,0.4878,0.0244,1,0,"0-1",0.0908]]},{"s":"2026-03-09","a":3,"p":[["2026-03-14","T1","Goztep","Alanyaspor","1x2","Draw","BW",3.3,0.312,0.0297,0.3331,1,"2-2",0.0379],["2026-03-14","T1","Kocaelispor","Konyaspor","1x2","Draw","B365",3.2,0.3206,0.0259,0.3435,0,"1-2",0.0596],["2026-03-15","E0","Crystal Palace","Leeds","1x2","Draw","BFD",3.4,0.3004,0.0212,0.3233,1,"0-0",0.0249]]},{"s":"2026-03-16","a":0,"p":[]},{"s":"2026-03-23","a":0,"p":[]},{"s":"2026-03-30","a":0,"p":[]},{"s":"2026-04-06","a":2,"p":[["2026-04-11","N1","Utrecht","Telstar","1x2","Draw","BV",4.2,0.2446,0.0275,0.4545,0,"4-1",-0.0567],["2026-04-12","I1","Como","Inter","1x2","Draw","B365",3.5,0.2922,0.0226,0.5455,0,"3-4",0.0218]]},{"s":"2026-04-13","a":1,"p":[["2026-04-19","I1","Pisa","Genoa","1x2","Draw","BW",3.25,0.3147,0.0226,1,0,"1-2",0.0235]]},{"s":"2026-04-20","a":0,"p":[]},{"s":"2026-04-27","a":0,"p":[]},{"s":"2026-05-04","a":2,"p":[["2026-05-10","SP1","Oviedo","Getafe","1x2","Home","BW",3.2,0.3201,0.0245,0.5362,0,"0-0",0.087],["2026-05-09","SP1","Ath Madrid","Celta","1x2","Draw","BV",3.7,0.2758,0.0204,0.4638,0,"0-1",-0.0604]]},{"s":"2026-05-11","a":1,"p":[["2026-05-17","T1","Trabzonspor","Genclerbirligi","1x2","Away","BV",2.45,0.426,0.0436,1,1,"0-3",-0.0394]]},{"s":"2026-05-18","a":0,"p":[]},{"s":"2026-05-25","a":0,"p":[]}]},"2627":{"metrics":{"rounds":13,"roundsPlayed":7,"picks":17,"avgPicks":2.4285714285714284,"avgOdds":4.140000000000001,"pickHitRate":0.23529411764705882,"roundsWithWinner":0.42857142857142855,"roundsCovered":0.42857142857142855,"roi":0.03477298649977589,"roiSe":0.5526225371066092,"expectedRoi":0.04465729334982486,"avgEdge":0.04663208671198606,"avgClv":0.06090758162230567,"clvSe":0.026855219258332032,"clvPositiveShare":0.7058823529411765,"longestLosingRun":2,"longestWipeoutRun":2},"rounds":[{"s":"2026-07-27","a":1,"p":[["2026-08-02","SC0","St Johnstone","Kilmarnock","1x2","Draw","BFD",3.6,0.2851,0.0262,1,0,"4-3",-0.0464]]},{"s":"2026-08-03","a":0,"p":[]},{"s":"2026-08-10","a":0,"p":[]},{"s":"2026-08-17","a":0,"p":[]},{"s":"2026-08-24","a":4,"p":[["2026-08-24","T1","Kocaelispor","Amedspor","1x2","Draw","B365",3.6,0.2981,0.0732,0.3548,0,"2-0",0.1194],["2026-08-29","E3","Crawley Town","Bristol Rvs","ou25","Over","B365",1.98,0.5287,0.0468,0.6452,0,"0-2",0.136]]},{"s":"2026-08-31","a":1,"p":[["2026-09-05","E3","Chesterfield","Barnet","1x2","Draw","BFD",3.75,0.2753,0.0322,1,1,"3-3",0.0097]]},{"s":"2026-09-07","a":8,"p":[["2026-09-12","F1","Paris FC","Lyon","1x2","Home","BFD",3.25,0.3651,0.1867,0.3085,0,"0-0",0.2298],["2026-09-13","I2","Mantova","Sampdoria","1x2","Away","B365",4,0.2587,0.0349,0.2507,0,"2-0",0.1677],["2026-09-09","SC0","St Johnstone","Celtic","1x2","Home","BFD",6.5,0.1585,0.0305,0.1543,0,"0-1",0.0242],["2026-09-12","E3","Oldham","Chesterfield","1x2","Draw","BFD",3.5,0.2928,0.0248,0.2865,0,"1-2",-0.0444]]},{"s":"2026-09-14","a":5,"p":[["2026-09-17","SP1","Betis","Getafe","1x2","Draw","B365",4,0.2598,0.0391,0.2534,0,"1-0",-0.074],["2026-09-20","SC0","Celtic","Rangers","1x2","Away","BW",3.2,0.3238,0.0361,0.3167,1,"0-1",-0.0492],["2026-09-19","T1","Buyuksehyr","Genclerbirligi","1x2","Away","B365",6.5,0.1578,0.026,0.1559,0,"4-0",0.3376],["2026-09-19","I1","Roma","Inter","1x2","Draw","BV",3.7,0.2769,0.0245,0.2739,1,"2-2",0.0344]]},{"s":"2026-09-21","a":0,"p":[]},{"s":"2026-09-28","a":0,"p":[]},{"s":"2026-10-05","a":3,"p":[["2026-10-10","N1","Feyenoord","AZ Alkmaar","1x2","Draw","B365",4.2,0.2472,0.0381,0.3491,0,"2-0",-0.038],["2026-10-10","E2","Doncaster","Burton","1x2","Away","BFD",5,0.2056,0.0282,0.2933,0,"1-0",0.0488],["2026-10-10","E3","Rotherham","Gillingham","1x2","Away","B365",4.1,0.249,0.021,0.3576,1,"1-4",0.0297]]},{"s":"2026-10-12","a":2,"p":[["2026-10-18","SC0","Celtic","Hearts","1x2","Away","BFD",5.5,0.1973,0.085,0.4211,0,"7-1",0.1046],["2026-10-17","SC0","Kilmarnock","Motherwell","1x2","Draw","BFD",4,0.2599,0.0395,0.5789,0,"3-2",0.0454]]},{"s":"2026-10-19","a":0,"p":[]}]}},"loose":{"2526":{"metrics":{"rounds":45,"roundsPlayed":38,"picks":93,"avgPicks":2.4473684210526314,"avgOdds":3.599462365591396,"pickHitRate":0.3118279569892473,"roundsWithWinner":0.5789473684210527,"roundsCovered":0.5789473684210527,"roi":-0.0470362364757827,"roiSe":0.14665669595906838,"expectedRoi":0.024362560497819135,"avgEdge":0.026378724874821832,"avgClv":0.00754175060860743,"clvSe":0.005833708518049335,"clvPositiveShare":0.6236559139784946,"longestLosingRun":3,"longestWipeoutRun":3},"rounds":[{"s":"2025-07-21","a":0,"p":[]},{"s":"2025-07-28","a":1,"p":[["2025-08-02","B1","Standard","Dender","1x2","Home","BW",1.98,0.5108,0.0114,1,0,"1-1",-0.161]]},{"s":"2025-08-04","a":2,"p":[["2025-08-09","E2","Stevenage","Rotherham","1x2","Away","BFD",5,0.2065,0.0323,0.4048,0,"1-0",0.0699],["2025-08-09","SC0","Livingston","Falkirk","1x2","Draw","B365",3.4,0.2978,0.0125,0.5952,0,"3-1",-0.0222]]},{"s":"2025-08-11","a":4,"p":[["2025-08-16","N1","Excelsior","Feyenoord","1x2","Home","BFD",7,0.1564,0.0949,0.1579,0,"1-2",-0.0393],["2025-08-17","B1","Charleroi","Antwerp","1x2","Draw","BW",3.5,0.2995,0.0483,0.3158,1,"1-1",0.0485],["2025-08-17","E0","Man United","Arsenal","1x2","Away","BW",2.1,0.4826,0.0134,0.5263,1,"0-1",0.0486]]},{"s":"2025-08-18","a":2,"p":[["2025-08-24","B1","Antwerp","Mechelen","1x2","Home","BW",2.05,0.4979,0.0207,0.6372,1,"2-1",-0.0292],["2025-08-24","D2","Darmstadt","Hertha","1x2","Away","B365",3.6,0.2823,0.0164,0.3628,0,"0-0",-0.1303]]},{"s":"2025-08-25","a":8,"p":[["2025-08-31","F1","Monaco","Strasbourg","1x2","Away","BFD",6,0.1727,0.036,0.1948,0,"3-2",-0.1798],["2025-08-31","SP1","Vallecano","Barcelona","1x2","Home","BFD",7.5,0.137,0.0275,0.1558,0,"1-1",-0.0025],["2025-08-30","B1","Charleroi","Dender","1x2","Home","BW",1.8,0.5693,0.0248,0.6494,1,"3-1",0.0266]]},{"s":"2025-09-01","a":1,"p":[["2025-09-06","E3","Newport County","Bristol Rvs","1x2","Home","BFD",4,0.2578,0.0313,1,0,"2-3",-0.0129]]},{"s":"2025-09-08","a":4,"p":[["2025-09-14","B1","Cercle Brugge","Charleroi","1x2","Draw","BW",3.5,0.295,0.0326,0.3301,0,"2-3",0.0256],["2025-09-13","T1","Karagumruk","Kasimpasa","1x2","Draw","B365",3.4,0.3035,0.0317,0.3398,0,"0-1",0.0533],["2025-09-13","E2","Burton","Lincoln","1x2","Draw","B365",3.5,0.2939,0.0287,0.3301,0,"0-1",-0.0178]]},{"s":"2025-09-15","a":6,"p":[["2025-09-21","E1","Bristol City","Oxford","1x2","Draw","B365",4.2,0.2436,0.0233,0.2941,0,"1-3",-0.0385],["2025-09-20","T1","Antalyaspor","Kayserispor","1x2","Draw","B365",3.5,0.2921,0.0223,0.3529,1,"1-1",0.0368],["2025-09-21","E0","Sunderland","Aston Villa","1x2","Draw","B365",3.5,0.2903,0.0162,0.3529,1,"1-1",-0.0362]]},{"s":"2025-09-22","a":7,"p":[["2025-09-28","B1","Cercle Brugge","Gent","1x2","Draw","B365",3.8,0.2745,0.0431,0.3059,0,"2-4",0.0172],["2025-09-28","P1","Alverca","Guimaraes","1x2","Draw","B365",3.4,0.3053,0.0382,0.3419,0,"2-0",0.0566],["2025-09-27","P1","Moreirense","Casa Pia","1x2","Draw","B365",3.3,0.3111,0.0267,0.3522,0,"2-1",-0.0278]]},{"s":"2025-09-29","a":9,"p":[["2025-10-04","B1","RAAL La Louviere","Waregem","1x2","Draw","B365",3.6,0.2966,0.0679,0.2968,1,"0-0",0.0505],["2025-10-04","B1","Antwerp","Cercle Brugge","1x2","Draw","BW",3.6,0.2851,0.0263,0.2968,1,"1-1",-0.0212],["2025-10-05","N1","Go Ahead Eagles","Nijmegen","1x2","Away","BFD",2.63,0.39,0.0258,0.4063,0,"1-1",0.0205]]},{"s":"2025-10-06","a":1,"p":[["2025-10-11","E3","Crawley Town","Walsall","ou25","Over","B365",1.98,0.5147,0.0192,1,0,"1-1",0.0108]]},{"s":"2025-10-13","a":4,"p":[["2025-10-18","B1","RAAL La Louviere","Westerlo","1x2","Draw","BW",3.6,0.2859,0.0294,0.3302,1,"0-0",0.0033],["2025-10-19","T1","Kayserispor","Samsunspor","1x2","Draw","BW",3.5,0.2915,0.0204,0.3396,0,"1-3",-0.0054],["2025-10-19","B1","St Truiden","Anderlecht","1x2","Draw","BW",3.6,0.2816,0.0139,0.3302,1,"2-2",0.0007]]},{"s":"2025-10-20","a":8,"p":[["2025-10-20","B1","Standard","Antwerp","1x2","Draw","B365",3.5,0.2992,0.0473,0.2921,0,"1-0",-0.0101],["2025-10-25","B1","Gent","Standard","1x2","Draw","BW",3.7,0.2803,0.0372,0.2763,0,"4-0",0.0357],["2025-10-25","E3","Cheltenham","Walsall","1x2","Home","BFD",4.5,0.2287,0.0291,0.2272,1,"1-0",0.061],["2025-10-24","E0","Leeds","West Ham","1x2","Away","BFD",5,0.2023,0.0116,0.2045,0,"2-1",0.0134]]},{"s":"2025-10-27","a":2,"p":[["2025-11-02","P1","AVS","Tondela","1x2","Draw","BW",3.25,0.3156,0.0255,0.5255,1,"2-2",0.0039],["2025-11-02","B1","St Truiden","Antwerp","1x2","Draw","BW",3.6,0.2833,0.02,0.4745,0,"1-0",0.0112]]},{"s":"2025-11-03","a":10,"p":[["2025-11-08","B1","Cercle Brugge","Oud-Heverlee Leuven","1x2","Draw","BW",3.6,0.2888,0.0395,0.3029,0,"1-2",-0.0194],["2025-11-08","B1","Charleroi","Westerlo","1x2","Draw","BW",3.7,0.2794,0.0337,0.2947,0,"2-0",0.0228],["2025-11-08","N1","Excelsior","Heracles","1x2","Draw","B365",4.1,0.2504,0.0268,0.266,0,"1-2",0.011],["2025-11-08","E1","Southampton","Sheffield Weds","1x2","Away","BFD",8,0.127,0.016,0.1363,0,"3-1",-0.013]]},{"s":"2025-11-10","a":0,"p":[]},{"s":"2025-11-17","a":4,"p":[["2025-11-22","E3","Oldham","Newport County","1x2","Away","BFD",5.5,0.1931,0.0618,0.2437,0,"3-0",0.1208],["2025-11-23","B1","Oud-Heverlee Leuven","St Truiden","1x2","Draw","BW",3.4,0.2997,0.0189,0.3942,0,"1-2",-0.0195],["2025-11-22","T1","Eyupspor","Karagumruk","1x2","Draw","B365",3.7,0.2734,0.0114,0.3622,1,"1-1",0.0014]]},{"s":"2025-11-24","a":4,"p":[["2025-11-30","N1","Go Ahead Eagles","Utrecht","1x2","Draw","BW",3.75,0.2729,0.0234,0.2827,1,"2-2",0.0472],["2025-11-30","E0","Aston Villa","Wolves","1x2","Away","BFD",7.5,0.1359,0.0195,0.1413,0,"1-0",-0.0458],["2025-11-30","D1","Ein Frankfurt","Wolfsburg","1x2","Draw","BW",4.33,0.2348,0.0166,0.2448,1,"1-1",0.0733],["2025-11-29","I1","Parma","Udinese","1x2","Draw","BV",3.2,0.3166,0.013,0.3312,0,"0-2",0.0267]]},{"s":"2025-12-01","a":5,"p":[["2025-12-01","T1","Fenerbahce","Galatasaray","1x2","Draw","BW",3.7,0.2819,0.043,0.3179,1,"1-1",0.0057],["2025-12-05","F2","Guingamp","Annecy","1x2","Draw","B365",3.5,0.2958,0.0353,0.3361,0,"0-3",0.0406],["2025-12-07","T1","Goztep","Trabzonspor","1x2","Draw","BW",3.4,0.3036,0.0323,0.346,0,"1-2",0.0102]]},{"s":"2025-12-08","a":5,"p":[["2025-12-14","B1","Gent","Antwerp","1x2","Draw","BW",3.5,0.2933,0.0265,0.3119,0,"0-2",-0.0175],["2025-12-14","I1","Bologna","Juventus","1x2","Draw","B365",3.25,0.3149,0.0235,0.3359,0,"0-1",-0.0243],["2025-12-08","I1","Udinese","Genoa","1x2","Draw","BW",3.1,0.3293,0.0208,0.3522,0,"1-2",0.0315]]},{"s":"2025-12-15","a":2,"p":[["2025-12-15","I1","Roma","Como","1x2","Draw","B365",3.3,0.3086,0.0185,0.3866,0,"1-0",0.0091],["2025-12-21","I2","Mantova","Empoli","ou25","Over","B365",2.08,0.4895,0.0181,0.6134,0,"0-1",-0.0135]]},{"s":"2025-12-22","a":1,"p":[["2025-12-22","T1","Buyuksehyr","Gaziantep","1x2","Home","BW",1.77,0.5734,0.0149,1,1,"5-1",0.0316]]},{"s":"2025-12-29","a":2,"p":[["2026-01-04","E1","Birmingham","Coventry","1x2","Away","BFD",2.75,0.37,0.0174,0.4608,0,"3-2",0.0198],["2026-01-04","SP1","Mallorca","Girona","1x2","Home","BW",2.35,0.4323,0.016,0.5392,0,"1-2",0.0162]]},{"s":"2026-01-05","a":3,"p":[["2026-01-07","I1","Lazio","Fiorentina","1x2","Draw","BV",3.2,0.3201,0.0244,0.3431,1,"2-2",0.0213],["2026-01-10","SC0","Hibernian","Motherwell","1x2","Draw","BW",3.5,0.2899,0.0146,0.3137,1,"1-1",0.0008],["2026-01-07","I1","Torino","Udinese","1x2","Draw","BV",3.2,0.3159,0.0109,0.3431,0,"1-2",0.0405]]},{"s":"2026-01-12","a":2,"p":[["2026-01-18","E0","Wolves","Newcastle","1x2","Home","BFD",5,0.2046,0.0229,0.3056,0,"0-0",-0.0102],["2026-01-18","I1","Torino","Roma","1x2","Away","BW",2.2,0.4596,0.0112,0.6944,1,"0-2",0.1087]]},{"s":"2026-01-19","a":7,"p":[["2026-01-25","B1","Antwerp","Charleroi","1x2","Draw","BW",3.4,0.3092,0.0513,0.3198,0,"0-2",0.0068],["2026-01-19","I1","Lazio","Como","1x2","Draw","BV",3.1,0.3354,0.0396,0.3507,0,"0-3",0.0544],["2026-01-24","T1","Samsunspor","Kocaelispor","1x2","Draw","B365",3.3,0.3106,0.025,0.3295,1,"0-0",0.0919]]},{"s":"2026-01-26","a":9,"p":[["2026-01-26","I1","Verona","Udinese","1x2","Draw","BW",3.2,0.328,0.0495,0.3694,0,"1-3",0.0755],["2026-01-31","D2","Kaiserslautern","Elversberg","1x2","Draw","BW",3.8,0.2711,0.0302,0.3111,0,"1-3",0.0017],["2026-01-31","I1","Napoli","Fiorentina","1x2","Draw","BW",3.7,0.2771,0.0252,0.3195,0,"2-1",0.1191]]},{"s":"2026-02-02","a":4,"p":[["2026-02-02","I1","Udinese","Roma","1x2","Away","BW",2,0.5109,0.0218,0.6364,0,"1-0",-0.0238],["2026-02-07","N1","For Sittard","Sparta Rotterdam","1x2","Draw","B365",3.5,0.2911,0.0189,0.3636,1,"2-2",-0.0395]]},{"s":"2026-02-09","a":3,"p":[["2026-02-15","I1","Napoli","Roma","1x2","Draw","BW",3.2,0.3227,0.0325,0.3564,1,"2-2",0.1059],["2026-02-13","B1","Mechelen","Genk","1x2","Draw","BW",3.7,0.277,0.0251,0.3082,0,"2-3",0.0339],["2026-02-11","I2","Avellino","Frosinone","1x2","Draw","BV",3.4,0.2994,0.0179,0.3354,0,"1-3",-0.0156]]},{"s":"2026-02-16","a":4,"p":[["2026-02-22","SC0","Celtic","Hibernian","1x2","Away","BFD",7,0.1489,0.0424,0.3137,1,"1-2",-0.1145],["2026-02-22","I1","Genoa","Torino","1x2","Draw","BFD",3.2,0.317,0.0146,0.6863,0,"3-0",0.0594]]},{"s":"2026-02-23","a":3,"p":[["2026-02-25","SP2","Ceuta","Cordoba","1x2","Draw","B365",3.3,0.3131,0.0333,0.3432,0,"3-2",-0.0514],["2026-02-28","I2","Spezia","Reggiana","1x2","Draw","BW",3.4,0.2988,0.0161,0.3331,0,"0-1",0.066],["2026-02-28","B1","Antwerp","St Truiden","1x2","Draw","BW",3.5,0.2903,0.0159,0.3236,0,"1-0",-0.0711]]},{"s":"2026-03-02","a":5,"p":[["2026-03-08","B1","Waregem","Standard","1x2","Home","BW",2.1,0.4878,0.0244,0.6075,0,"0-1",0.0908],["2026-03-08","T1","Konyaspor","Kasimpasa","1x2","Draw","BV",3.25,0.3135,0.019,0.3925,1,"1-1",-0.0368]]},{"s":"2026-03-09","a":6,"p":[["2026-03-14","T1","Goztep","Alanyaspor","1x2","Draw","BW",3.3,0.312,0.0297,0.3331,1,"2-2",0.0379],["2026-03-14","T1","Kocaelispor","Konyaspor","1x2","Draw","B365",3.2,0.3206,0.0259,0.3435,0,"1-2",0.0596],["2026-03-15","E0","Crystal Palace","Leeds","1x2","Draw","BFD",3.4,0.3004,0.0212,0.3233,1,"0-0",0.0249]]},{"s":"2026-03-16","a":5,"p":[["2026-03-18","T1","Alanyaspor","Kocaelispor","1x2","Home","BW",2.1,0.4851,0.0187,0.6182,1,"5-0",0.0217],["2026-03-22","B1","St Truiden","St. Gilloise","1x2","Draw","BW",3.4,0.2985,0.0149,0.3818,0,"1-3",0.0305]]},{"s":"2026-03-23","a":0,"p":[]},{"s":"2026-03-30","a":0,"p":[]},{"s":"2026-04-06","a":3,"p":[["2026-04-11","N1","Utrecht","Telstar","1x2","Draw","BV",4.2,0.2446,0.0275,0.4545,0,"4-1",-0.0567],["2026-04-12","I1","Como","Inter","1x2","Draw","B365",3.5,0.2922,0.0226,0.5455,0,"3-4",0.0218]]},{"s":"2026-04-13","a":2,"p":[["2026-04-19","I1","Pisa","Genoa","1x2","Draw","BW",3.25,0.3147,0.0226,0.5712,0,"1-2",0.0235],["2026-04-18","E1","Swansea","Southampton","1x2","Draw","B365",4.33,0.2335,0.0109,0.4288,0,"1-2",-0.0082]]},{"s":"2026-04-20","a":0,"p":[]},{"s":"2026-04-27","a":0,"p":[]},{"s":"2026-05-04","a":2,"p":[["2026-05-10","SP1","Oviedo","Getafe","1x2","Home","BW",3.2,0.3201,0.0245,0.5362,0,"0-0",0.087],["2026-05-09","SP1","Ath Madrid","Celta","1x2","Draw","BV",3.7,0.2758,0.0204,0.4638,0,"0-1",-0.0604]]},{"s":"2026-05-11","a":5,"p":[["2026-05-17","T1","Trabzonspor","Genclerbirligi","1x2","Away","BV",2.45,0.426,0.0436,0.4948,1,"0-3",-0.0394],["2026-05-17","SP2","La Coruna","Andorra","ou25","Under","B365",2.4,0.4242,0.0182,0.5052,0,"2-1",0.044]]},{"s":"2026-05-18","a":0,"p":[]},{"s":"2026-05-25","a":1,"p":[["2026-05-31","SP2","Zaragoza","Malaga","1x2","Draw","B365",3.6,0.2815,0.0133,1,0,"0-2",-0.1733]]}]},"2627":{"metrics":{"rounds":13,"roundsPlayed":10,"picks":27,"avgPicks":2.7,"avgOdds":4.252962962962962,"pickHitRate":0.2962962962962963,"roundsWithWinner":0.6,"roundsCovered":0.6,"roi":0.33838544053226627,"roiSe":0.43746015876723954,"expectedRoi":0.033595378241706574,"avgEdge":0.03545056011787783,"avgClv":0.030720709625699776,"clvSe":0.02245904447487371,"clvPositiveShare":0.6296296296296297,"longestLosingRun":2,"longestWipeoutRun":2},"rounds":[{"s":"2026-07-27","a":1,"p":[["2026-08-02","SC0","St Johnstone","Kilmarnock","1x2","Draw","BFD",3.6,0.2851,0.0262,1,0,"4-3",-0.0464]]},{"s":"2026-08-03","a":0,"p":[]},{"s":"2026-08-10","a":3,"p":[["2026-08-16","N1","Ajax","Heerenveen","1x2","Away","B365",7,0.1454,0.0179,0.2207,0,"2-2",-0.0937],["2026-08-15","N1","Excelsior","PSV Eindhoven","1x2","Home","B365",5.5,0.1847,0.0157,0.2809,0,"1-2",-0.2685],["2026-08-15","D2","Hertha","Heidenheim","1x2","Away","B365",3.1,0.3267,0.0129,0.4984,0,"4-1",0.1872]]},{"s":"2026-08-17","a":5,"p":[["2026-08-22","F1","Toulouse","Lyon","1x2","Draw","BFD",3.6,0.2827,0.0176,0.391,0,"0-2",0.0243],["2026-08-23","I1","Frosinone","Juventus","1x2","Home","B365",8,0.1272,0.0172,0.1759,0,"0-1",-0.0116],["2026-08-23","I2","Cesena","Sampdoria","1x2","Draw","B365",3.25,0.3122,0.0148,0.4331,1,"1-1",0.0206]]},{"s":"2026-08-24","a":6,"p":[["2026-08-24","T1","Kocaelispor","Amedspor","1x2","Draw","B365",3.6,0.2981,0.0732,0.3548,0,"2-0",0.1194],["2026-08-29","E3","Crawley Town","Bristol Rvs","ou25","Over","B365",1.98,0.5287,0.0468,0.6452,0,"0-2",0.136]]},{"s":"2026-08-31","a":1,"p":[["2026-09-05","E3","Chesterfield","Barnet","1x2","Draw","BFD",3.75,0.2753,0.0322,1,1,"3-3",0.0097]]},{"s":"2026-09-07","a":13,"p":[["2026-09-12","F1","Paris FC","Lyon","1x2","Home","BFD",3.25,0.3651,0.1867,0.3085,0,"0-0",0.2298],["2026-09-13","I2","Mantova","Sampdoria","1x2","Away","B365",4,0.2587,0.0349,0.2507,0,"2-0",0.1677],["2026-09-09","SC0","St Johnstone","Celtic","1x2","Home","BFD",6.5,0.1585,0.0305,0.1543,0,"0-1",0.0242],["2026-09-12","E3","Oldham","Chesterfield","1x2","Draw","BFD",3.5,0.2928,0.0248,0.2865,0,"1-2",-0.0444]]},{"s":"2026-09-14","a":7,"p":[["2026-09-17","SP1","Betis","Getafe","1x2","Draw","B365",4,0.2598,0.0391,0.2534,0,"1-0",-0.074],["2026-09-20","SC0","Celtic","Rangers","1x2","Away","BW",3.2,0.3238,0.0361,0.3167,1,"0-1",-0.0492],["2026-09-19","T1","Buyuksehyr","Genclerbirligi","1x2","Away","B365",6.5,0.1578,0.026,0.1559,0,"4-0",0.3376],["2026-09-19","I1","Roma","Inter","1x2","Draw","BV",3.7,0.2769,0.0245,0.2739,1,"2-2",0.0344]]},{"s":"2026-09-21","a":0,"p":[]},{"s":"2026-09-28","a":0,"p":[]},{"s":"2026-10-05","a":7,"p":[["2026-10-10","N1","Feyenoord","AZ Alkmaar","1x2","Draw","B365",4.2,0.2472,0.0381,0.2481,0,"2-0",-0.038],["2026-10-10","E2","Doncaster","Burton","1x2","Away","BFD",5,0.2056,0.0282,0.2084,0,"1-0",0.0488],["2026-10-10","E3","Rotherham","Gillingham","1x2","Away","B365",4.1,0.249,0.021,0.2541,1,"1-4",0.0297],["2026-10-10","E3","Fleetwood Town","Walsall","1x2","Draw","BFD",3.6,0.2826,0.0172,0.2894,1,"1-1",-0.0446]]},{"s":"2026-10-12","a":6,"p":[["2026-10-18","SC0","Celtic","Hearts","1x2","Away","BFD",5.5,0.1973,0.085,0.1846,0,"7-1",0.1046],["2026-10-17","SC0","Kilmarnock","Motherwell","1x2","Draw","BFD",4,0.2599,0.0395,0.2538,0,"3-2",0.0454],["2026-10-17","SP2","Eibar","Mallorca","1x2","Draw","B365",3.3,0.309,0.0196,0.3077,1,"1-1",0.0069],["2026-10-17","E3","Oldham","Cheltenham","1x2","Draw","B365",4,0.253,0.012,0.2538,0,"4-1",-0.0347]]},{"s":"2026-10-19","a":1,"p":[["2026-10-19","SP1","Getafe","Vallecano","1x2","Draw","BFD",3.1,0.3289,0.0196,1,1,"1-1",0.0081]]}]}},"one-book":{"2526":{"metrics":{"rounds":45,"roundsPlayed":27,"picks":39,"avgPicks":1.4444444444444444,"avgOdds":3.343589743589743,"pickHitRate":0.2564102564102564,"roundsWithWinner":0.3333333333333333,"roundsCovered":0.3333333333333333,"roi":-0.17420992075281613,"roiSe":0.25335828241786407,"expectedRoi":0.02099230348871878,"avgEdge":0.02259025128644451,"avgClv":-0.009944620130501406,"clvSe":0.009734619098535058,"clvPositiveShare":0.5128205128205128,"longestLosingRun":5,"longestWipeoutRun":5},"rounds":[{"s":"2025-07-21","a":0,"p":[]},{"s":"2025-07-28","a":0,"p":[]},{"s":"2025-08-04","a":1,"p":[["2025-08-09","SC0","Livingston","Falkirk","1x2","Draw","B365",3.4,0.2978,0.0125,1,0,"3-1",-0.0222]]},{"s":"2025-08-11","a":1,"p":[["2025-08-17","B1","Charleroi","Antwerp","1x2","Draw","B365",3.4,0.2995,0.0184,1,1,"1-1",0.0186]]},{"s":"2025-08-18","a":1,"p":[["2025-08-24","D2","Darmstadt","Hertha","1x2","Away","B365",3.6,0.2823,0.0164,1,0,"0-0",-0.1303]]},{"s":"2025-08-25","a":2,"p":[["2025-08-31","B1","Genk","Waregem","1x2","Draw","B365",5.5,0.185,0.0173,0.4022,0,"3-2",-0.034],["2025-08-31","T1","Alanyaspor","Besiktas","1x2","Draw","B365",3.7,0.273,0.0102,0.5978,0,"2-0",-0.0071]]},{"s":"2025-09-01","a":0,"p":[]},{"s":"2025-09-08","a":2,"p":[["2025-09-13","T1","Karagumruk","Kasimpasa","1x2","Draw","B365",3.4,0.3035,0.0317,0.5072,0,"0-1",0.0533],["2025-09-13","E2","Burton","Lincoln","1x2","Draw","B365",3.5,0.2939,0.0287,0.4928,0,"0-1",-0.0178]]},{"s":"2025-09-15","a":5,"p":[["2025-09-21","E1","Bristol City","Oxford","1x2","Draw","B365",4.2,0.2436,0.0233,0.2941,0,"1-3",-0.0385],["2025-09-20","T1","Antalyaspor","Kayserispor","1x2","Draw","B365",3.5,0.2921,0.0223,0.3529,1,"1-1",0.0368],["2025-09-21","E0","Sunderland","Aston Villa","1x2","Draw","B365",3.5,0.2903,0.0162,0.3529,1,"1-1",-0.0362]]},{"s":"2025-09-22","a":4,"p":[["2025-09-28","B1","Cercle Brugge","Gent","1x2","Draw","B365",3.8,0.2745,0.0431,0.3059,0,"2-4",0.0172],["2025-09-28","P1","Alverca","Guimaraes","1x2","Draw","B365",3.4,0.3053,0.0382,0.3419,0,"2-0",0.0566],["2025-09-27","P1","Moreirense","Casa Pia","1x2","Draw","B365",3.3,0.3111,0.0267,0.3522,0,"2-1",-0.0278]]},{"s":"2025-09-29","a":5,"p":[["2025-10-04","B1","RAAL La Louviere","Waregem","1x2","Draw","B365",3.6,0.2966,0.0679,0.3271,1,"0-0",0.0505],["2025-10-04","E2","Huddersfield","Stockport","1x2","Draw","B365",3.5,0.2925,0.0237,0.3364,0,"1-2",-0.0506],["2025-10-05","D2","Greuther Furth","Hannover","1x2","Home","B365",3.5,0.2922,0.0226,0.3364,0,"2-2",-0.2307]]},{"s":"2025-10-06","a":1,"p":[["2025-10-11","E3","Crawley Town","Walsall","ou25","Over","B365",1.98,0.5147,0.0192,1,0,"1-1",0.0108]]},{"s":"2025-10-13","a":1,"p":[["2025-10-18","E3","Accrington","Swindon","ou25","Over","B365",1.93,0.5234,0.0102,1,1,"4-0",-0.02]]},{"s":"2025-10-20","a":1,"p":[["2025-10-20","B1","Standard","Antwerp","1x2","Draw","B365",3.5,0.2992,0.0473,1,0,"1-0",-0.0101]]},{"s":"2025-10-27","a":0,"p":[]},{"s":"2025-11-03","a":2,"p":[["2025-11-08","N1","Excelsior","Heracles","1x2","Draw","B365",4.1,0.2504,0.0268,0.4605,0,"1-2",0.011],["2025-11-08","B1","Cercle Brugge","Oud-Heverlee Leuven","1x2","Draw","B365",3.5,0.2888,0.0106,0.5395,0,"1-2",-0.0467]]},{"s":"2025-11-10","a":0,"p":[]},{"s":"2025-11-17","a":1,"p":[["2025-11-22","T1","Eyupspor","Karagumruk","1x2","Draw","B365",3.7,0.2734,0.0114,1,1,"1-1",0.0014]]},{"s":"2025-11-24","a":0,"p":[]},{"s":"2025-12-01","a":1,"p":[["2025-12-05","F2","Guingamp","Annecy","1x2","Draw","B365",3.5,0.2958,0.0353,1,0,"0-3",0.0406]]},{"s":"2025-12-08","a":1,"p":[["2025-12-14","I1","Bologna","Juventus","1x2","Draw","B365",3.25,0.3149,0.0235,1,0,"0-1",-0.0243]]},{"s":"2025-12-15","a":2,"p":[["2025-12-15","I1","Roma","Como","1x2","Draw","B365",3.3,0.3086,0.0185,0.3866,0,"1-0",0.0091],["2025-12-21","I2","Mantova","Empoli","ou25","Over","B365",2.08,0.4895,0.0181,0.6134,0,"0-1",-0.0135]]},{"s":"2025-12-22","a":0,"p":[]},{"s":"2025-12-29","a":0,"p":[]},{"s":"2026-01-05","a":0,"p":[]},{"s":"2026-01-12","a":0,"p":[]},{"s":"2026-01-19","a":2,"p":[["2026-01-24","T1","Samsunspor","Kocaelispor","1x2","Draw","B365",3.3,0.3106,0.025,0.4962,1,"0-0",0.0919],["2026-01-25","T1","Antalyaspor","Genclerbirligi","1x2","Draw","B365",3.25,0.3123,0.0148,0.5038,0,"2-1",0.01]]},{"s":"2026-01-26","a":1,"p":[["2026-01-27","E3","Walsall","Crawley Town","ou25","Over","B365",2.03,0.4987,0.0124,1,0,"0-0",0.015]]},{"s":"2026-02-02","a":1,"p":[["2026-02-07","N1","For Sittard","Sparta Rotterdam","1x2","Draw","B365",3.5,0.2911,0.0189,1,1,"2-2",-0.0395]]},{"s":"2026-02-09","a":0,"p":[]},{"s":"2026-02-16","a":0,"p":[]},{"s":"2026-02-23","a":1,"p":[["2026-02-25","SP2","Ceuta","Cordoba","1x2","Draw","B365",3.3,0.3131,0.0333,1,0,"3-2",-0.0514]]},{"s":"2026-03-02","a":1,"p":[["2026-03-04","I2","Carrarese","Catanzaro","1x2","Draw","B365",3.25,0.3134,0.0185,1,1,"3-3",0.026]]},{"s":"2026-03-09","a":3,"p":[["2026-03-14","T1","Kocaelispor","Konyaspor","1x2","Draw","B365",3.2,0.3206,0.0259,0.3846,0,"1-2",0.0596],["2026-03-14","E2","Wycombe","Luton","ou25","Over","B365",2,0.5078,0.0156,0.6154,1,"1-2",0.0103]]},{"s":"2026-03-16","a":1,"p":[["2026-03-21","P1","Santa Clara","Gil Vicente","1x2","Draw","B365",3.1,0.3263,0.0117,1,0,"1-0",0.0098]]},{"s":"2026-03-23","a":0,"p":[]},{"s":"2026-03-30","a":0,"p":[]},{"s":"2026-04-06","a":1,"p":[["2026-04-12","I1","Como","Inter","1x2","Draw","B365",3.5,0.2922,0.0226,1,0,"3-4",0.0218]]},{"s":"2026-04-13","a":1,"p":[["2026-04-18","E1","Swansea","Southampton","1x2","Draw","B365",4.33,0.2335,0.0109,1,0,"1-2",-0.0082]]},{"s":"2026-04-20","a":0,"p":[]},{"s":"2026-04-27","a":0,"p":[]},{"s":"2026-05-04","a":0,"p":[]},{"s":"2026-05-11","a":1,"p":[["2026-05-17","SP2","La Coruna","Andorra","ou25","Under","B365",2.4,0.4242,0.0182,1,0,"2-1",0.044]]},{"s":"2026-05-18","a":0,"p":[]},{"s":"2026-05-25","a":1,"p":[["2026-05-31","SP2","Zaragoza","Malaga","1x2","Draw","B365",3.6,0.2815,0.0133,1,0,"0-2",-0.1733]]}]},"2627":{"metrics":{"rounds":13,"roundsPlayed":7,"picks":18,"avgPicks":2.5714285714285716,"avgOdds":4.362777777777778,"pickHitRate":0.16666666666666666,"roundsWithWinner":0.42857142857142855,"roundsCovered":0.42857142857142855,"roi":-0.30581039509021907,"roiSe":0.35379635494115536,"expectedRoi":0.025667056613715693,"avgEdge":0.024925805840764884,"avgClv":0.01286903444640901,"clvSe":0.034257503833643815,"clvPositiveShare":0.5555555555555556,"longestLosingRun":3,"longestWipeoutRun":3},"rounds":[{"s":"2026-07-27","a":0,"p":[]},{"s":"2026-08-03","a":0,"p":[]},{"s":"2026-08-10","a":3,"p":[["2026-08-16","N1","Ajax","Heerenveen","1x2","Away","B365",7,0.1454,0.0179,0.2207,0,"2-2",-0.0937],["2026-08-15","N1","Excelsior","PSV Eindhoven","1x2","Home","B365",5.5,0.1847,0.0157,0.2809,0,"1-2",-0.2685],["2026-08-15","D2","Hertha","Heidenheim","1x2","Away","B365",3.1,0.3267,0.0129,0.4984,0,"4-1",0.1872]]},{"s":"2026-08-17","a":2,"p":[["2026-08-23","I1","Frosinone","Juventus","1x2","Home","B365",8,0.1272,0.0172,0.2889,0,"0-1",-0.0116],["2026-08-23","I2","Cesena","Sampdoria","1x2","Draw","B365",3.25,0.3122,0.0148,0.7111,1,"1-1",0.0206]]},{"s":"2026-08-24","a":4,"p":[["2026-08-24","T1","Kocaelispor","Amedspor","1x2","Draw","B365",3.6,0.2981,0.0732,0.3548,0,"2-0",0.1194],["2026-08-29","E3","Crawley Town","Bristol Rvs","ou25","Over","B365",1.98,0.5287,0.0468,0.6452,0,"0-2",0.136]]},{"s":"2026-08-31","a":0,"p":[]},{"s":"2026-09-07","a":2,"p":[["2026-09-13","I2","Mantova","Sampdoria","1x2","Away","B365",4,0.2587,0.0349,0.5676,0,"2-0",0.1677],["2026-09-12","E2","Sheffield Weds","Wigan","1x2","Away","B365",5.25,0.1941,0.0191,0.4324,0,"0-0",0.0536]]},{"s":"2026-09-14","a":3,"p":[["2026-09-17","SP1","Betis","Getafe","1x2","Draw","B365",4,0.2598,0.0391,0.3514,0,"1-0",-0.074],["2026-09-19","T1","Buyuksehyr","Genclerbirligi","1x2","Away","B365",6.5,0.1578,0.026,0.2162,0,"4-0",0.3376],["2026-09-16","SP1","La Coruna","Sevilla","1x2","Draw","B365",3.25,0.3136,0.0192,0.4324,0,"0-1",0.0315]]},{"s":"2026-09-21","a":0,"p":[]},{"s":"2026-09-28","a":0,"p":[]},{"s":"2026-10-05","a":3,"p":[["2026-10-10","N1","Feyenoord","AZ Alkmaar","1x2","Draw","B365",4.2,0.2472,0.0381,0.3381,0,"2-0",-0.038],["2026-10-10","E3","Rotherham","Gillingham","1x2","Away","B365",4.1,0.249,0.021,0.3463,1,"1-4",0.0297],["2026-10-10","E2","Mansfield","Bromley","1x2","Away","B365",4.5,0.2247,0.0112,0.3156,0,"2-1",-0.1881]]},{"s":"2026-10-12","a":3,"p":[["2026-10-17","SP2","Eibar","Mallorca","1x2","Draw","B365",3.3,0.309,0.0196,0.3419,1,"1-1",0.0069],["2026-10-17","E3","Oldham","Cheltenham","1x2","Draw","B365",4,0.253,0.012,0.2821,0,"4-1",-0.0347],["2026-10-17","E3","Accrington","Gillingham","1x2","Away","B365",3,0.3367,0.01,0.3761,0,"3-1",-0.15]]},{"s":"2026-10-19","a":0,"p":[]}]}},"thin":{"2526":{"metrics":{"rounds":45,"roundsPlayed":35,"picks":81,"avgPicks":2.3142857142857145,"avgOdds":3.5925925925925912,"pickHitRate":0.2839506172839506,"roundsWithWinner":0.5142857142857142,"roundsCovered":0.5142857142857142,"roi":-0.08844992372052303,"roiSe":0.1814109443423997,"expectedRoi":0.04230503206405203,"avgEdge":0.04313322305928779,"avgClv":-0.006759889524185022,"clvSe":0.009237073615219945,"clvPositiveShare":0.55,"longestLosingRun":3,"longestWipeoutRun":3},"rounds":[{"s":"2025-07-21","a":0,"p":[]},{"s":"2025-07-28","a":0,"p":[]},{"s":"2025-08-04","a":3,"p":[["2025-08-09","SC3","Stirling","Annan Athletic","ou25","Over","B365",1.93,0.5367,0.0359,0.7215,0,"0-0",0.1041],["2025-08-09","E2","Stevenage","Rotherham","1x2","Away","BFD",5,0.2065,0.0323,0.2785,0,"1-0",0.0699]]},{"s":"2025-08-11","a":4,"p":[["2025-08-16","N1","Excelsior","Feyenoord","1x2","Home","BFD",7,0.1564,0.0949,0.1538,0,"1-2",-0.0393],["2025-08-17","B1","Charleroi","Antwerp","1x2","Draw","BW",3.5,0.2995,0.0483,0.3077,1,"1-1",0.0485],["2025-08-16","B1","Mechelen","Gent","1x2","Home","BW",2,0.513,0.026,0.5385,0,"1-1",-0.0978]]},{"s":"2025-08-18","a":3,"p":[["2025-08-20","EC","Southend","York","1x2","Draw","B365",3.7,0.2775,0.0269,0.3565,1,"0-0",0.0089],["2025-08-24","B1","Antwerp","Mechelen","1x2","Home","BW",2.05,0.4979,0.0207,0.6435,1,"2-1",-0.0292]]},{"s":"2025-08-25","a":7,"p":[["2025-08-31","D2","Kaiserslautern","Darmstadt","1x2","Home","B365",2.6,0.42,0.0921,0.393,1,"3-1",-0.2083],["2025-08-31","F1","Monaco","Strasbourg","1x2","Away","BFD",6,0.1727,0.036,0.1703,0,"3-2",-0.1798],["2025-08-31","SP1","Vallecano","Barcelona","1x2","Home","BFD",7.5,0.137,0.0275,0.1362,0,"1-1",-0.0025],["2025-08-31","B1","Oud-Heverlee Leuven","Standard","1x2","Draw","BW",3.4,0.3013,0.0244,0.3005,0,"1-0",0.0386]]},{"s":"2025-09-01","a":1,"p":[["2025-09-06","E3","Newport County","Bristol Rvs","1x2","Home","BFD",4,0.2578,0.0313,1,0,"2-3",-0.0129]]},{"s":"2025-09-08","a":7,"p":[["2025-09-13","E3","Shrewsbury","Salford","ou25","Over","B365",1.98,0.531,0.0514,0.5275,1,"1-3",0.0279],["2025-09-14","B1","Cercle Brugge","Charleroi","1x2","Draw","BW",3.5,0.295,0.0326,0.2984,0,"2-3",0.0256],["2025-09-13","E0","Crystal Palace","Sunderland","1x2","Away","BFD",6,0.1713,0.0278,0.1741,0,"0-0",-0.0145]]},{"s":"2025-09-15","a":8,"p":[["2025-09-21","SP2","Malaga","Cadiz","1x2","Draw","B365",3.2,0.327,0.0465,0.3411,0,"0-1",-0.0699],["2025-09-20","E3","Bromley","Chesterfield","1x2","Home","BFD",3,0.3431,0.0292,0.3639,0,"2-2",0.0407],["2025-09-20","SC0","Dundee","Livingston","1x2","Draw","B365",3.7,0.2767,0.0238,0.295,0,"3-2",0.0292]]},{"s":"2025-09-22","a":5,"p":[["2025-09-24","B1","Club Brugge","Westerlo","ou25","Over","B365",1.53,0.7488,0.1456,0.7129,1,"5-5",0.1098],["2025-09-28","B1","Cercle Brugge","Gent","1x2","Draw","B365",3.8,0.2745,0.0431,0.2871,0,"2-4",0.0172]]},{"s":"2025-09-29","a":7,"p":[["2025-10-04","B1","RAAL La Louviere","Waregem","1x2","Draw","B365",3.6,0.2966,0.0679,0.2968,1,"0-0",0.0505],["2025-10-04","B1","Antwerp","Cercle Brugge","1x2","Draw","BW",3.6,0.2851,0.0263,0.2968,1,"1-1",-0.0212],["2025-10-05","N1","Go Ahead Eagles","Nijmegen","1x2","Away","BFD",2.63,0.39,0.0258,0.4063,0,"1-1",0.0205]]},{"s":"2025-10-06","a":1,"p":[["2025-10-06","E3","Harrogate","Crewe","1x2","Draw","B365",3.7,0.2785,0.0305,1,0,"1-2",-0.0234]]},{"s":"2025-10-13","a":5,"p":[["2025-10-18","T1","Rizespor","Trabzonspor","1x2","Draw","BW",3.6,0.2908,0.0467,0.3394,0,"1-2",0.0028],["2025-10-18","E3","Barnet","Notts County","ou25","Over","B365",1.85,0.5619,0.0396,0.6606,0,"0-1",-0.0439]]},{"s":"2025-10-20","a":12,"p":[["2025-10-25","E2","Barnsley","Rotherham","1x2","Away","BFD",4.2,0.2645,0.111,0.2434,1,"0-1",0.034],["2025-10-25","E2","Northampton","Luton","1x2","Draw","BV",3.3,0.331,0.0923,0.3098,0,"0-1",-0.0639],["2025-10-25","T1","Kocaelispor","Alanyaspor","1x2","Draw","BW",3.4,0.3128,0.0637,0.3007,0,"2-0",0.0162],["2025-10-25","I2","Monza","Reggiana","1x2","Away","B365",7,0.1481,0.0365,0.1461,0,"3-1",-0.2449]]},{"s":"2025-10-27","a":5,"p":[["2025-11-01","I2","Palermo","Pescara","1x2","Away","BFD",7,0.1544,0.0809,0.148,0,"5-0",-0.3095],["2025-11-01","SC1","Raith Rvs","Morton","1x2","Draw","B365",3.75,0.2778,0.0419,0.2763,1,"1-1",0.0473],["2025-10-29","SC0","Motherwell","Dundee United","ou25","Over","B365",1.8,0.5741,0.0334,0.5757,0,"2-0",0.0201]]},{"s":"2025-11-03","a":6,"p":[["2025-11-08","B1","Cercle Brugge","Oud-Heverlee Leuven","1x2","Draw","BW",3.6,0.2888,0.0395,0.3508,0,"1-2",-0.0194],["2025-11-08","B1","Charleroi","Westerlo","1x2","Draw","BW",3.7,0.2794,0.0337,0.3413,0,"2-0",0.0228],["2025-11-08","N1","Excelsior","Heracles","1x2","Draw","B365",4.1,0.2504,0.0268,0.308,0,"1-2",0.011]]},{"s":"2025-11-10","a":0,"p":[]},{"s":"2025-11-17","a":1,"p":[["2025-11-22","E3","Oldham","Newport County","1x2","Away","BFD",5.5,0.1931,0.0618,1,0,"3-0",0.1208]]},{"s":"2025-11-24","a":1,"p":[["2025-11-30","N1","Go Ahead Eagles","Utrecht","1x2","Draw","BW",3.75,0.2729,0.0234,1,1,"2-2",0.0472]]},{"s":"2025-12-01","a":5,"p":[["2025-12-07","SP2","La Coruna","Castellon","1x2","Draw","B365",3.5,0.3021,0.0574,0.3394,0,"1-3",0.0513],["2025-12-01","T1","Fenerbahce","Galatasaray","1x2","Draw","BW",3.7,0.2819,0.043,0.3211,1,"1-1",0.0057],["2025-12-05","F2","Guingamp","Annecy","1x2","Draw","B365",3.5,0.2958,0.0353,0.3394,0,"0-3",0.0406]]},{"s":"2025-12-08","a":3,"p":[["2025-12-14","B1","Gent","Antwerp","1x2","Draw","BW",3.5,0.2933,0.0265,0.3119,0,"0-2",-0.0175],["2025-12-14","I1","Bologna","Juventus","1x2","Draw","B365",3.25,0.3149,0.0235,0.3359,0,"0-1",-0.0243],["2025-12-08","I1","Udinese","Genoa","1x2","Draw","BW",3.1,0.3293,0.0208,0.3522,0,"1-2",0.0315]]},{"s":"2025-12-15","a":0,"p":[]},{"s":"2025-12-22","a":1,"p":[["2025-12-26","E3","Cheltenham","Shrewsbury","1x2","Home","BFD",2.88,0.3584,0.0321,1,1,"3-1",0.0035]]},{"s":"2025-12-29","a":0,"p":[]},{"s":"2026-01-05","a":2,"p":[["2026-01-11","G1","OFI Crete","Asteras Tripolis","1x2","Away","B365",2.75,0.3756,0.0328,0.5378,0,"4-0",-0.1365],["2026-01-07","I1","Lazio","Fiorentina","1x2","Draw","BV",3.2,0.3201,0.0244,0.4622,1,"2-2",0.0213]]},{"s":"2026-01-12","a":2,"p":[["2026-01-18","B1","Gent","Anderlecht","1x2","Draw","BW",3.6,0.2874,0.0346,0.5814,0,"4-2",0.0545],["2026-01-18","E0","Wolves","Newcastle","1x2","Home","BFD",5,0.2046,0.0229,0.4186,0,"0-0",-0.0102]]},{"s":"2026-01-19","a":8,"p":[["2026-01-25","B1","Antwerp","Charleroi","1x2","Draw","BW",3.4,0.3092,0.0513,0.333,0,"0-2",0.0068],["2026-01-19","I1","Lazio","Como","1x2","Draw","BV",3.1,0.3354,0.0396,0.3652,0,"0-3",0.0544],["2026-01-25","B1","Genk","Cercle Brugge","1x2","Draw","BW",3.75,0.275,0.0312,0.3019,1,"1-1",0.012]]},{"s":"2026-01-26","a":8,"p":[["2026-01-26","I1","Verona","Udinese","1x2","Draw","BW",3.2,0.328,0.0495,0.3694,0,"1-3",0.0755],["2026-01-31","D2","Kaiserslautern","Elversberg","1x2","Draw","BW",3.8,0.2711,0.0302,0.3111,0,"1-3",0.0017],["2026-01-31","I1","Napoli","Fiorentina","1x2","Draw","BW",3.7,0.2771,0.0252,0.3195,0,"2-1",0.1191]]},{"s":"2026-02-02","a":3,"p":[["2026-02-08","G1","Olympiakos","Panathinaikos","1x2","Draw","B365",4.1,0.2549,0.0449,0.4675,0,"0-1",-0.1101],["2026-02-07","EC","Rochdale","Carlisle","1x2","Draw","BFD",3.6,0.2845,0.0243,0.5325,0,"1-0",-0.0866]]},{"s":"2026-02-09","a":4,"p":[["2026-02-14","E2","Cardiff","Luton","1x2","Home","BFD",1.9,0.5443,0.0342,0.6275,1,"3-1",0.072],["2026-02-15","I1","Napoli","Roma","1x2","Draw","BW",3.2,0.3227,0.0325,0.3725,1,"2-2",0.1059]]},{"s":"2026-02-16","a":3,"p":[["2026-02-17","SC3","Stirling","Clyde","1x2","Home","BV",3.2,0.3274,0.0478,0.3473,0,"0-3",-0.1164],["2026-02-22","SC0","Celtic","Hibernian","1x2","Away","BFD",7,0.1489,0.0424,0.1588,1,"1-2",-0.1145],["2026-02-21","SC3","Forfar","Annan Athletic","1x2","Home","BV",2.25,0.4544,0.0224,0.4939,1,"2-1",-0.1475]]},{"s":"2026-02-23","a":3,"p":[["2026-02-28","G1","OFI Crete","Larisa","1x2","Draw","BW",3.2,0.3442,0.1014,0.3367,0,"3-0",-0.0004],["2026-02-25","SP2","Ceuta","Cordoba","1x2","Draw","B365",3.3,0.3131,0.0333,0.3265,0,"3-2",-0.0514],["2026-02-28","E2","Stevenage","Stockport","1x2","Draw","BW",3.2,0.3191,0.0213,0.3367,0,"2-1",-0.0074]]},{"s":"2026-03-02","a":3,"p":[["2026-03-07","EC","Forest Green","Aldershot","1x2","Away","B365",3.9,0.27,0.0531,0.2593,0,"2-1",-0.044],["2026-03-04","EC","Gateshead","Braintree Town","1x2","Draw","B365",3.9,0.2673,0.0427,0.2593,0,"1-0",-0.0746],["2026-03-08","B1","Waregem","Standard","1x2","Home","BW",2.1,0.4878,0.0244,0.4815,0,"0-1",0.0908]]},{"s":"2026-03-09","a":7,"p":[["2026-03-09","P1","Tondela","Rio Ave","1x2","Draw","BFD",3.4,0.3184,0.0824,0.3267,0,"0-1",-0.0184],["2026-03-14","E2","Stevenage","AFC Wimbledon","1x2","Draw","BW",3.3,0.3121,0.0298,0.3366,0,"1-0",-0.0336],["2026-03-14","T1","Goztep","Alanyaspor","1x2","Draw","BW",3.3,0.312,0.0297,0.3366,1,"2-2",0.0379]]},{"s":"2026-03-16","a":0,"p":[]},{"s":"2026-03-23","a":0,"p":[]},{"s":"2026-03-30","a":3,"p":[["2026-04-05","T1","Samsunspor","Konyaspor","1x2","Home","BW",2.35,0.4507,0.0592,0.5766,0,"2-2",0.0418],["2026-04-04","G1","Asteras Tripolis","Larisa","1x2","Draw","BW",3.2,0.3288,0.0522,0.4234,0,"3-1",-0.0431]]},{"s":"2026-04-06","a":6,"p":[["2026-04-06","E1","Bristol City","Sheffield United","1x2","Home","BW",3.25,0.3371,0.0955,0.3445,1,"1-0",0.2104],["2026-04-06","E1","Hull","Coventry","1x2","Draw","BV",3.6,0.2889,0.0399,0.311,1,"0-0",-0.089],["2026-04-12","I2","Reggiana","Carrarese","1x2","Draw","BW",3.25,0.3193,0.0376,0.3445,0,"2-0",0.0042]]},{"s":"2026-04-13","a":1,"p":[["2026-04-19","I1","Pisa","Genoa","1x2","Draw","BW",3.25,0.3147,0.0226,1,0,"1-2",0.0235]]},{"s":"2026-04-20","a":1,"p":[["2026-04-20","T1","Gaziantep","Kayserispor","1x2","Draw","BFD",3.5,0.3067,0.0736,1,0,"3-0",null]]},{"s":"2026-04-27","a":0,"p":[]},{"s":"2026-05-04","a":2,"p":[["2026-05-10","SP1","Oviedo","Getafe","1x2","Home","BW",3.2,0.3201,0.0245,0.5362,0,"0-0",0.087],["2026-05-09","SP1","Ath Madrid","Celta","1x2","Draw","BV",3.7,0.2758,0.0204,0.4638,0,"0-1",-0.0604]]},{"s":"2026-05-11","a":2,"p":[["2026-05-17","T1","Trabzonspor","Genclerbirligi","1x2","Away","BV",2.45,0.426,0.0436,1,1,"0-3",-0.0394]]},{"s":"2026-05-18","a":0,"p":[]},{"s":"2026-05-25","a":0,"p":[]}]},"2627":{"metrics":{"rounds":13,"roundsPlayed":11,"picks":24,"avgPicks":2.1818181818181817,"avgOdds":3.6316666666666664,"pickHitRate":0.4166666666666667,"roundsWithWinner":0.6363636363636364,"roundsCovered":0.6363636363636364,"roi":0.28012519657926016,"roiSe":0.3769121121714685,"expectedRoi":0.052814279752021444,"avgEdge":0.05651225586532743,"avgClv":0.0386514408304919,"clvSe":0.019897184091463117,"clvPositiveShare":0.6666666666666666,"longestLosingRun":2,"longestWipeoutRun":2},"rounds":[{"s":"2026-07-27","a":1,"p":[["2026-08-02","SC0","St Johnstone","Kilmarnock","1x2","Draw","BFD",3.6,0.2851,0.0262,1,0,"4-3",-0.0464]]},{"s":"2026-08-03","a":0,"p":[]},{"s":"2026-08-10","a":1,"p":[["2026-08-15","T1","Gaziantep","Alanyaspor","1x2","Draw","B365",3.4,0.3038,0.033,1,1,"1-1",0.0423]]},{"s":"2026-08-17","a":3,"p":[["2026-08-17","T1","Samsunspor","Goztep","1x2","Draw","B365",3.3,0.3226,0.0646,0.3889,1,"3-3",-0.0639],["2026-08-22","EC","Yeovil","Gateshead","1x2","Home","BV",2.1,0.494,0.0375,0.6111,1,"3-0",-0.02]]},{"s":"2026-08-24","a":6,"p":[["2026-08-24","T1","Kocaelispor","Amedspor","1x2","Draw","B365",3.6,0.2981,0.0732,0.3548,0,"2-0",0.1194],["2026-08-29","E3","Crawley Town","Bristol Rvs","ou25","Over","B365",1.98,0.5287,0.0468,0.6452,0,"0-2",0.136]]},{"s":"2026-08-31","a":3,"p":[["2026-08-31","G1","Levadeiakos","Panathinaikos","1x2","Home","B365",6.25,0.1673,0.0457,0.2165,0,"0-2",-0.1154],["2026-09-05","P1","Estrela","Famalicao","1x2","Draw","B365",3.2,0.3228,0.033,0.4228,1,"2-2",-0.0226],["2026-09-05","E3","Chesterfield","Barnet","1x2","Draw","BFD",3.75,0.2753,0.0322,0.3608,1,"3-3",0.0097]]},{"s":"2026-09-07","a":10,"p":[["2026-09-12","F1","Paris FC","Lyon","1x2","Home","BFD",3.25,0.3651,0.1867,0.3316,0,"0-0",0.2298],["2026-09-12","G1","Iraklis","Atromitos","1x2","Draw","B365",3.25,0.3245,0.0545,0.3316,1,"1-1",0.028],["2026-09-13","P1","Arouca","Santa Clara","1x2","Draw","B365",3.2,0.3273,0.0475,0.3368,0,"1-2",-0.0114]]},{"s":"2026-09-14","a":8,"p":[["2026-09-19","F1","Paris FC","Strasbourg","1x2","Home","BW",2.05,0.6174,0.2656,0.526,1,"2-1",0.0927],["2026-09-19","E2","Burton","Mansfield","1x2","Draw","BFD",3.5,0.2982,0.0436,0.3081,1,"2-2",0.0009],["2026-09-19","T1","Buyuksehyr","Genclerbirligi","1x2","Away","B365",6.5,0.1578,0.026,0.1659,0,"4-0",0.3376]]},{"s":"2026-09-21","a":1,"p":[["2026-09-26","EC","Boston Utd","Fylde","1x2","Home","B365",2.63,0.3893,0.024,1,0,"0-1",-0.0566]]},{"s":"2026-09-28","a":1,"p":[["2026-09-30","EC","Tamworth","Sutton","ou25","Over","B365",1.7,0.6059,0.03,1,0,"2-0",0.0231]]},{"s":"2026-10-05","a":4,"p":[["2026-10-11","SP2","Almeria","Leganes","1x2","Away","B365",5.25,0.1992,0.0459,0.2183,0,"3-0",0.0345],["2026-10-10","N1","Feyenoord","AZ Alkmaar","1x2","Draw","B365",4.2,0.2472,0.0381,0.2729,0,"2-0",-0.038],["2026-10-10","E2","Doncaster","Burton","1x2","Away","BFD",5,0.2056,0.0282,0.2292,0,"1-0",0.0488],["2026-10-10","E3","Rotherham","Gillingham","1x2","Away","B365",4.1,0.249,0.021,0.2796,1,"1-4",0.0297]]},{"s":"2026-10-12","a":3,"p":[["2026-10-18","SC0","Celtic","Hearts","1x2","Away","BFD",5.5,0.1973,0.085,0.187,0,"7-1",0.1046],["2026-10-17","SC0","Kilmarnock","Motherwell","1x2","Draw","BFD",4,0.2599,0.0395,0.2571,0,"3-2",0.0454],["2026-10-17","E3","Colchester","Exeter","ou25","Under","B365",1.85,0.556,0.0285,0.5559,1,"0-0",0.0195]]},{"s":"2026-10-19","a":0,"p":[]}]}},"fill":{"2526":{"metrics":{"rounds":45,"roundsPlayed":42,"picks":114,"avgPicks":2.7142857142857144,"avgOdds":3.752017543859648,"pickHitRate":0.2982456140350877,"roundsWithWinner":0.6190476190476191,"roundsCovered":0.6190476190476191,"roi":-0.08694681392067094,"roiSe":0.12568995275037656,"expectedRoi":0.021295684960944857,"avgEdge":0.022722151669952687,"avgClv":0.00769943949281139,"clvSe":0.006042261515602148,"clvPositiveShare":0.6140350877192983,"longestLosingRun":2,"longestWipeoutRun":2},"rounds":[{"s":"2025-07-21","a":0,"p":[]},{"s":"2025-07-28","a":4,"p":[["2025-08-02","B1","Standard","Dender","1x2","Home","BW",1.98,0.5108,0.0114,1,0,"1-1",-0.161]]},{"s":"2025-08-04","a":5,"p":[["2025-08-09","E2","Stevenage","Rotherham","1x2","Away","BFD",5,0.2065,0.0323,0.2012,0,"1-0",0.0699],["2025-08-09","SC0","Livingston","Falkirk","1x2","Draw","B365",3.4,0.2978,0.0125,0.2959,0,"3-1",-0.0222],["2025-08-10","SC0","Dundee United","Hearts","1x2","Away","BFD",2,0.5041,0.0083,0.503,1,"2-3",0.0682]]},{"s":"2025-08-11","a":10,"p":[["2025-08-16","N1","Excelsior","Feyenoord","1x2","Home","BFD",7,0.1564,0.0949,0.1579,0,"1-2",-0.0393],["2025-08-17","B1","Charleroi","Antwerp","1x2","Draw","BW",3.5,0.2995,0.0483,0.3158,1,"1-1",0.0485],["2025-08-17","E0","Man United","Arsenal","1x2","Away","BW",2.1,0.4826,0.0134,0.5263,1,"0-1",0.0486]]},{"s":"2025-08-18","a":9,"p":[["2025-08-24","B1","Antwerp","Mechelen","1x2","Home","BW",2.05,0.4979,0.0207,0.6372,1,"2-1",-0.0292],["2025-08-24","D2","Darmstadt","Hertha","1x2","Away","B365",3.6,0.2823,0.0164,0.3628,0,"0-0",-0.1303]]},{"s":"2025-08-25","a":20,"p":[["2025-08-31","F1","Monaco","Strasbourg","1x2","Away","BFD",6,0.1727,0.036,0.1948,0,"3-2",-0.1798],["2025-08-31","SP1","Vallecano","Barcelona","1x2","Home","BFD",7.5,0.137,0.0275,0.1558,0,"1-1",-0.0025],["2025-08-30","B1","Charleroi","Dender","1x2","Home","BW",1.8,0.5693,0.0248,0.6494,1,"3-1",0.0266]]},{"s":"2025-09-01","a":1,"p":[["2025-09-06","E3","Newport County","Bristol Rvs","1x2","Home","BFD",4,0.2578,0.0313,1,0,"2-3",-0.0129]]},{"s":"2025-09-08","a":9,"p":[["2025-09-14","B1","Cercle Brugge","Charleroi","1x2","Draw","BW",3.5,0.295,0.0326,0.3301,0,"2-3",0.0256],["2025-09-13","T1","Karagumruk","Kasimpasa","1x2","Draw","B365",3.4,0.3035,0.0317,0.3398,0,"0-1",0.0533],["2025-09-13","E2","Burton","Lincoln","1x2","Draw","B365",3.5,0.2939,0.0287,0.3301,0,"0-1",-0.0178]]},{"s":"2025-09-15","a":22,"p":[["2025-09-21","E1","Bristol City","Oxford","1x2","Draw","B365",4.2,0.2436,0.0233,0.2471,0,"1-3",-0.0385],["2025-09-20","T1","Antalyaspor","Kayserispor","1x2","Draw","B365",3.5,0.2921,0.0223,0.2966,1,"1-1",0.0368],["2025-09-21","E0","Sunderland","Aston Villa","1x2","Draw","B365",3.5,0.2903,0.0162,0.2966,1,"1-1",-0.0362],["2025-09-21","D1","Dortmund","Wolfsburg","1x2","Away","BFD",6.5,0.1543,0.0031,0.1597,0,"1-0",0.1092]]},{"s":"2025-09-22","a":15,"p":[["2025-09-28","B1","Cercle Brugge","Gent","1x2","Draw","B365",3.8,0.2745,0.0431,0.3059,0,"2-4",0.0172],["2025-09-28","P1","Alverca","Guimaraes","1x2","Draw","B365",3.4,0.3053,0.0382,0.3419,0,"2-0",0.0566],["2025-09-27","P1","Moreirense","Casa Pia","1x2","Draw","B365",3.3,0.3111,0.0267,0.3522,0,"2-1",-0.0278]]},{"s":"2025-09-29","a":19,"p":[["2025-10-04","B1","RAAL La Louviere","Waregem","1x2","Draw","B365",3.6,0.2966,0.0679,0.2968,1,"0-0",0.0505],["2025-10-04","B1","Antwerp","Cercle Brugge","1x2","Draw","BW",3.6,0.2851,0.0263,0.2968,1,"1-1",-0.0212],["2025-10-05","N1","Go Ahead Eagles","Nijmegen","1x2","Away","BFD",2.63,0.39,0.0258,0.4063,0,"1-1",0.0205]]},{"s":"2025-10-06","a":1,"p":[["2025-10-11","E3","Crawley Town","Walsall","ou25","Over","B365",1.98,0.5147,0.0192,1,0,"1-1",0.0108]]},{"s":"2025-10-13","a":12,"p":[["2025-10-18","B1","RAAL La Louviere","Westerlo","1x2","Draw","BW",3.6,0.2859,0.0294,0.2875,1,"0-0",0.0033],["2025-10-19","T1","Kayserispor","Samsunspor","1x2","Draw","BW",3.5,0.2915,0.0204,0.2957,0,"1-3",-0.0054],["2025-10-19","B1","St Truiden","Anderlecht","1x2","Draw","BW",3.6,0.2816,0.0139,0.2875,1,"2-2",0.0007],["2025-10-18","SP1","Barcelona","Girona","1x2","Draw","BW",8,0.1256,0.0052,0.1294,0,"2-1",-0.0628]]},{"s":"2025-10-20","a":17,"p":[["2025-10-20","B1","Standard","Antwerp","1x2","Draw","B365",3.5,0.2992,0.0473,0.2921,0,"1-0",-0.0101],["2025-10-25","B1","Gent","Standard","1x2","Draw","BW",3.7,0.2803,0.0372,0.2763,0,"4-0",0.0357],["2025-10-25","E3","Cheltenham","Walsall","1x2","Home","BFD",4.5,0.2287,0.0291,0.2272,1,"1-0",0.061],["2025-10-24","E0","Leeds","West Ham","1x2","Away","BFD",5,0.2023,0.0116,0.2045,0,"2-1",0.0134]]},{"s":"2025-10-27","a":17,"p":[["2025-11-02","P1","AVS","Tondela","1x2","Draw","BW",3.25,0.3156,0.0255,0.3498,1,"2-2",0.0039],["2025-11-02","B1","St Truiden","Antwerp","1x2","Draw","BW",3.6,0.2833,0.02,0.3158,0,"1-0",0.0112],["2025-11-01","E1","Norwich","Hull","1x2","Away","BFD",3.4,0.2969,0.0096,0.3344,1,"0-2",-0.0513]]},{"s":"2025-11-03","a":23,"p":[["2025-11-08","B1","Cercle Brugge","Oud-Heverlee Leuven","1x2","Draw","BW",3.6,0.2888,0.0395,0.3029,0,"1-2",-0.0194],["2025-11-08","B1","Charleroi","Westerlo","1x2","Draw","BW",3.7,0.2794,0.0337,0.2947,0,"2-0",0.0228],["2025-11-08","N1","Excelsior","Heracles","1x2","Draw","B365",4.1,0.2504,0.0268,0.266,0,"1-2",0.011],["2025-11-08","E1","Southampton","Sheffield Weds","1x2","Away","BFD",8,0.127,0.016,0.1363,0,"3-1",-0.013]]},{"s":"2025-11-10","a":2,"p":[["2025-11-15","EC","Hartlepool","Wealdstone","1x2","Away","BFD",3.3,0.3048,0.0059,0.5675,0,"1-1",-0.0464],["2025-11-15","E3","Shrewsbury","Newport County","1x2","Away","B365",4.33,0.2322,0.0055,0.4325,0,"1-0",-0.1099]]},{"s":"2025-11-17","a":12,"p":[["2025-11-22","E3","Oldham","Newport County","1x2","Away","BFD",5.5,0.1931,0.0618,0.2087,0,"3-0",0.1208],["2025-11-23","B1","Oud-Heverlee Leuven","St Truiden","1x2","Draw","BW",3.4,0.2997,0.0189,0.3376,0,"1-2",-0.0195],["2025-11-22","T1","Eyupspor","Karagumruk","1x2","Draw","B365",3.7,0.2734,0.0114,0.3102,1,"1-1",0.0014],["2025-11-22","N1","NAC Breda","PSV Eindhoven","1x2","Home","BFD",8,0.1262,0.01,0.1435,0,"0-1",-0.2229]]},{"s":"2025-11-24","a":12,"p":[["2025-11-30","N1","Go Ahead Eagles","Utrecht","1x2","Draw","BW",3.75,0.2729,0.0234,0.2827,1,"2-2",0.0472],["2025-11-30","E0","Aston Villa","Wolves","1x2","Away","BFD",7.5,0.1359,0.0195,0.1413,0,"1-0",-0.0458],["2025-11-30","D1","Ein Frankfurt","Wolfsburg","1x2","Draw","BW",4.33,0.2348,0.0166,0.2448,1,"1-1",0.0733],["2025-11-29","I1","Parma","Udinese","1x2","Draw","BV",3.2,0.3166,0.013,0.3312,0,"0-2",0.0267]]},{"s":"2025-12-01","a":13,"p":[["2025-12-01","T1","Fenerbahce","Galatasaray","1x2","Draw","BW",3.7,0.2819,0.043,0.3179,1,"1-1",0.0057],["2025-12-05","F2","Guingamp","Annecy","1x2","Draw","B365",3.5,0.2958,0.0353,0.3361,0,"0-3",0.0406],["2025-12-07","T1","Goztep","Trabzonspor","1x2","Draw","BW",3.4,0.3036,0.0323,0.346,0,"1-2",0.0102]]},{"s":"2025-12-08","a":12,"p":[["2025-12-14","B1","Gent","Antwerp","1x2","Draw","BW",3.5,0.2933,0.0265,0.3119,0,"0-2",-0.0175],["2025-12-14","I1","Bologna","Juventus","1x2","Draw","B365",3.25,0.3149,0.0235,0.3359,0,"0-1",-0.0243],["2025-12-08","I1","Udinese","Genoa","1x2","Draw","BW",3.1,0.3293,0.0208,0.3522,0,"1-2",0.0315]]},{"s":"2025-12-15","a":7,"p":[["2025-12-15","I1","Roma","Como","1x2","Draw","B365",3.3,0.3086,0.0185,0.3188,0,"1-0",0.0091],["2025-12-21","I2","Mantova","Empoli","ou25","Over","B365",2.08,0.4895,0.0181,0.5058,0,"0-1",-0.0135],["2025-12-21","SC0","Celtic","Aberdeen","1x2","Draw","B365",6,0.1671,0.0023,0.1754,0,"3-1",-0.0173]]},{"s":"2025-12-22","a":2,"p":[["2025-12-22","T1","Buyuksehyr","Gaziantep","1x2","Home","BW",1.77,0.5734,0.0149,0.6366,1,"5-1",0.0316],["2025-12-22","E0","Fulham","Nott'm Forest","1x2","Away","BFD",3.1,0.3247,0.0065,0.3634,0,"1-0",0.0715]]},{"s":"2025-12-29","a":12,"p":[["2026-01-04","E1","Birmingham","Coventry","1x2","Away","BFD",2.75,0.37,0.0174,0.3902,0,"3-2",0.0198],["2026-01-04","SP1","Mallorca","Girona","1x2","Home","BW",2.35,0.4323,0.016,0.4566,0,"1-2",0.0162],["2026-01-03","P1","Estrela","Sp Braga","1x2","Home","BFD",7,0.1442,0.0092,0.1533,0,"3-3",0.2346]]},{"s":"2026-01-05","a":10,"p":[["2026-01-07","I1","Lazio","Fiorentina","1x2","Draw","BV",3.2,0.3201,0.0244,0.3431,1,"2-2",0.0213],["2026-01-10","SC0","Hibernian","Motherwell","1x2","Draw","BW",3.5,0.2899,0.0146,0.3137,1,"1-1",0.0008],["2026-01-07","I1","Torino","Udinese","1x2","Draw","BV",3.2,0.3159,0.0109,0.3431,0,"1-2",0.0405]]},{"s":"2026-01-12","a":11,"p":[["2026-01-18","E0","Wolves","Newcastle","1x2","Home","BFD",5,0.2046,0.0229,0.2145,0,"0-0",-0.0102],["2026-01-18","I1","Torino","Roma","1x2","Away","BW",2.2,0.4596,0.0112,0.4875,1,"0-2",0.1087],["2026-01-17","D2","Nurnberg","Elversberg","1x2","Draw","B365",3.6,0.2792,0.0051,0.2979,0,"3-2",0.0247]]},{"s":"2026-01-19","a":18,"p":[["2026-01-25","B1","Antwerp","Charleroi","1x2","Draw","BW",3.4,0.3092,0.0513,0.3198,0,"0-2",0.0068],["2026-01-19","I1","Lazio","Como","1x2","Draw","BV",3.1,0.3354,0.0396,0.3507,0,"0-3",0.0544],["2026-01-24","T1","Samsunspor","Kocaelispor","1x2","Draw","B365",3.3,0.3106,0.025,0.3295,1,"0-0",0.0919]]},{"s":"2026-01-26","a":20,"p":[["2026-01-26","I1","Verona","Udinese","1x2","Draw","BW",3.2,0.328,0.0495,0.3694,0,"1-3",0.0755],["2026-01-31","D2","Kaiserslautern","Elversberg","1x2","Draw","BW",3.8,0.2711,0.0302,0.3111,0,"1-3",0.0017],["2026-01-31","I1","Napoli","Fiorentina","1x2","Draw","BW",3.7,0.2771,0.0252,0.3195,0,"2-1",0.1191]]},{"s":"2026-02-02","a":18,"p":[["2026-02-02","I1","Udinese","Roma","1x2","Away","BW",2,0.5109,0.0218,0.6364,0,"1-0",-0.0238],["2026-02-07","N1","For Sittard","Sparta Rotterdam","1x2","Draw","B365",3.5,0.2911,0.0189,0.3636,1,"2-2",-0.0395]]},{"s":"2026-02-09","a":7,"p":[["2026-02-15","I1","Napoli","Roma","1x2","Draw","BW",3.2,0.3227,0.0325,0.3564,1,"2-2",0.1059],["2026-02-13","B1","Mechelen","Genk","1x2","Draw","BW",3.7,0.277,0.0251,0.3082,0,"2-3",0.0339],["2026-02-11","I2","Avellino","Frosinone","1x2","Draw","BV",3.4,0.2994,0.0179,0.3354,0,"1-3",-0.0156]]},{"s":"2026-02-16","a":10,"p":[["2026-02-22","SC0","Celtic","Hibernian","1x2","Away","BFD",7,0.1489,0.0424,0.1949,1,"1-2",-0.1145],["2026-02-22","I1","Genoa","Torino","1x2","Draw","BFD",3.2,0.317,0.0146,0.4263,0,"3-0",0.0594],["2026-02-21","D1","Wolfsburg","Augsburg","1x2","Draw","BW",3.6,0.2799,0.0076,0.3789,0,"2-3",0.0065]]},{"s":"2026-02-23","a":11,"p":[["2026-02-25","SP2","Ceuta","Cordoba","1x2","Draw","B365",3.3,0.3131,0.0333,0.3432,0,"3-2",-0.0514],["2026-02-28","I2","Spezia","Reggiana","1x2","Draw","BW",3.4,0.2988,0.0161,0.3331,0,"0-1",0.066],["2026-02-28","B1","Antwerp","St Truiden","1x2","Draw","BW",3.5,0.2903,0.0159,0.3236,0,"1-0",-0.0711]]},{"s":"2026-03-02","a":14,"p":[["2026-03-08","B1","Waregem","Standard","1x2","Home","BW",2.1,0.4878,0.0244,0.6075,0,"0-1",0.0908],["2026-03-08","T1","Konyaspor","Kasimpasa","1x2","Draw","BV",3.25,0.3135,0.019,0.3925,1,"1-1",-0.0368]]},{"s":"2026-03-09","a":12,"p":[["2026-03-14","T1","Goztep","Alanyaspor","1x2","Draw","BW",3.3,0.312,0.0297,0.3331,1,"2-2",0.0379],["2026-03-14","T1","Kocaelispor","Konyaspor","1x2","Draw","B365",3.2,0.3206,0.0259,0.3435,0,"1-2",0.0596],["2026-03-15","E0","Crystal Palace","Leeds","1x2","Draw","BFD",3.4,0.3004,0.0212,0.3233,1,"0-0",0.0249]]},{"s":"2026-03-16","a":13,"p":[["2026-03-18","T1","Alanyaspor","Kocaelispor","1x2","Home","BW",2.1,0.4851,0.0187,0.4798,1,"5-0",0.0217],["2026-03-22","B1","St Truiden","St. Gilloise","1x2","Draw","BW",3.4,0.2985,0.0149,0.2963,0,"1-3",0.0305],["2026-03-21","E3","Fleetwood Town","Crawley Town","1x2","Away","B365",4.5,0.2242,0.0088,0.2239,0,"1-0",0.1111]]},{"s":"2026-03-23","a":1,"p":[["2026-03-28","E2","Reading","Wigan","1x2","Draw","BW",3.4,0.2951,0.0034,1,0,"3-0",0.0072]]},{"s":"2026-03-30","a":2,"p":[["2026-04-04","T1","Kasimpasa","Kayserispor","1x2","Draw","B365",3.5,0.2884,0.0096,0.3694,0,"2-0",0.0063],["2026-04-04","I1","Sassuolo","Cagliari","1x2","Home","BFD",2.05,0.4881,0.0006,0.6306,1,"2-1",-0.0757]]},{"s":"2026-04-06","a":11,"p":[["2026-04-11","N1","Utrecht","Telstar","1x2","Draw","BV",4.2,0.2446,0.0275,0.2941,0,"4-1",-0.0567],["2026-04-12","I1","Como","Inter","1x2","Draw","B365",3.5,0.2922,0.0226,0.3529,0,"3-4",0.0218],["2026-04-12","E0","Nott'm Forest","Aston Villa","1x2","Draw","BFD",3.5,0.2885,0.0097,0.3529,1,"1-1",0.0081]]},{"s":"2026-04-13","a":8,"p":[["2026-04-19","I1","Pisa","Genoa","1x2","Draw","BW",3.25,0.3147,0.0226,0.3096,0,"1-2",0.0235],["2026-04-18","E1","Swansea","Southampton","1x2","Draw","B365",4.33,0.2335,0.0109,0.2323,0,"1-2",-0.0082],["2026-04-19","D1","Bayern Munich","Stuttgart","1x2","Away","BFD",7,0.144,0.0081,0.1437,0,"4-2",0.1188],["2026-04-13","I1","Fiorentina","Lazio","1x2","Draw","B365",3.2,0.3144,0.0062,0.3144,0,"1-0",-0.006]]},{"s":"2026-04-20","a":0,"p":[]},{"s":"2026-04-27","a":0,"p":[]},{"s":"2026-05-04","a":7,"p":[["2026-05-10","SP1","Oviedo","Getafe","1x2","Home","BW",3.2,0.3201,0.0245,0.3598,0,"0-0",0.087],["2026-05-09","SP1","Ath Madrid","Celta","1x2","Draw","BV",3.7,0.2758,0.0204,0.3112,0,"0-1",-0.0604],["2026-05-10","I1","Fiorentina","Genoa","1x2","Draw","BFD",3.5,0.2873,0.0056,0.329,1,"0-0",0.0041]]},{"s":"2026-05-11","a":16,"p":[["2026-05-17","T1","Trabzonspor","Genclerbirligi","1x2","Away","BV",2.45,0.426,0.0436,0.4948,1,"0-3",-0.0394],["2026-05-17","SP2","La Coruna","Andorra","ou25","Under","B365",2.4,0.4242,0.0182,0.5052,0,"2-1",0.044]]},{"s":"2026-05-18","a":1,"p":[["2026-05-23","SP1","Betis","Levante","1x2","Draw","BV",3.5,0.2877,0.0071,1,0,"2-1",-0.0017]]},{"s":"2026-05-25","a":1,"p":[["2026-05-31","SP2","Zaragoza","Malaga","1x2","Draw","B365",3.6,0.2815,0.0133,1,0,"0-2",-0.1733]]}]},"2627":{"metrics":{"rounds":13,"roundsPlayed":12,"picks":37,"avgPicks":3.0833333333333335,"avgOdds":4.2616216216216225,"pickHitRate":0.2702702702702703,"roundsWithWinner":0.5833333333333334,"roundsCovered":0.5833333333333334,"roi":-0.019032789825737955,"roiSe":0.2809006076935417,"expectedRoi":0.025594675027337126,"avgEdge":0.027510993276893488,"avgClv":0.016035393937165833,"clvSe":0.019500752405874747,"clvPositiveShare":0.5675675675675675,"longestLosingRun":1,"longestWipeoutRun":1},"rounds":[{"s":"2026-07-27","a":1,"p":[["2026-08-02","SC0","St Johnstone","Kilmarnock","1x2","Draw","BFD",3.6,0.2851,0.0262,1,0,"4-3",-0.0464]]},{"s":"2026-08-03","a":2,"p":[["2026-08-08","N1","AZ Alkmaar","Den Haag","1x2","Away","B365",7,0.1441,0.0085,0.2632,0,"2-0",-0.1851],["2026-08-08","P1","Maritimo","Casa Pia","1x2","Home","BFD",2.5,0.402,0.0049,0.7368,1,"1-0",0.2321]]},{"s":"2026-08-10","a":8,"p":[["2026-08-16","N1","Ajax","Heerenveen","1x2","Away","B365",7,0.1454,0.0179,0.1544,0,"2-2",-0.0937],["2026-08-15","N1","Excelsior","PSV Eindhoven","1x2","Home","B365",5.5,0.1847,0.0157,0.1966,0,"1-2",-0.2685],["2026-08-15","D2","Hertha","Heidenheim","1x2","Away","B365",3.1,0.3267,0.0129,0.3487,0,"4-1",0.1872],["2026-08-15","E2","Barnsley","Bromley","1x2","Draw","BFD",3.6,0.2797,0.0071,0.3003,0,"0-1",-0.0448]]},{"s":"2026-08-17","a":12,"p":[["2026-08-22","F1","Toulouse","Lyon","1x2","Draw","BFD",3.6,0.2827,0.0176,0.3167,0,"0-2",0.0243],["2026-08-23","I1","Frosinone","Juventus","1x2","Home","B365",8,0.1272,0.0172,0.1425,0,"0-1",-0.0116],["2026-08-23","I2","Cesena","Sampdoria","1x2","Draw","B365",3.25,0.3122,0.0148,0.3508,1,"1-1",0.0206],["2026-08-23","F1","Rennes","Paris SG","1x2","Home","BFD",6,0.168,0.0077,0.19,0,"2-2",-0.1272]]},{"s":"2026-08-24","a":14,"p":[["2026-08-24","T1","Kocaelispor","Amedspor","1x2","Draw","B365",3.6,0.2981,0.0732,0.2903,0,"2-0",0.1194],["2026-08-29","E3","Crawley Town","Bristol Rvs","ou25","Over","B365",1.98,0.5287,0.0468,0.5279,0,"0-2",0.136],["2026-08-30","N1","Cambuur","Twente","1x2","Draw","B365",5.75,0.175,0.0064,0.1818,0,"1-4",-0.0898]]},{"s":"2026-08-31","a":9,"p":[["2026-09-05","E3","Chesterfield","Barnet","1x2","Draw","BFD",3.75,0.2753,0.0322,0.3421,1,"3-3",0.0097],["2026-09-05","E3","Fleetwood Town","Shrewsbury","1x2","Home","BFD",1.95,0.5179,0.0099,0.6579,1,"2-0",-0.0328]]},{"s":"2026-09-07","a":19,"p":[["2026-09-12","F1","Paris FC","Lyon","1x2","Home","BFD",3.25,0.3651,0.1867,0.3085,0,"0-0",0.2298],["2026-09-13","I2","Mantova","Sampdoria","1x2","Away","B365",4,0.2587,0.0349,0.2507,0,"2-0",0.1677],["2026-09-09","SC0","St Johnstone","Celtic","1x2","Home","BFD",6.5,0.1585,0.0305,0.1543,0,"0-1",0.0242],["2026-09-12","E3","Oldham","Chesterfield","1x2","Draw","BFD",3.5,0.2928,0.0248,0.2865,0,"1-2",-0.0444]]},{"s":"2026-09-14","a":22,"p":[["2026-09-17","SP1","Betis","Getafe","1x2","Draw","B365",4,0.2598,0.0391,0.2534,0,"1-0",-0.074],["2026-09-20","SC0","Celtic","Rangers","1x2","Away","BW",3.2,0.3238,0.0361,0.3167,1,"0-1",-0.0492],["2026-09-19","T1","Buyuksehyr","Genclerbirligi","1x2","Away","B365",6.5,0.1578,0.026,0.1559,0,"4-0",0.3376],["2026-09-19","I1","Roma","Inter","1x2","Draw","BV",3.7,0.2769,0.0245,0.2739,1,"2-2",0.0344]]},{"s":"2026-09-21","a":0,"p":[]},{"s":"2026-09-28","a":2,"p":[["2026-10-03","SP2","Almeria","Burgos","1x2","Away","B365",6.25,0.1605,0.0031,0.3243,0,"2-1",-0.1207],["2026-10-03","E3","Accrington","Cheltenham","1x2","Away","B365",3,0.3337,0.0012,0.6757,0,"2-0",0.0635]]},{"s":"2026-10-05","a":14,"p":[["2026-10-10","N1","Feyenoord","AZ Alkmaar","1x2","Draw","B365",4.2,0.2472,0.0381,0.2481,0,"2-0",-0.038],["2026-10-10","E2","Doncaster","Burton","1x2","Away","BFD",5,0.2056,0.0282,0.2084,0,"1-0",0.0488],["2026-10-10","E3","Rotherham","Gillingham","1x2","Away","B365",4.1,0.249,0.021,0.2541,1,"1-4",0.0297],["2026-10-10","E3","Fleetwood Town","Walsall","1x2","Draw","BFD",3.6,0.2826,0.0172,0.2894,1,"1-1",-0.0446]]},{"s":"2026-10-12","a":16,"p":[["2026-10-18","SC0","Celtic","Hearts","1x2","Away","BFD",5.5,0.1973,0.085,0.1846,0,"7-1",0.1046],["2026-10-17","SC0","Kilmarnock","Motherwell","1x2","Draw","BFD",4,0.2599,0.0395,0.2538,0,"3-2",0.0454],["2026-10-17","SP2","Eibar","Mallorca","1x2","Draw","B365",3.3,0.309,0.0196,0.3077,1,"1-1",0.0069],["2026-10-17","E3","Oldham","Cheltenham","1x2","Draw","B365",4,0.253,0.012,0.2538,0,"4-1",-0.0347]]},{"s":"2026-10-19","a":3,"p":[["2026-10-19","SP1","Getafe","Vallecano","1x2","Draw","BFD",3.1,0.3289,0.0196,0.354,1,"1-1",0.0081],["2026-10-21","SP1","Levante","Ath Bilbao","1x2","Draw","B365",3.5,0.2875,0.0063,0.3135,0,"3-1",0.0402],["2026-10-20","E3","Exeter","Crewe","1x2","Draw","B365",3.3,0.3047,0.0056,0.3325,0,"2-0",0.0283]]}]}}},"census":[{"season":"2526","rows":[{"label":"Bet365 only · 1X2 · liquid exchange ref","bets":109,"avgOdds":3.6026605504587152,"hitRate":0.25688073394495414,"roi":-0.15706422018348629,"roiSe":0.1454204832005784,"avgEdge":0.011663706023175935,"avgClv":-0.004785428484510263,"clvSe":0.006072306662691853,"setup":"b365-1x2","threshold":0,"perWeek":2.422222222222222},{"label":"Bet365 only · 1X2 · liquid exchange ref","bets":40,"avgOdds":3.849999999999999,"hitRate":0.225,"roi":-0.225,"roiSe":0.2305928813365168,"avgEdge":0.02384658352302853,"avgClv":-0.013752971401106744,"clvSe":0.009994793916602651,"setup":"b365-1x2","threshold":0.01,"perWeek":0.8888888888888888},{"label":"Bet365 only · 1X2 · liquid exchange ref","bets":20,"avgOdds":4.217499999999999,"hitRate":0.15,"roi":-0.4800000000000001,"roiSe":0.2841978554680375,"avgEdge":0.03313892440254586,"avgClv":-0.01004481018288928,"clvSe":0.016482676861638672,"setup":"b365-1x2","threshold":0.02,"perWeek":0.4444444444444444},{"label":"Bet365 only · 1X2 · liquid exchange ref","bets":8,"avgOdds":4.3125,"hitRate":0.125,"roi":-0.55,"roiSe":0.4500000000000001,"avgEdge":0.045727904587874985,"avgClv":0.004725915922397322,"clvSe":0.022065507327571503,"setup":"b365-1x2","threshold":0.03,"perWeek":0.17777777777777778},{"label":"Bet365 only · 1X2 · liquid exchange ref","bets":2,"avgOdds":6.8,"hitRate":0.5,"roi":0.8,"roiSe":1.8,"avgEdge":0.06848798857129978,"avgClv":-0.03422085170958089,"clvSe":0.08472462517148405,"setup":"b365-1x2","threshold":0.05,"perWeek":0.044444444444444446},{"label":"Bet365 only · 1X2 + O/U 2.5 · liquid exchange ref","bets":130,"avgOdds":3.3334615384615383,"hitRate":0.2846153846153846,"roi":-0.16069230769230766,"roiSe":0.1263846712766602,"avgEdge":0.010926960351236152,"avgClv":-0.004140566548045216,"clvSe":0.005323181812111917,"setup":"b365-both","threshold":0,"perWeek":2.888888888888889},{"label":"Bet365 only · 1X2 + O/U 2.5 · liquid exchange ref","bets":48,"avgOdds":3.5437500000000006,"hitRate":0.2708333333333333,"roi":-0.19562499999999994,"roiSe":0.20023632010055356,"avgEdge":0.02237150774291342,"avgClv":-0.009056077762251882,"clvSe":0.008567202203328147,"setup":"b365-both","threshold":0.01,"perWeek":1.0666666666666667},{"label":"Bet365 only · 1X2 + O/U 2.5 · liquid exchange ref","bets":20,"avgOdds":4.217499999999999,"hitRate":0.15,"roi":-0.4800000000000001,"roiSe":0.2841978554680375,"avgEdge":0.03313892440254586,"avgClv":-0.01004481018288928,"clvSe":0.016482676861638672,"setup":"b365-both","threshold":0.02,"perWeek":0.4444444444444444},{"label":"Bet365 only · 1X2 + O/U 2.5 · liquid exchange ref","bets":8,"avgOdds":4.3125,"hitRate":0.125,"roi":-0.55,"roiSe":0.4500000000000001,"avgEdge":0.045727904587874985,"avgClv":0.004725915922397322,"clvSe":0.022065507327571503,"setup":"b365-both","threshold":0.03,"perWeek":0.17777777777777778},{"label":"Bet365 only · 1X2 + O/U 2.5 · liquid exchange ref","bets":2,"avgOdds":6.8,"hitRate":0.5,"roi":0.8,"roiSe":1.8,"avgEdge":0.06848798857129978,"avgClv":-0.03422085170958089,"clvSe":0.08472462517148405,"setup":"b365-both","threshold":0.05,"perWeek":0.044444444444444446},{"label":"4 books · 1X2 + O/U 2.5 · liquid exchange ref","bets":534,"avgOdds":3.0560486891385787,"hitRate":0.3857677902621723,"roi":-0.06526217228464416,"roiSe":0.05984539465294713,"avgEdge":0.009856812247012767,"avgClv":-0.0018842521057451135,"clvSe":0.0025691444205299097,"setup":"all4-liquid","threshold":0,"perWeek":11.866666666666667},{"label":"4 books · 1X2 + O/U 2.5 · liquid exchange ref","bets":168,"avgOdds":3.4737500000000017,"hitRate":0.3392857142857143,"roi":-0.019583333333333345,"roiSe":0.1166441081952522,"avgEdge":0.022021397864516484,"avgClv":0.0013563429993421023,"clvSe":0.0044342584919827,"setup":"all4-liquid","threshold":0.01,"perWeek":3.7333333333333334},{"label":"4 books · 1X2 + O/U 2.5 · liquid exchange ref","bets":74,"avgOdds":3.90135135135135,"hitRate":0.2972972972972973,"roi":0.0022972972972973025,"roiSe":0.1928221924485806,"avgEdge":0.03122723260623595,"avgClv":0.0007412487874921382,"clvSe":0.007437675505140209,"setup":"all4-liquid","threshold":0.02,"perWeek":1.6444444444444444},{"label":"4 books · 1X2 + O/U 2.5 · liquid exchange ref","bets":27,"avgOdds":4.194444444444445,"hitRate":0.2222222222222222,"roi":-0.13148148148148148,"roiSe":0.34545428355116276,"avgEdge":0.04362415527549794,"avgClv":0.007993486732259495,"clvSe":0.013027693562973511,"setup":"all4-liquid","threshold":0.03,"perWeek":0.6},{"label":"4 books · 1X2 + O/U 2.5 · liquid exchange ref","bets":5,"avgOdds":5.9,"hitRate":0.2,"roi":-0.27999999999999997,"roiSe":0.72,"avgEdge":0.06899769724356779,"avgClv":0.003995021908734464,"clvSe":0.04050054456094878,"setup":"all4-liquid","threshold":0.05,"perWeek":0.1111111111111111},{"label":"4 books · thin exchange markets allowed (≤8%)","bets":805,"avgOdds":3.058919254658386,"hitRate":0.38509316770186336,"roi":-0.05787577639751553,"roiSe":0.048133584761378904,"avgEdge":0.012647526187268105,"avgClv":-0.005432393475352172,"clvSe":0.0023250768805534,"setup":"all4-thin","threshold":0,"perWeek":17.88888888888889},{"label":"4 books · thin exchange markets allowed (≤8%)","bets":315,"avgOdds":3.40752380952381,"hitRate":0.3523809523809524,"roi":-0.03168253968253966,"roiSe":0.08169815850905582,"avgEdge":0.025444501333682708,"avgClv":-0.006693786890866316,"clvSe":0.0038809152027061123,"setup":"all4-thin","threshold":0.01,"perWeek":7},{"label":"4 books · thin exchange markets allowed (≤8%)","bets":154,"avgOdds":3.8877272727272745,"hitRate":0.3181818181818182,"roi":-0.03376623376623377,"roiSe":0.12320126163876562,"avgEdge":0.03647217059785161,"avgClv":-0.010622232966720031,"clvSe":0.00667888607678417,"setup":"all4-thin","threshold":0.02,"perWeek":3.422222222222222},{"label":"4 books · thin exchange markets allowed (≤8%)","bets":73,"avgOdds":4.181232876712327,"hitRate":0.3150684931506849,"roi":-0.004109589041095882,"roiSe":0.1875894343395059,"avgEdge":0.05006910355293459,"avgClv":-0.011472673794612216,"clvSe":0.010585352970640878,"setup":"all4-thin","threshold":0.03,"perWeek":1.6222222222222222},{"label":"4 books · thin exchange markets allowed (≤8%)","bets":25,"avgOdds":4.6744,"hitRate":0.32,"roi":-0.07159999999999997,"roiSe":0.29179940598523046,"avgEdge":0.07454681073763314,"avgClv":-0.015886884059769724,"clvSe":0.024175881386915853,"setup":"all4-thin","threshold":0.05,"perWeek":0.5555555555555556},{"label":"4 books · market average as reference","bets":368,"avgOdds":2.3164945652173916,"hitRate":0.6086956521739131,"roi":0.04994565217391301,"roiSe":0.05767047832008768,"avgEdge":0.008876898230246056,"avgClv":-0.009378005991603712,"clvSe":0.004317312037741482,"setup":"all4-avg","threshold":0,"perWeek":8.177777777777777},{"label":"4 books · market average as reference","bets":93,"avgOdds":3.218279569892474,"hitRate":0.3978494623655914,"roi":-0.12064516129032253,"roiSe":0.1435927672491047,"avgEdge":0.022971687707709378,"avgClv":-0.0013009081799759759,"clvSe":0.012170066748001676,"setup":"all4-avg","threshold":0.01,"perWeek":2.066666666666667},{"label":"4 books · market average as reference","bets":33,"avgOdds":4.176969696969697,"hitRate":0.36363636363636365,"roi":0.1766666666666667,"roiSe":0.31475359129376623,"avgEdge":0.039166440669786196,"avgClv":0.022920995004675458,"clvSe":0.0257160924803327,"setup":"all4-avg","threshold":0.02,"perWeek":0.7333333333333333},{"label":"4 books · market average as reference","bets":20,"avgOdds":4.223,"hitRate":0.25,"roi":-0.331,"roiSe":0.278233052635641,"avgEdge":0.04843594435839995,"avgClv":0.032391412488404596,"clvSe":0.04098669258573567,"setup":"all4-avg","threshold":0.03,"perWeek":0.4444444444444444},{"label":"4 books · market average as reference","bets":6,"avgOdds":4.01,"hitRate":0.5,"roi":0.20500000000000004,"roiSe":0.5829165177507554,"avgEdge":0.08139456580048354,"avgClv":0.07171220930822637,"clvSe":0.06803257743908253,"setup":"all4-avg","threshold":0.05,"perWeek":0.13333333333333333},{"label":"4 books · Pinnacle as reference (Aug–Jan only)","bets":524,"avgOdds":3.4283969465648916,"hitRate":0.38740458015267176,"roi":-0.07406488549618323,"roiSe":0.06358090512818985,"avgEdge":0.02264212615157143,"avgClv":-0.02373689555186916,"clvSe":0.0037098203460106146,"setup":"all4-ps","threshold":0,"perWeek":11.644444444444444},{"label":"4 books · Pinnacle as reference (Aug–Jan only)","bets":287,"avgOdds":4.091846689895473,"hitRate":0.3310104529616725,"roi":-0.0710801393728223,"roiSe":0.0944298920987446,"avgEdge":0.03766826365772082,"avgClv":-0.031494082843922334,"clvSe":0.0056785109943080486,"setup":"all4-ps","threshold":0.01,"perWeek":6.377777777777778},{"label":"4 books · Pinnacle as reference (Aug–Jan only)","bets":167,"avgOdds":4.683532934131736,"hitRate":0.30538922155688625,"roi":-0.04814371257485027,"roiSe":0.1327490281365952,"avgEdge":0.05473356588835076,"avgClv":-0.03202810047180837,"clvSe":0.008054151108605119,"setup":"all4-ps","threshold":0.02,"perWeek":3.7111111111111112},{"label":"4 books · Pinnacle as reference (Aug–Jan only)","bets":110,"avgOdds":5.0794545454545466,"hitRate":0.24545454545454545,"roi":-0.13554545454545452,"roiSe":0.16613767748254266,"avgEdge":0.07012536321817961,"avgClv":-0.03955690359026665,"clvSe":0.010771299097811854,"setup":"all4-ps","threshold":0.03,"perWeek":2.4444444444444446},{"label":"4 books · Pinnacle as reference (Aug–Jan only)","bets":58,"avgOdds":5.721034482758622,"hitRate":0.22413793103448276,"roi":-0.18999999999999997,"roiSe":0.2389161855937287,"avgEdge":0.09885175637771246,"avgClv":-0.05336140888766303,"clvSe":0.01797138261594754,"setup":"all4-ps","threshold":0.05,"perWeek":1.288888888888889}],"bands":[{"label":"1–1.8","bets":37,"avgOdds":1.4516216216216216,"hitRate":0.6216216216216216,"roi":-0.11459459459459462,"roiSe":0.1182997634114811,"avgEdge":0.01976583115385186,"avgClv":0.012022799334999612,"clvSe":0.008396746806851194},{"label":"1.8–2.5","bets":55,"avgOdds":2.035454545454545,"hitRate":0.4727272727272727,"roi":-0.03454545454545459,"roiSe":0.13998720917563284,"avgEdge":0.02095393735518855,"avgClv":-0.006450988041498172,"clvSe":0.008100973391456458},{"label":"2.5–3.5","bets":98,"avgOdds":3.202755102040815,"hitRate":0.3163265306122449,"roi":0.008469387755102078,"roiSe":0.15106044619977965,"avgEdge":0.02721532384999801,"avgClv":0.0039016873356010305,"clvSe":0.0056053247845267926},{"label":"3.5–5","bets":100,"avgOdds":3.7233999999999994,"hitRate":0.29,"roi":0.07830000000000002,"roiSe":0.17006113309601045,"avgEdge":0.025232462028246624,"avgClv":-0.009245436863588101,"clvSe":0.0056584320757422785},{"label":"5–8","bets":15,"avgOdds":6.133333333333334,"hitRate":0.13333333333333333,"roi":-0.16666666666666666,"roiSe":0.5725188012439222,"avgEdge":0.03657470466477123,"avgClv":-0.05863757275815964,"clvSe":0.030087710422494245},{"label":"8–15","bets":8,"avgOdds":10.0625,"hitRate":0,"roi":-1,"roiSe":0,"avgEdge":0.041940459321244794,"avgClv":-0.05348089368629787,"clvSe":0.0459270615107548},{"label":"15+","bets":2,"avgOdds":24.5,"hitRate":0,"roi":-1,"roiSe":0,"avgEdge":0.02836171410808286,"avgClv":-0.1757723426877555,"clvSe":0.25898085929203923}]},{"season":"2627","rows":[{"label":"Bet365 only · 1X2 · liquid exchange ref","bets":36,"avgOdds":4.288333333333334,"hitRate":0.19444444444444445,"roi":-0.3013888888888888,"roiSe":0.24682496618652783,"avgEdge":0.014278709318740554,"avgClv":-0.012866229551374973,"clvSe":0.020067729058395684,"setup":"b365-1x2","threshold":0,"perWeek":2.769230769230769},{"label":"Bet365 only · 1X2 · liquid exchange ref","bets":19,"avgOdds":4.3500000000000005,"hitRate":0.21052631578947367,"roi":-0.3078947368421053,"roiSe":0.32177920851656777,"avgEdge":0.022920657941758436,"avgClv":0.008305339088592878,"clvSe":0.032167973765987415,"setup":"b365-1x2","threshold":0.01,"perWeek":1.4615384615384615},{"label":"Bet365 only · 1X2 · liquid exchange ref","bets":7,"avgOdds":4.128571428571429,"hitRate":0.2857142857142857,"roi":-0.0571428571428572,"roiSe":0.633154289049278,"avgEdge":0.03639695059055218,"avgClv":0.09187478200671044,"clvSe":0.052369825666670165,"setup":"b365-1x2","threshold":0.02,"perWeek":0.5384615384615384},{"label":"Bet365 only · 1X2 · liquid exchange ref","bets":4,"avgOdds":3.95,"hitRate":0,"roi":-1,"roiSe":0,"avgEdge":0.04634285814433281,"avgClv":0.04379416443677475,"clvSe":0.05889106303486603,"setup":"b365-1x2","threshold":0.03,"perWeek":0.3076923076923077},{"label":"Bet365 only · 1X2 · liquid exchange ref","bets":1,"avgOdds":3.6,"hitRate":0,"roi":-1,"roiSe":0,"avgEdge":0.0732399851611758,"avgClv":0.11935556416003479,"clvSe":0,"setup":"b365-1x2","threshold":0.05,"perWeek":0.07692307692307693},{"label":"Bet365 only · 1X2 + O/U 2.5 · liquid exchange ref","bets":41,"avgOdds":4.016829268292683,"hitRate":0.21951219512195122,"roi":-0.29073170731707315,"roiSe":0.22283905113931674,"avgEdge":0.014108174359058664,"avgClv":-0.009822899952380794,"clvSe":0.018298239363361616,"setup":"b365-both","threshold":0,"perWeek":3.1538461538461537},{"label":"Bet365 only · 1X2 + O/U 2.5 · liquid exchange ref","bets":20,"avgOdds":4.2315,"hitRate":0.2,"roi":-0.3425,"roiSe":0.3072217397392656,"avgEdge":0.024113283257631422,"avgClv":0.014691219015549156,"clvSe":0.031178199836261102,"setup":"b365-both","threshold":0.01,"perWeek":1.5384615384615385},{"label":"Bet365 only · 1X2 + O/U 2.5 · liquid exchange ref","bets":8,"avgOdds":3.86,"hitRate":0.25,"roi":-0.17500000000000004,"roiSe":0.5608507568226786,"avgEdge":0.03769397729913543,"avgClv":0.09739330145933645,"clvSe":0.045688106080434984,"setup":"b365-both","threshold":0.02,"perWeek":0.6153846153846154},{"label":"Bet365 only · 1X2 + O/U 2.5 · liquid exchange ref","bets":5,"avgOdds":3.556,"hitRate":0,"roi":-1,"roiSe":0,"avgEdge":0.04642891936730988,"avgClv":0.06223991907496349,"clvSe":0.04920508355239527,"setup":"b365-both","threshold":0.03,"perWeek":0.38461538461538464},{"label":"Bet365 only · 1X2 + O/U 2.5 · liquid exchange ref","bets":1,"avgOdds":3.6,"hitRate":0,"roi":-1,"roiSe":0,"avgEdge":0.0732399851611758,"avgClv":0.11935556416003479,"clvSe":0,"setup":"b365-both","threshold":0.05,"perWeek":0.07692307692307693},{"label":"4 books · 1X2 + O/U 2.5 · liquid exchange ref","bets":131,"avgOdds":3.4208396946564887,"hitRate":0.37404580152671757,"roi":0.056641221374045744,"roiSe":0.13142207918416052,"avgEdge":0.013494573064630656,"avgClv":0.0067651264096200234,"clvSe":0.007426784882113057,"setup":"all4-liquid","threshold":0,"perWeek":10.076923076923077},{"label":"4 books · 1X2 + O/U 2.5 · liquid exchange ref","bets":52,"avgOdds":3.649807692307692,"hitRate":0.38461538461538464,"roi":0.16480769230769227,"roiSe":0.21942446492079662,"avgEdge":0.026263793590757575,"avgClv":0.0135486919387623,"clvSe":0.013600531810725432,"setup":"all4-liquid","threshold":0.01,"perWeek":4},{"label":"4 books · 1X2 + O/U 2.5 · liquid exchange ref","bets":24,"avgOdds":3.811666666666667,"hitRate":0.4166666666666667,"roi":0.3854166666666666,"roiSe":0.35336733113370905,"avgEdge":0.0396966080441262,"avgClv":0.04955851082697545,"clvSe":0.02070481276717625,"setup":"all4-liquid","threshold":0.02,"perWeek":1.8461538461538463},{"label":"4 books · 1X2 + O/U 2.5 · liquid exchange ref","bets":11,"avgOdds":3.998181818181818,"hitRate":0.18181818181818182,"roi":-0.36818181818181817,"roiSe":0.4254555167044081,"avgEdge":0.058371964987749776,"avgClv":0.061423020536578755,"clvSe":0.029417272363828323,"setup":"all4-liquid","threshold":0.03,"perWeek":0.8461538461538461},{"label":"4 books · 1X2 + O/U 2.5 · liquid exchange ref","bets":3,"avgOdds":4.116666666666666,"hitRate":0,"roi":-1,"roiSe":0,"avgEdge":0.11498353285732306,"avgClv":0.15124212978437365,"clvSe":0.039497169739948886,"setup":"all4-liquid","threshold":0.05,"perWeek":0.23076923076923078},{"label":"4 books · thin exchange markets allowed (≤8%)","bets":196,"avgOdds":3.2933163265306127,"hitRate":0.3979591836734694,"roi":0.05897959183673469,"roiSe":0.10272806765842689,"avgEdge":0.017840671747515236,"avgClv":0.003685152790820621,"clvSe":0.006171919259400458,"setup":"all4-thin","threshold":0,"perWeek":15.076923076923077},{"label":"4 books · thin exchange markets allowed (≤8%)","bets":89,"avgOdds":3.4912359550561813,"hitRate":0.4044943820224719,"roi":0.10235955056179773,"roiSe":0.15424509091473518,"avgEdge":0.033041810353637825,"avgClv":0.006465200363388701,"clvSe":0.010978104756360796,"setup":"all4-thin","threshold":0.01,"perWeek":6.846153846153846},{"label":"4 books · thin exchange markets allowed (≤8%)","bets":44,"avgOdds":3.841136363636363,"hitRate":0.45454545454545453,"roi":0.37386363636363645,"roiSe":0.24110216793200065,"avgEdge":0.05229978778873424,"avgClv":0.029320300818621435,"clvSe":0.01881939911839536,"setup":"all4-thin","threshold":0.02,"perWeek":3.3846153846153846},{"label":"4 books · thin exchange markets allowed (≤8%)","bets":25,"avgOdds":3.8492,"hitRate":0.4,"roi":0.21199999999999988,"roiSe":0.3114385974795032,"avgEdge":0.07354645956444021,"avgClv":0.04332543804836604,"clvSe":0.028159071779552524,"setup":"all4-thin","threshold":0.03,"perWeek":1.9230769230769231},{"label":"4 books · thin exchange markets allowed (≤8%)","bets":8,"avgOdds":4.0625,"hitRate":0.5,"roi":0.39374999999999993,"roiSe":0.5447343307259316,"avgEdge":0.14935795351346542,"avgClv":0.11933939641937426,"clvSe":0.07694359914140343,"setup":"all4-thin","threshold":0.05,"perWeek":0.6153846153846154},{"label":"4 books · market average as reference","bets":114,"avgOdds":2.1787719298245607,"hitRate":0.6491228070175439,"roi":0.06859649122807018,"roiSe":0.09875178731286126,"avgEdge":0.008660191094327547,"avgClv":-0.023374157752500485,"clvSe":0.008462993798914204,"setup":"all4-avg","threshold":0,"perWeek":8.76923076923077},{"label":"4 books · market average as reference","bets":25,"avgOdds":2.8544000000000005,"hitRate":0.48,"roi":-0.3112,"roiSe":0.15773851780716086,"avgEdge":0.022855021118368218,"avgClv":-0.018688241410592332,"clvSe":0.022830649617218434,"setup":"all4-avg","threshold":0.01,"perWeek":1.9230769230769231},{"label":"4 books · market average as reference","bets":9,"avgOdds":3.2655555555555558,"hitRate":0.4444444444444444,"roi":-0.21777777777777776,"roiSe":0.3327026440873533,"avgEdge":0.0401581665482231,"avgClv":-0.010474413653171429,"clvSe":0.03900232361824704,"setup":"all4-avg","threshold":0.02,"perWeek":0.6923076923076923},{"label":"4 books · market average as reference","bets":2,"avgOdds":3.625,"hitRate":0,"roi":-1,"roiSe":0,"avgEdge":0.10313102564029664,"avgClv":0.09821767660860631,"clvSe":0.13155778673014779,"setup":"all4-avg","threshold":0.03,"perWeek":0.15384615384615385},{"label":"4 books · market average as reference","bets":1,"avgOdds":3.25,"hitRate":0,"roi":-1,"roiSe":0,"avgEdge":0.16807347875777934,"avgClv":0.2297754633387541,"clvSe":0,"setup":"all4-avg","threshold":0.05,"perWeek":0.07692307692307693}],"bands":[{"label":"1–1.8","bets":8,"avgOdds":1.5075,"hitRate":0.625,"roi":-0.10500000000000001,"roiSe":0.2673347286509127,"avgEdge":0.01566460667736455,"avgClv":-0.004298040542156212,"clvSe":0.013346207355657207},{"label":"1.8–2.5","bets":14,"avgOdds":2.012857142857143,"hitRate":0.7142857142857143,"roi":0.4035714285714286,"roiSe":0.24759637294041606,"avgEdge":0.03749935885402879,"avgClv":0.004913306141707549,"clvSe":0.016599482451326975},{"label":"2.5–3.5","bets":29,"avgOdds":3.1148275862068964,"hitRate":0.4482758620689655,"roi":0.4189655172413793,"roiSe":0.2996859377541476,"avgEdge":0.039609727710408604,"avgClv":0.027943298862890053,"clvSe":0.02449106741449136},{"label":"3.5–5","bets":26,"avgOdds":3.823076923076923,"hitRate":0.3076923076923077,"roi":0.15961538461538463,"roiSe":0.34875624318392257,"avgEdge":0.025557853557350928,"avgClv":-0.005574171815446547,"clvSe":0.013660013112864107},{"label":"5–8","bets":9,"avgOdds":5.861111111111111,"hitRate":0,"roi":-1,"roiSe":0,"avgEdge":0.034885527347947934,"avgClv":0.0139712315704617,"clvSe":0.05582423098948593},{"label":"8–15","bets":3,"avgOdds":9.333333333333334,"hitRate":0,"roi":-1,"roiSe":0,"avgEdge":0.054419067291314294,"avgClv":-0.08338913775380612,"clvSe":0.03704086604316497},{"label":"15+","bets":0,"avgOdds":0,"hitRate":0,"roi":0,"roiSe":0,"avgEdge":0,"avgClv":null,"clvSe":null}]}],"margins":[{"label":"Top five leagues","leagues":["Premier League","Bundesliga","Serie A","La Liga","Ligue 1"],"bfe":0.00774190765780336,"ps":0.03464005501986023,"b365":0.05485468647789915,"bw":0.05836574785251614},{"label":"Second tiers and mid-size leagues","leagues":["Championship","2. Bundesliga","Serie B","Segunda División","Ligue 2","Eredivisie","Belgian Pro League","Primeira Liga","Süper Lig"],"bfe":0.021710811984368084,"ps":0.050401638350971556,"b365":0.07594116180503607,"bw":0.06813186813186833},{"label":"English L1/L2, Scottish Premiership","leagues":["League One","League Two","Scottish Premiership"],"bfe":0.02623583771124749,"ps":0.058561153842460634,"b365":0.08434452314957386,"bw":0.07440476190476186},{"label":"Thin: National League, Scottish lower, Greece","leagues":["National League","Scottish Championship","Scottish League One","Scottish League Two","Greek Super League"],"bfe":0.0657101158762814,"ps":0.06805440286125286,"b365":0.09523809523809512,"bw":0.12105711849957368}],"leagues":{"E0":"Premier League","E1":"Championship","E2":"League One","E3":"League Two","EC":"National League","SC0":"Scottish Premiership","SC1":"Scottish Championship","SC2":"Scottish League One","SC3":"Scottish League Two","D1":"Bundesliga","D2":"2. Bundesliga","I1":"Serie A","I2":"Serie B","SP1":"La Liga","SP2":"Segunda División","F1":"Ligue 1","F2":"Ligue 2","N1":"Eredivisie","B1":"Belgian Pro League","P1":"Primeira Liga","T1":"Süper Lig","G1":"Greek Super League"}};
+</script>
+<script>
+  (function () {
+    'use strict';
+    var D = window.DATA;
+    var BOOKS = { B365: 'Bet365', BW: 'bwin', BV: 'BetVictor', BFD: 'Betfair Sportsbook' };
+    var BUDGETS = [
+      { id: 'f50', label: '€50', kind: 'fixed', amount: 50 },
+      { id: 'f100', label: '€100', kind: 'fixed', amount: 100 },
+      { id: 'f200', label: '€200', kind: 'fixed', amount: 200 },
+      { id: 'p5', label: '5% of bankroll', kind: 'fraction', fraction: 0.05 },
+      { id: 'p10', label: '10%', kind: 'fraction', fraction: 0.1 },
+      { id: 'p20', label: '20%', kind: 'fraction', fraction: 0.2 },
+    ];
+    var BANDS = [
+      { id: 'model', label: 'Range if the edges are real' },
+      { id: 'zero', label: 'Range with no edge' },
+      { id: 'none', label: 'No range' },
+    ];
+    var state = {
+      preset: 'strict',
+      season: '2526',
+      budget: 'f100',
+      start: 1000,
+      band: 'model',
+      cSeason: '2526',
+      cT: 0.02,
+    };
+
+    // ---------- helpers ----------
+    function el(tag, attrs, kids) {
+      var n = document.createElement(tag);
+      if (attrs)
+        for (var k in attrs) {
+          if (k === 'text') n.textContent = attrs[k];
+          else if (k === 'cls') n.className = attrs[k];
+          else n.setAttribute(k, attrs[k]);
+        }
+      (kids || []).forEach(function (c) {
+        if (c != null) n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+      });
+      return n;
+    }
+    var SVGNS = 'http://www.w3.org/2000/svg';
+    function sv(tag, attrs) {
+      var n = document.createElementNS(SVGNS, tag);
+      for (var k in attrs) n.setAttribute(k, attrs[k]);
+      return n;
+    }
+    function eur(x, signed) {
+      var r = Math.round(x);
+      var s = '€' + Math.abs(r).toLocaleString('en-GB');
+      if (r < 0) return '−' + s;
+      return signed && r > 0 ? '+' + s : s;
+    }
+    function eur2(x) {
+      return (
+        '€' + x.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+      );
+    }
+    function pct(x, d, signed) {
+      if (x === null || x === undefined) return 'n/a';
+      var v = (x * 100).toFixed(d === undefined ? 1 : d);
+      if (Number(v) === 0) v = (0).toFixed(d === undefined ? 1 : d);
+      var neg = Number(v) < 0;
+      return (
+        (neg ? '−' : signed && Number(v) > 0 ? '+' : '') +
+        Math.abs(Number(v)).toFixed(d === undefined ? 1 : d) +
+        '%'
+      );
+    }
+    var MONTHS = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    var MONTHS_LONG = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
+    function dmy(iso) {
+      var p = iso.split('-');
+      return Number(p[2]) + ' ' + MONTHS[Number(p[1]) - 1] + ' ' + p[0];
+    }
+    function dm(iso) {
+      var p = iso.split('-');
+      return Number(p[2]) + ' ' + MONTHS[Number(p[1]) - 1];
+    }
+    function addDays(iso, n) {
+      var d = new Date(iso + 'T00:00:00Z');
+      d.setUTCDate(d.getUTCDate() + n);
+      return d.toISOString().slice(0, 10);
+    }
+    function seasonById(id) {
+      return D.seasons.filter(function (s) {
+        return s.id === id;
+      })[0];
+    }
+    function presetById(id) {
+      return D.presets.filter(function (p) {
+        return p.id === id;
+      })[0];
+    }
+    function budgetById(id) {
+      return BUDGETS.filter(function (b) {
+        return b.id === id;
+      })[0];
+    }
+    function pickName(p) {
+      var market = p[4],
+        sel = p[5];
+      if (market === 'ou25') return sel + ' 2.5 goals';
+      if (sel === 'Draw') return 'Draw';
+      return (sel === 'Home' ? p[2] : p[3]) + ' to win';
+    }
+    function leagueName(code) {
+      return (D.leagues && D.leagues[code]) || code;
+    }
+    function niceStep(range, target) {
+      var raw = range / Math.max(1, target);
+      var mag = Math.pow(10, Math.floor(Math.log10(raw)));
+      var f = raw / mag;
+      return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * mag;
+    }
+    function mulberry32(a) {
+      return function () {
+        a |= 0;
+        a = (a + 0x6d2b79f5) | 0;
+        var t = Math.imul(a ^ (a >>> 15), 1 | a);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+
+    // ---------- simulation ----------
+    function weekMultiple(r) {
+      var m = 0;
+      r.p.forEach(function (p) {
+        if (p[11]) m += p[10] * p[7];
+      });
+      return m;
+    }
+    function stakeFor(budget, before) {
+      var want = budget.kind === 'fixed' ? budget.amount : before * budget.fraction;
+      return Math.min(want, before);
+    }
+    function replay(rounds, start, budget) {
+      var bank = start,
+        peak = start,
+        maxDd = 0,
+        out = [];
+      rounds.forEach(function (r) {
+        var before = bank;
+        var playing = r.p.length > 0 && before >= 1;
+        var staked = playing ? stakeFor(budget, before) : 0;
+        var mult = weekMultiple(r);
+        var returned = staked * mult;
+        bank = before - staked + returned;
+        peak = Math.max(peak, bank);
+        maxDd = Math.max(maxDd, peak > 0 ? (peak - bank) / peak : 0);
+        out.push({
+          r: r,
+          before: before,
+          staked: staked,
+          returned: returned,
+          after: bank,
+          mult: mult,
+          winners: r.p.filter(function (p) {
+            return p[11];
+          }).length,
+          playing: playing,
+        });
+      });
+      return { weeks: out, final: bank, maxDd: maxDd };
+    }
+    // Monte Carlo: replay the same slates with outcomes drawn at random, either at the estimated
+    // fair probabilities ('model') or at break-even probabilities 1/odds with no edge ('zero').
+    function monteCarlo(rounds, start, budget, mode) {
+      var n = 1500,
+        rng = mulberry32(20261024),
+        W = rounds.length;
+      var cols = [];
+      for (var w = 0; w < W; w++) cols.push(new Float64Array(n));
+      var above = 0;
+      for (var i = 0; i < n; i++) {
+        var bank = start;
+        for (var w2 = 0; w2 < W; w2++) {
+          var r = rounds[w2];
+          if (r.p.length > 0 && bank >= 1) {
+            var st = stakeFor(budget, bank),
+              mult = 0;
+            for (var j = 0; j < r.p.length; j++) {
+              var p = r.p[j];
+              var prob = mode === 'model' ? p[8] : 1 / p[7];
+              if (rng() < prob) mult += p[10] * p[7];
+            }
+            bank = bank - st + st * mult;
+          }
+          cols[w2][i] = bank;
+        }
+        if (bank > start) above++;
+      }
+      var q = function (arr, f) {
+        return arr[Math.floor(f * (arr.length - 1))];
+      };
+      return {
+        bands: cols.map(function (c) {
+          var s = Array.from(c).sort(function (a, b) {
+            return a - b;
+          });
+          return { lo: q(s, 0.1), mid: q(s, 0.5), hi: q(s, 0.9) };
+        }),
+        above: above / n,
+      };
+    }
+
+    // ---------- controls ----------
+    function seg(container, items, current, onPick) {
+      container.textContent = '';
+      items.forEach(function (it) {
+        var b = el('button', {
+          type: 'button',
+          'aria-pressed': String(it.id === current),
+          text: it.label,
+        });
+        b.addEventListener('click', function () {
+          onPick(it.id);
+        });
+        container.appendChild(b);
+      });
+    }
+    function renderControls() {
+      seg(
+        document.getElementById('ctl-preset'),
+        D.presets.map(function (p) {
+          return { id: p.id, label: p.name };
+        }),
+        state.preset,
+        function (id) {
+          state.preset = id;
+          renderReplay();
+        },
+      );
+      seg(
+        document.getElementById('ctl-season'),
+        D.seasons.map(function (s) {
+          return { id: s.id, label: s.label + (s.id === '2627' ? ' so far' : '') };
+        }),
+        state.season,
+        function (id) {
+          state.season = id;
+          renderReplay();
+        },
+      );
+      seg(document.getElementById('ctl-budget'), BUDGETS, state.budget, function (id) {
+        state.budget = id;
+        renderReplay();
+      });
+      seg(document.getElementById('ctl-band'), BANDS, state.band, function (id) {
+        state.band = id;
+        renderReplay();
+      });
+    }
+
+    // ---------- replay section ----------
+    var current = null;
+    function renderReplay() {
+      renderControls();
+      var preset = presetById(state.preset),
+        season = seasonById(state.season),
+        budget = budgetById(state.budget);
+      var run = D.runs[state.preset][state.season];
+      var res = replay(run.rounds, state.start, budget);
+      var mc =
+        state.band === 'none' ? null : monteCarlo(run.rounds, state.start, budget, state.band);
+      current = { preset: preset, season: season, budget: budget, run: run, res: res, mc: mc };
+
+      document.getElementById('preset-note').textContent =
+        preset.summary +
+        ' ' +
+        season.label +
+        ': ' +
+        season.role.toLowerCase() +
+        ', ' +
+        dmy(season.firstDate) +
+        ' to ' +
+        dmy(season.lastDate) +
+        '.';
+      renderTiles();
+      renderBankrollChart();
+      renderWeeklyChart();
+      renderMonths();
+      renderWeeks();
+    }
+
+    function tile(k, v, s, cls) {
+      return el('div', { cls: 'tile' }, [
+        el('span', { cls: 'k', text: k }),
+        el('span', { cls: 'v' + (cls ? ' ' + cls : ''), text: v }),
+        s ? el('span', { cls: 's', text: s }) : null,
+      ]);
+    }
+    function renderTiles() {
+      var c = current,
+        w = c.res.weeks;
+      var played = w.filter(function (x) {
+        return x.playing;
+      });
+      var bets = played.reduce(function (a, x) {
+        return a + x.r.p.length;
+      }, 0);
+      var winWeeks = played.filter(function (x) {
+        return x.winners > 0;
+      }).length;
+      var staked = played.reduce(function (a, x) {
+        return a + x.staked;
+      }, 0);
+      var profit = c.res.final - state.start;
+      var t = document.getElementById('tiles');
+      t.textContent = '';
+      t.appendChild(tile('Final bankroll', eur(c.res.final), 'started with ' + eur(state.start)));
+      t.appendChild(
+        tile(
+          'Profit',
+          eur(profit, true),
+          staked > 0
+            ? pct(profit / staked, 1, true) +
+                ' on ' +
+                eur(staked) +
+                ' staked over ' +
+                bets +
+                ' bets'
+            : 'no bets placed',
+          profit > 0.5 ? 'pos' : profit < -0.5 ? 'neg' : '',
+        ),
+      );
+      t.appendChild(
+        tile(
+          'Weeks with a bet',
+          played.length + ' of ' + w.length,
+          (bets / Math.max(1, played.length)).toFixed(1) + ' bets per week played',
+        ),
+      );
+      t.appendChild(
+        tile(
+          'Weeks with a winner',
+          played.length ? Math.round((100 * winWeeks) / played.length) + '%' : 'n/a',
+          played.length - winWeeks + ' weeks lost every bet',
+        ),
+      );
+      t.appendChild(tile('Worst drop', pct(c.res.maxDd, 0), 'from a peak'));
+      if (!c.mc)
+        t.appendChild(tile('Bets placed', String(bets), 'over ' + played.length + ' weeks'));
+      if (c.mc)
+        t.appendChild(
+          tile(
+            state.band === 'model'
+              ? 'Chance of profit if edges are real'
+              : 'Chance of profit with no edge',
+            Math.round(c.mc.above * 100) + '%',
+            '1,500 simulated seasons, same bets',
+          ),
+        );
+    }
+
+    // Month ticks at the first week of each month, thinned so labels never touch (phone widths).
+    function axisMonths(weeks, xAt) {
+      var ticks = [],
+        seen = {},
+        lastX = -Infinity;
+      weeks.forEach(function (x, i) {
+        var mid = addDays(x.r.s, 3).slice(0, 7);
+        if (seen[mid]) return;
+        seen[mid] = true;
+        if (xAt(i) - lastX < 40) return;
+        lastX = xAt(i);
+        ticks.push({ i: i, m: Number(mid.slice(5, 7)) - 1, y: mid.slice(0, 4) });
+      });
+      return ticks;
+    }
+
+    function renderBankrollChart() {
+      var c = current,
+        host = document.getElementById('bankroll-svg');
+      host.textContent = '';
+      var weeks = c.res.weeks,
+        W = weeks.length;
+      var width = Math.max(300, host.clientWidth || 800),
+        height = Math.round(Math.min(360, Math.max(240, width * 0.38)));
+      var m = { t: 14, r: 74, b: 30, l: 56 };
+      var iw = width - m.l - m.r,
+        ih = height - m.t - m.b;
+      var vals = [state.start];
+      weeks.forEach(function (x) {
+        vals.push(x.after);
+      });
+      if (c.mc)
+        c.mc.bands.forEach(function (b) {
+          vals.push(b.lo, b.hi);
+        });
+      var lo = Math.min.apply(null, vals),
+        hi = Math.max.apply(null, vals);
+      var pad = (hi - lo) * 0.08 || state.start * 0.1;
+      lo = Math.max(0, lo - pad);
+      hi = hi + pad;
+      var step = niceStep(hi - lo, 5);
+      lo = Math.floor(lo / step) * step;
+      hi = Math.ceil(hi / step) * step;
+      var x = function (i) {
+        return m.l + (W <= 1 ? iw / 2 : (i / (W - 1)) * iw);
+      };
+      var y = function (v) {
+        return m.t + ih - ((v - lo) / (hi - lo)) * ih;
+      };
+      var svg = sv('svg', {
+        viewBox: '0 0 ' + width + ' ' + height,
+        width: '100%',
+        role: 'img',
+        tabindex: '0',
+        'aria-label':
+          'Bankroll after each week. Use left and right arrow keys to step through weeks.',
+      });
+      for (var v = lo; v <= hi + 1e-9; v += step) {
+        svg.appendChild(
+          sv('line', {
+            x1: m.l,
+            x2: m.l + iw,
+            y1: y(v),
+            y2: y(v),
+            stroke: 'var(--grid)',
+            'stroke-width': 1,
+          }),
+        );
+        var tl = sv('text', { x: m.l - 8, y: y(v) + 4, 'text-anchor': 'end' });
+        tl.textContent = eur(v);
+        svg.appendChild(tl);
+      }
+      axisMonths(weeks, x).forEach(function (t) {
+        var tx = sv('text', { x: x(t.i), y: height - 8, 'text-anchor': 'middle' });
+        tx.textContent = MONTHS[t.m] + (t.m === 0 ? ' ' + t.y.slice(2) : '');
+        svg.appendChild(tx);
+      });
+      // start line
+      svg.appendChild(
+        sv('line', {
+          x1: m.l,
+          x2: m.l + iw,
+          y1: y(state.start),
+          y2: y(state.start),
+          stroke: 'var(--axis)',
+          'stroke-width': 1,
+        }),
+      );
+      // band
+      if (c.mc) {
+        var d = '';
+        c.mc.bands.forEach(function (b, i) {
+          d += (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(b.hi).toFixed(1);
+        });
+        for (var i2 = W - 1; i2 >= 0; i2--)
+          d += 'L' + x(i2).toFixed(1) + ' ' + y(c.mc.bands[i2].lo).toFixed(1);
+        svg.appendChild(sv('path', { d: d + 'Z', fill: 'var(--band)', stroke: 'none' }));
+      }
+      var ld = '';
+      weeks.forEach(function (wk, i) {
+        ld += (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(wk.after).toFixed(1);
+      });
+      svg.appendChild(
+        sv('path', {
+          d: ld,
+          fill: 'none',
+          stroke: 'var(--series)',
+          'stroke-width': 2,
+          'stroke-linejoin': 'round',
+          'stroke-linecap': 'round',
+        }),
+      );
+      svg.appendChild(
+        sv('circle', {
+          cx: x(W - 1),
+          cy: y(c.res.final),
+          r: 4.5,
+          fill: 'var(--series)',
+          stroke: 'var(--panel)',
+          'stroke-width': 2,
+        }),
+      );
+      var el1 = sv('text', { x: x(W - 1) + 10, y: y(c.res.final) + 4, class: 'end-label' });
+      el1.textContent = eur(c.res.final);
+      svg.appendChild(el1);
+      var cross = sv('line', {
+        x1: 0,
+        x2: 0,
+        y1: m.t,
+        y2: m.t + ih,
+        stroke: 'var(--axis)',
+        'stroke-width': 1,
+        visibility: 'hidden',
+      });
+      var dot = sv('circle', {
+        r: 4.5,
+        fill: 'var(--series)',
+        stroke: 'var(--panel)',
+        'stroke-width': 2,
+        visibility: 'hidden',
+      });
+      svg.appendChild(cross);
+      svg.appendChild(dot);
+      var hit = sv('rect', { x: m.l - 8, y: m.t, width: iw + 16, height: ih, fill: 'transparent' });
+      svg.appendChild(hit);
+      host.appendChild(svg);
+
+      var leg = document.getElementById('bankroll-legend');
+      leg.textContent = '';
+      leg.appendChild(el('span', {}, [el('i', { cls: 'key-line' }), 'Your bankroll']));
+      if (c.mc)
+        leg.appendChild(
+          el('span', {}, [
+            el('i', { cls: 'key-band' }),
+            state.band === 'model'
+              ? '80% of outcomes if the estimated edges are real'
+              : '80% of outcomes if there is no edge',
+          ]),
+        );
+      leg.appendChild(el('span', {}, [el('i', { cls: 'key-base' }), 'Starting bankroll']));
+      document.getElementById('bankroll-title').textContent =
+        'Bankroll, week by week · ' +
+        c.preset.name +
+        ' · ' +
+        c.season.label +
+        ' · ' +
+        c.budget.label +
+        (c.budget.kind === 'fixed' ? ' a week' : '');
+
+      var tip = document.getElementById('tip-bankroll');
+      var idx = W - 1;
+      function show(i) {
+        idx = Math.max(0, Math.min(W - 1, i));
+        var wk = weeks[idx],
+          px = x(idx),
+          scale = svg.getBoundingClientRect().width / width;
+        cross.setAttribute('x1', px);
+        cross.setAttribute('x2', px);
+        cross.setAttribute('visibility', 'visible');
+        dot.setAttribute('cx', px);
+        dot.setAttribute('cy', y(wk.after));
+        dot.setAttribute('visibility', 'visible');
+        tip.textContent = '';
+        tip.appendChild(el('span', { cls: 'tv', text: eur(wk.after) }));
+        tip.appendChild(el('span', { text: 'after the week of ' + dm(wk.r.s) }));
+        var rows = wk.playing
+          ? [
+              ['Staked', eur2(wk.staked)],
+              ['Returned', eur2(wk.returned)],
+              ['Bets · won', wk.r.p.length + ' · ' + wk.winners],
+            ]
+          : [['No bets', 'sat out']];
+        if (c.mc) {
+          var b = c.mc.bands[idx];
+          rows.push(['Range (80%)', eur(b.lo) + ' – ' + eur(b.hi)]);
+        }
+        rows.forEach(function (rw) {
+          tip.appendChild(el('span', { cls: 'tr' }, [rw[0], el('b', { text: rw[1] })]));
+        });
+        tip.hidden = false;
+        var fig = document.getElementById('fig-bankroll'),
+          fr = fig.getBoundingClientRect(),
+          hr = host.getBoundingClientRect();
+        var left = hr.left - fr.left + px * scale + 14;
+        if (left + tip.offsetWidth > fr.width - 8)
+          left = hr.left - fr.left + px * scale - tip.offsetWidth - 14;
+        tip.style.left = Math.max(8, left) + 'px';
+        tip.style.top = hr.top - fr.top + m.t * scale + 'px';
+      }
+      function hide() {
+        tip.hidden = true;
+        cross.setAttribute('visibility', 'hidden');
+        dot.setAttribute('visibility', 'hidden');
+      }
+      hit.addEventListener('pointermove', function (e) {
+        var r = svg.getBoundingClientRect(),
+          sx = ((e.clientX - r.left) / r.width) * width;
+        show(Math.round(((sx - m.l) / iw) * (W - 1)));
+      });
+      hit.addEventListener('pointerleave', hide);
+      svg.addEventListener('focus', function () {
+        show(idx);
+      });
+      svg.addEventListener('blur', hide);
+      svg.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowRight') {
+          show(idx + 1);
+          e.preventDefault();
+        }
+        if (e.key === 'ArrowLeft') {
+          show(idx - 1);
+          e.preventDefault();
+        }
+      });
+    }
+
+    function renderWeeklyChart() {
+      var c = current,
+        host = document.getElementById('weekly-svg');
+      host.textContent = '';
+      var weeks = c.res.weeks,
+        W = weeks.length;
+      var width = Math.max(300, host.clientWidth || 800),
+        height = 200;
+      var m = { t: 12, r: 74, b: 30, l: 56 };
+      var iw = width - m.l - m.r,
+        ih = height - m.t - m.b;
+      var pl = weeks.map(function (wk) {
+        return wk.returned - wk.staked;
+      });
+      var lo = Math.min(0, Math.min.apply(null, pl)),
+        hi = Math.max(0, Math.max.apply(null, pl));
+      if (hi - lo < 1) {
+        hi = 1;
+        lo = -1;
+      }
+      var step = niceStep(hi - lo, 4);
+      lo = Math.floor(lo / step) * step;
+      hi = Math.ceil(hi / step) * step;
+      var band = iw / W,
+        bw = Math.max(2, Math.min(24, band - 2));
+      var x = function (i) {
+        return m.l + band * i + band / 2;
+      };
+      var y = function (v) {
+        return m.t + ih - ((v - lo) / (hi - lo)) * ih;
+      };
+      var svg = sv('svg', {
+        viewBox: '0 0 ' + width + ' ' + height,
+        width: '100%',
+        role: 'img',
+        'aria-label': 'Profit or loss for each week',
+      });
+      for (var v = lo; v <= hi + 1e-9; v += step) {
+        svg.appendChild(
+          sv('line', {
+            x1: m.l,
+            x2: m.l + iw,
+            y1: y(v),
+            y2: y(v),
+            stroke: Math.abs(v) < 1e-9 ? 'var(--axis)' : 'var(--grid)',
+            'stroke-width': 1,
+          }),
+        );
+        var tl = sv('text', { x: m.l - 8, y: y(v) + 4, 'text-anchor': 'end' });
+        tl.textContent = eur(v, true);
+        svg.appendChild(tl);
+      }
+      axisMonths(weeks, x).forEach(function (t) {
+        var tx = sv('text', { x: x(t.i), y: height - 8, 'text-anchor': 'middle' });
+        tx.textContent = MONTHS[t.m] + (t.m === 0 ? ' ' + t.y.slice(2) : '');
+        svg.appendChild(tx);
+      });
+      var tip = document.getElementById('tip-weekly');
+      weeks.forEach(function (wk, i) {
+        var val = pl[i];
+        if (wk.playing && Math.abs(val) >= 0.005) {
+          var y0 = y(0),
+            y1 = y(val),
+            h = Math.abs(y1 - y0),
+            r = Math.min(4, h, bw / 2),
+            x0 = x(i) - bw / 2;
+          var d =
+            val > 0
+              ? 'M' +
+                x0 +
+                ' ' +
+                y0 +
+                'V' +
+                (y1 + r) +
+                'Q' +
+                x0 +
+                ' ' +
+                y1 +
+                ' ' +
+                (x0 + r) +
+                ' ' +
+                y1 +
+                'H' +
+                (x0 + bw - r) +
+                'Q' +
+                (x0 + bw) +
+                ' ' +
+                y1 +
+                ' ' +
+                (x0 + bw) +
+                ' ' +
+                (y1 + r) +
+                'V' +
+                y0 +
+                'Z'
+              : 'M' +
+                x0 +
+                ' ' +
+                y0 +
+                'V' +
+                (y1 - r) +
+                'Q' +
+                x0 +
+                ' ' +
+                y1 +
+                ' ' +
+                (x0 + r) +
+                ' ' +
+                y1 +
+                'H' +
+                (x0 + bw - r) +
+                'Q' +
+                (x0 + bw) +
+                ' ' +
+                y1 +
+                ' ' +
+                (x0 + bw) +
+                ' ' +
+                (y1 - r) +
+                'V' +
+                y0 +
+                'Z';
+          svg.appendChild(sv('path', { d: d, fill: val > 0 ? 'var(--series)' : 'var(--loss)' }));
+        }
+        var hitR = sv('rect', {
+          x: m.l + band * i,
+          y: m.t,
+          width: band,
+          height: ih,
+          fill: 'transparent',
+        });
+        hitR.addEventListener('pointerenter', function () {
+          tip.textContent = '';
+          tip.appendChild(el('span', { cls: 'tv', text: wk.playing ? eur(val, true) : 'Sat out' }));
+          tip.appendChild(el('span', { text: 'week of ' + dm(wk.r.s) }));
+          if (wk.playing)
+            [
+              ['Bets · won', wk.r.p.length + ' · ' + wk.winners],
+              ['Staked', eur2(wk.staked)],
+              ['Returned', eur2(wk.returned)],
+            ].forEach(function (rw) {
+              tip.appendChild(el('span', { cls: 'tr' }, [rw[0], el('b', { text: rw[1] })]));
+            });
+          tip.hidden = false;
+          var fig = document.getElementById('fig-weekly'),
+            fr = fig.getBoundingClientRect(),
+            hr = host.getBoundingClientRect();
+          var scale = hr.width / width,
+            left = hr.left - fr.left + x(i) * scale + 12;
+          if (left + tip.offsetWidth > fr.width - 8)
+            left = hr.left - fr.left + x(i) * scale - tip.offsetWidth - 12;
+          tip.style.left = Math.max(8, left) + 'px';
+          tip.style.top = hr.top - fr.top + 4 + 'px';
+        });
+        hitR.addEventListener('pointerleave', function () {
+          tip.hidden = true;
+        });
+        svg.appendChild(hitR);
+      });
+      host.appendChild(svg);
+    }
+
+    function table(id, head, rows, rightCols) {
+      var t = document.getElementById(id);
+      t.textContent = '';
+      var thead = el('thead'),
+        tr = el('tr');
+      head.forEach(function (h, i) {
+        tr.appendChild(
+          el('th', {
+            cls: rightCols && rightCols.indexOf(i) >= 0 ? 'r' : '',
+            scope: 'col',
+            text: h,
+          }),
+        );
+      });
+      thead.appendChild(tr);
+      t.appendChild(thead);
+      var tb = el('tbody');
+      rows.forEach(function (r) {
+        var row = el('tr');
+        r.forEach(function (cell, i) {
+          var td = el('td', { cls: rightCols && rightCols.indexOf(i) >= 0 ? 'r' : '' });
+          if (cell && cell.nodeType) td.appendChild(cell);
+          else td.textContent = cell;
+          row.appendChild(td);
+        });
+        tb.appendChild(row);
+      });
+      t.appendChild(tb);
+    }
+    function plSpan(x) {
+      return el('span', { cls: x > 0.5 ? 'pos' : x < -0.5 ? 'neg' : '', text: eur(x, true) });
+    }
+
+    function renderMonths() {
+      var groups = [],
+        byKey = {};
+      current.res.weeks.forEach(function (wk) {
+        var k = addDays(wk.r.s, 3).slice(0, 7);
+        if (!byKey[k]) {
+          byKey[k] = { k: k, weeks: 0, played: 0, bets: 0, won: 0, staked: 0, returned: 0, end: 0 };
+          groups.push(byKey[k]);
+        }
+        var g = byKey[k];
+        g.weeks++;
+        if (wk.playing) g.played++;
+        g.bets += wk.playing ? wk.r.p.length : 0;
+        g.won += wk.playing ? wk.winners : 0;
+        g.staked += wk.staked;
+        g.returned += wk.returned;
+        g.end = wk.after;
+      });
+      var cum = 0;
+      table(
+        'months',
+        [
+          'Month',
+          'Weeks bet',
+          'Bets',
+          'Won',
+          'Staked',
+          'Returned',
+          'Profit',
+          'Running profit',
+          'Bankroll at end',
+        ],
+        groups.map(function (g) {
+          cum += g.returned - g.staked;
+          return [
+            MONTHS_LONG[Number(g.k.slice(5, 7)) - 1] + ' ' + g.k.slice(0, 4),
+            g.played + ' of ' + g.weeks,
+            String(g.bets),
+            String(g.won),
+            eur(g.staked),
+            eur(g.returned),
+            plSpan(g.returned - g.staked),
+            plSpan(cum),
+            eur(g.end),
+          ];
+        }),
+        [1, 2, 3, 4, 5, 6, 7, 8],
+      );
+    }
+
+    function renderWeeks() {
+      var host = document.getElementById('weeks');
+      host.textContent = '';
+      current.res.weeks.forEach(function (wk) {
+        var r = wk.r,
+          label = 'Week of ' + dmy(r.s);
+        if (!wk.playing) {
+          var why =
+            r.p.length && wk.before < 1
+              ? 'Bankroll empty, nothing to stake.'
+              : 'No bet met the rules this week. Sat out.';
+          host.appendChild(
+            el('div', { cls: 'week idle' }, [
+              el('div', { cls: 'wk-row' }, [
+                el('span', { cls: 'wk-date', text: label }),
+                el('span', { cls: 'wk-what', text: why }),
+                el('span', { cls: 'wk-pl', text: '€0' }),
+              ]),
+            ]),
+          );
+          return;
+        }
+        var pl = wk.returned - wk.staked;
+        var what =
+          r.p.length +
+          (r.p.length === 1 ? ' bet' : ' bets') +
+          ' · ' +
+          wk.winners +
+          ' won · staked ' +
+          eur2(wk.staked) +
+          ', returned ' +
+          eur2(wk.returned);
+        var sum = el('summary', { cls: 'wk-row' }, [
+          el('span', { cls: 'wk-date', text: label }),
+          el('span', { cls: 'wk-what', text: what }),
+          el('span', {
+            cls: 'wk-pl ' + (pl > 0.5 ? 'pos' : pl < -0.5 ? 'neg' : ''),
+            text: eur(pl, true),
+          }),
+        ]);
+        var d = el('details', { cls: 'week' }, [sum]);
+        d.addEventListener('toggle', function () {
+          if (!d.open || d.querySelector('.inner')) return;
+          var inner = el('div', { cls: 'inner' });
+          var tw = el('div', { cls: 'table-wrap' }),
+            t = el('table');
+          var head = el('tr');
+          [
+            'Match',
+            'Pick',
+            'Bookmaker',
+            'Odds',
+            'Fair odds',
+            'Edge',
+            'Stake',
+            'Result',
+            'Return',
+            'Beat closing price',
+          ].forEach(function (h, i) {
+            head.appendChild(
+              el('th', { cls: i >= 3 && i !== 7 && i !== 9 ? 'r' : '', scope: 'col', text: h }),
+            );
+          });
+          t.appendChild(el('thead', {}, [head]));
+          var tb = el('tbody');
+          r.p.forEach(function (p) {
+            var stake = wk.staked * p[10],
+              ret = p[11] ? stake * p[7] : 0;
+            var clv = p[13];
+            var clvCell =
+              clv === null
+                ? el('span', { cls: 'wk-note', text: 'no closing price' })
+                : el('span', {
+                    cls: 'chip ' + (clv > 0 ? 'won' : 'lost'),
+                    text: (clv > 0 ? '✓ ' : '✗ ') + pct(clv, 1, true),
+                  });
+            var match = el('span', {}, [
+              p[2] + ' v ' + p[3],
+              el('br'),
+              el('span', { cls: 'wk-note', text: leagueName(p[1]) + ' · ' + dm(p[0]) }),
+            ]);
+            var cells = [
+              match,
+              pickName(p),
+              BOOKS[p[6]] || p[6],
+              p[7].toFixed(2),
+              (1 / p[8]).toFixed(2),
+              pct(p[9], 1, true),
+              eur2(stake),
+              el('span', {
+                cls: 'chip ' + (p[11] ? 'won' : 'lost'),
+                text: (p[11] ? '✓ Won ' : '✗ Lost ') + p[12],
+              }),
+              eur2(ret),
+              clvCell,
+            ];
+            var row = el('tr');
+            cells.forEach(function (cell, i) {
+              var td = el('td', { cls: i >= 3 && i !== 7 && i !== 9 ? 'r' : '' });
+              if (cell && cell.nodeType) td.appendChild(cell);
+              else td.textContent = cell;
+              row.appendChild(td);
+            });
+            tb.appendChild(row);
+          });
+          t.appendChild(tb);
+          tw.appendChild(t);
+          inner.appendChild(tw);
+          var sumOdds = r.p.reduce(function (a, p) {
+            return a + 1 / p[7];
+          }, 0);
+          inner.appendChild(
+            el('p', {
+              cls: 'wk-note',
+              text:
+                r.a +
+                ' matches had a qualifying bet; ' +
+                r.p.length +
+                ' picked. Coverage Σ1/odds = ' +
+                sumOdds.toFixed(2) +
+                ', so any single winner returned ' +
+                (1 / sumOdds).toFixed(2) +
+                '× the week’s stake. Chance that every pick lost (by the fair odds): ' +
+                Math.round(
+                  100 *
+                    r.p.reduce(function (a, p) {
+                      return a * (1 - p[8]);
+                    }, 1),
+                ) +
+                '%.',
+            }),
+          );
+          d.appendChild(inner);
+        });
+        host.appendChild(d);
+      });
+    }
+
+    // ---------- static sections ----------
+    function renderVerdict() {
+      var cs = D.census.filter(function (c) {
+        return c.season === '2526';
+      })[0];
+      var find = function (setup, t) {
+        return cs.rows.filter(function (r) {
+          return r.setup === setup && Math.abs(r.threshold - t) < 1e-9;
+        })[0];
+      };
+      var all2 = find('all4-liquid', 0.02),
+        one2 = find('b365-both', 0.02),
+        thin2 = find('all4-thin', 0.02);
+      var strict = D.runs.strict['2526'].metrics,
+        strict27 = D.runs.strict['2627'].metrics;
+      var s2526 = seasonById('2526'),
+        s2627 = seasonById('2627');
+      document.getElementById('lede').textContent =
+        'Each week, pick value bets and stake them so that one winner returns the whole week’s money. This page replays that plan on ' +
+        (s2526.matches + s2627.matches).toLocaleString('en-GB') +
+        ' real matches from ' +
+        s2526.leagues +
+        ' European leagues, using only the odds on offer before kickoff, and settles every bet against what actually happened.';
+      var items = [
+        [
+          'Real value is scarce',
+          'Against a liquid Betfair Exchange price, four UK bookmakers offered ' +
+            all2.perWeek.toFixed(1) +
+            ' bets a week with an edge of 2% or more in 2025/26, across all ' +
+            s2526.leagues +
+            ' leagues. A single account offered ' +
+            one2.perWeek.toFixed(1) +
+            '. A five-to-eight-pick slate cannot be filled.',
+        ],
+        [
+          'No edge proven, one hopeful sign',
+          'All those bets together beat the closing price by only ' +
+            pct(all2.avgClv, 2, true) +
+            ' (± ' +
+            pct(all2.clvSe, 2) +
+            '), and trusting thin exchange markets turned it to ' +
+            pct(thin2.avgClv, 2, true) +
+            '. Leaving out odds above 8, the Strict picks did better: ' +
+            pct(strict.avgClv, 2, true) +
+            ' ± ' +
+            pct(strict.clvSe, 2) +
+            ' in 2025/26 and ' +
+            pct(strict27.avgClv, 1, true) +
+            ' ± ' +
+            pct(strict27.clvSe, 1) +
+            ' in 2026/27, on ' +
+            (strict.picks + strict27.picks) +
+            ' bets. Encouraging, not yet proof.',
+        ],
+        [
+          'The rule works, the volume doesn’t',
+          'With about ' +
+            strict.avgPicks.toFixed(1) +
+            ' picks a week, one winner rarely has to cover much, and ' +
+            Math.round((1 - strict.roundsWithWinner) * 100) +
+            '% of weeks played lost every bet. Results swing widely on luck either way.',
+        ],
+        [
+          'Open question: Lithuanian books',
+          'These are UK books, the most efficient in Europe. Whether 7bet, Betsson LT or Topsport leave more value is untested and decides whether this plan can work.',
+        ],
+      ];
+      var v = document.getElementById('verdict');
+      v.textContent = '';
+      items.forEach(function (it) {
+        v.appendChild(
+          el('div', { cls: 'finding' }, [
+            el('span', { cls: 'k', text: it[0] }),
+            el('span', { cls: 'v', text: it[1] }),
+          ]),
+        );
+      });
+      document.getElementById('stamp').textContent =
+        'Quest backtest · built ' + dmy(D.generatedAt.slice(0, 10));
+      document.getElementById('foot-gen').textContent =
+        'Generated ' +
+        D.generatedAt.replace('T', ' ').slice(0, 16) +
+        ' UTC from football-data.co.uk (' +
+        s2526.label +
+        ': ' +
+        s2526.matches.toLocaleString('en-GB') +
+        ' matches; ' +
+        s2627.label +
+        ' to ' +
+        dmy(s2627.lastDate) +
+        ': ' +
+        s2627.matches.toLocaleString('en-GB') +
+        ').';
+    }
+
+    function renderRule() {
+      var rows = [2, 3, 5, 8, 10].map(function (n) {
+        return [String(n), n.toFixed(1), Math.round(Math.pow(1 - 1 / n, n) * 100) + '%'];
+      });
+      table('rule-table', ['Picks', 'Odds each', 'Chance all lose'], rows, [0, 1, 2]);
+      var parts = D.presets.map(function (p) {
+        var m = D.runs[p.id]['2526'].metrics;
+        return p.name + ' ' + Math.round((1 - m.roundsWithWinner) * 100) + '%';
+      });
+      document.getElementById('rule-observed').textContent =
+        'In practice the slates were small, so weeks with no winner were more common than the table suggests. Share of weeks played that lost every bet in 2025/26: ' +
+        parts.join(', ') +
+        '.';
+    }
+
+    function verdictChip(mean, se, n) {
+      if (mean === null || n < 10) return el('span', { cls: 'chip flat', text: 'too few bets' });
+      if (mean - 2 * se > 0) return el('span', { cls: 'chip won', text: '▲ beats closing' });
+      if (mean + 2 * se < 0) return el('span', { cls: 'chip lost', text: '▼ worse than closing' });
+      return el('span', { cls: 'chip flat', text: '● not proven' });
+    }
+    function renderCensus() {
+      seg(
+        document.getElementById('ctl-census-season'),
+        D.seasons.map(function (s) {
+          return { id: s.id, label: s.label };
+        }),
+        state.cSeason,
+        function (id) {
+          state.cSeason = id;
+          renderCensus();
+        },
+      );
+      seg(
+        document.getElementById('ctl-census-t'),
+        [0, 0.01, 0.02, 0.03, 0.05].map(function (t) {
+          return { id: String(t), label: t * 100 + '%' };
+        }),
+        String(state.cT),
+        function (id) {
+          state.cT = Number(id);
+          renderCensus();
+        },
+      );
+      var cs = D.census.filter(function (c) {
+        return c.season === state.cSeason;
+      })[0];
+      var rows = D.censusSetups.map(function (s) {
+        var r = cs.rows.filter(function (x) {
+          return x.setup === s.key && Math.abs(x.threshold - state.cT) < 1e-9;
+        })[0];
+        if (!r) return [s.label, '—', '—', '—', '—', 'not in this season', '—', ''];
+        return [
+          el('span', { cls: 'wrap', text: s.label }),
+          String(r.bets),
+          r.perWeek.toFixed(1),
+          r.bets ? r.avgOdds.toFixed(2) : '—',
+          r.bets ? pct(r.avgEdge, 1) : '—',
+          r.bets ? pct(r.roi, 1, true) + ' ± ' + pct(r.roiSe, 1) : '—',
+          r.avgClv === null ? '—' : pct(r.avgClv, 2, true) + ' ± ' + pct(r.clvSe, 2),
+          verdictChip(r.avgClv, r.clvSe || 0, r.bets),
+        ];
+      });
+      table(
+        'census',
+        [
+          'Where we bet · what we price against',
+          'Bets',
+          'Per week',
+          'Avg odds',
+          'Edge flagged',
+          'Profit per €1 ± SE',
+          'CLV ± SE',
+          'Verdict',
+        ],
+        rows,
+        [1, 2, 3, 4, 5, 6],
+      );
+      var bands = cs.bands
+        .filter(function (b) {
+          return b.bets > 0;
+        })
+        .map(function (b) {
+          return [
+            b.label,
+            String(b.bets),
+            b.avgOdds.toFixed(2),
+            pct(b.avgEdge, 1),
+            pct(b.hitRate, 0),
+            pct(b.roi, 1, true) + ' ± ' + pct(b.roiSe, 1),
+            b.avgClv === null ? '—' : pct(b.avgClv, 2, true) + ' ± ' + pct(b.clvSe, 2),
+            verdictChip(b.avgClv, b.clvSe || 0, b.bets),
+          ];
+        });
+      table(
+        'bands',
+        [
+          'Odds',
+          'Bets',
+          'Avg odds',
+          'Edge flagged',
+          'Won',
+          'Profit per €1 ± SE',
+          'CLV ± SE',
+          'Verdict',
+        ],
+        bands,
+        [1, 2, 3, 4, 5, 6],
+      );
+    }
+
+    function renderMargins() {
+      var f = function (x) {
+        return x === null ? '—' : pct(x, 1);
+      };
+      table(
+        'margins',
+        ['League group', 'Betfair Exchange', 'Pinnacle', 'Bet365', 'bwin'],
+        D.margins.map(function (g) {
+          return [
+            el('span', {}, [
+              g.label,
+              el('br'),
+              el('span', { cls: 'wk-note', text: g.leagues.join(', ') }),
+            ]),
+            f(g.bfe),
+            f(g.ps),
+            f(g.b365),
+            f(g.bw),
+          ];
+        }),
+        [1, 2, 3, 4],
+      );
+    }
+
+    function renderMethod() {
+      var s1 = seasonById('2526'),
+        s2 = seasonById('2627');
+      var items = [
+        'Data: football-data.co.uk, ' +
+          s1.leagues +
+          ' European divisions. ' +
+          s1.label +
+          ': ' +
+          s1.matches.toLocaleString('en-GB') +
+          ' matches (' +
+          dmy(s1.firstDate) +
+          ' to ' +
+          dmy(s1.lastDate) +
+          '). ' +
+          s2.label +
+          ': ' +
+          s2.matches.toLocaleString('en-GB') +
+          ' matches (' +
+          dmy(s2.firstDate) +
+          ' to ' +
+          dmy(s2.lastDate) +
+          ').',
+        'Prices: the pre-match odds football-data records (Friday afternoon for weekend games, Tuesday for midweek) are the prices bet; closing odds at kickoff are used only to grade the bet (CLV), never to choose it.',
+        'Fair odds: Betfair Exchange prices with the margin removed by the power method, which shifts the margin onto longshots instead of spreading it evenly. Markets where the exchange margin is above 3% are skipped (8% for “Thin markets allowed”).',
+        'Bookmakers: Bet365, bwin, BetVictor and Betfair Sportsbook stand in for Lithuanian books. With several accounts, the best price among them is taken. Markets: match result and over/under 2.5 goals. One bet per match.',
+        'A week runs Monday to Sunday. Each week’s budget is split by 1/odds so every winner pays the same, and picks are added best edge first only while one winner still covers the budget. Fewer qualifying bets means fewer picks; none means the week is skipped.',
+        'Assumed: every price was available at the stake needed, no account limits, no rounding, no tax. In reality soft bookmakers limit accounts that win; that cost is not modelled.',
+        'Strategies were set by hand, not tuned on profit: the odds cap of 8 and the 3% exchange-margin limit came from the 2025/26 census. Headline 2026/27 census numbers had also been seen, so treat 2026/27 as a lightly used check rather than a clean holdout; every new week from here on is truly unseen. The shaded range re-runs the same bets 1,500 times with outcomes drawn at random, either at the estimated fair chances or at break-even chances.',
+      ];
+      var ul = document.getElementById('method-list');
+      ul.textContent = '';
+      items.forEach(function (t) {
+        ul.appendChild(el('li', { text: t }));
+      });
+    }
+
+    // ---------- boot ----------
+    document.getElementById('ctl-start').addEventListener('change', function (e) {
+      var v = Math.round(Number(e.target.value));
+      state.start = Number.isFinite(v) && v >= 50 ? v : 1000;
+      e.target.value = state.start;
+      renderReplay();
+    });
+    renderVerdict();
+    renderReplay();
+    renderRule();
+    renderCensus();
+    renderMargins();
+    renderMethod();
+    var lastW = 0;
+    if (typeof ResizeObserver !== 'undefined') {
+      new ResizeObserver(function (entries) {
+        var w = Math.round(entries[0].contentRect.width);
+        if (Math.abs(w - lastW) > 4) {
+          lastW = w;
+          renderBankrollChart();
+          renderWeeklyChart();
+        }
+      }).observe(document.getElementById('bankroll-svg'));
+    }
+  })();
+</script>

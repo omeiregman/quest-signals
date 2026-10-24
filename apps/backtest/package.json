@@ -5,8 +5,10 @@
   "type": "module",
   "scripts": {
     "download": "NODE_USE_ENV_PROXY=1 tsx src/cli/download.ts",
+    "margins": "tsx src/cli/margins.ts",
     "sweep": "tsx src/cli/sweep.ts",
-    "simulate": "tsx src/cli/simulate.ts",
+    "census": "tsx src/cli/census.ts",
+    "report": "tsx src/cli/report.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },

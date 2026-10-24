@@ -57,7 +57,10 @@ describe('candidatesForMatch', () => {
   });
 
   it('skips markets whose reference overround is implausible', () => {
-    const thin: HistoricalMatch = { ...match, prematch: { ...match.prematch, BFE: { '1x2': [1.6, 3, 3] } } };
+    const thin: HistoricalMatch = {
+      ...match,
+      prematch: { ...match.prematch, BFE: { '1x2': [1.6, 3, 3] } },
+    };
     // Σ1/o = 0.625 + 0.333 + 0.333 ≈ 1.29 → a 29% overround, outside the default band.
     expect(candidatesForMatch(thin, cfg).filter((c) => c.market === '1x2')).toEqual([]);
   });

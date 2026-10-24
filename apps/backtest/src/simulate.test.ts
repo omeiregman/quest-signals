@@ -134,7 +134,11 @@ describe('simulateBankroll', () => {
   });
 
   it('never stakes more than is left, and flags a bust', () => {
-    const losing = [round('2025-08-11', 0, 0), round('2025-08-18', 0, 0), round('2025-08-25', 0, 0)];
+    const losing = [
+      round('2025-08-11', 0, 0),
+      round('2025-08-18', 0, 0),
+      round('2025-08-25', 0, 0),
+    ];
     const path = simulateBankroll(losing, 300, { kind: 'fixed', amount: 200 });
     expect(path.weeks.map((w) => w.staked)).toEqual([200, 100, 0]);
     expect(path.final).toBe(0);

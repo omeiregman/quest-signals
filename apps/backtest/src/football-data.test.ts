@@ -316,16 +316,15 @@ describe('parseFootballDataCsv — rules', () => {
   });
 });
 
-// Every real downloaded file we can find: the session scratchpad copy (flat `${league}_${season}.csv`,
-// override with FOOTBALL_DATA_CSV_DIR) and the CLI cache (`data/football-data/${season}/${league}.csv`).
-const SCRATCH_DIR =
-  process.env.FOOTBALL_DATA_CSV_DIR ??
-  '/tmp/claude-0/-home-user-quest-signals/d678a001-642a-573a-953e-06f1ed1526fb/scratchpad/fd';
+// Every real downloaded file we can find: the CLI cache (`data/football-data/${season}/${league}.csv`,
+// filled by `pnpm --filter @quest/backtest download`) and, optionally, a flat directory of
+// `${league}_${season}.csv` files named by FOOTBALL_DATA_CSV_DIR.
+const SCRATCH_DIR = process.env.FOOTBALL_DATA_CSV_DIR ?? '';
 const CACHE_DIR = join(HERE, '..', 'data', 'football-data');
 
 function realFiles(): { path: string; league: string; season: string }[] {
   const out: { path: string; league: string; season: string }[] = [];
-  if (existsSync(SCRATCH_DIR)) {
+  if (SCRATCH_DIR && existsSync(SCRATCH_DIR)) {
     for (const f of readdirSync(SCRATCH_DIR)) {
       const m = /^([A-Z0-9]+)_(\d{4})\.csv$/.exec(f);
       if (m) out.push({ path: join(SCRATCH_DIR, f), league: m[1]!, season: m[2]! });

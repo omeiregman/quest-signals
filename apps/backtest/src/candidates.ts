@@ -8,6 +8,8 @@ export interface CandidateConfig {
   books: string[];
   markets: MarketKey[];
   devig: DevigMethod;
+  /** Book whose de-vigged CLOSING prices grade the bet (CLV). Default: `reference`. */
+  clvReference?: string;
   /**
    * Skip a market when the reference's overround falls outside this band: a thin exchange
    * market (wide back prices) or a stale line makes a poor "true probability". Default [-0.03, 0.08].
@@ -44,7 +46,7 @@ export function candidatesForMatch(
     const refOver = overround(ref);
     if (refOver < minOver || refOver > maxOver) continue;
     const fair = devigOdds(ref, cfg.devig);
-    const closingRef = match.closing[cfg.reference]?.[market];
+    const closingRef = match.closing[cfg.clvReference ?? cfg.reference]?.[market];
     const closingFair = closingRef ? devigOdds(closingRef, cfg.devig) : undefined;
     const winner = winningSelection(match, market);
     const selections = MARKET_SELECTIONS[market];

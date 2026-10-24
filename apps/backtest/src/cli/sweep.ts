@@ -39,7 +39,12 @@ async function main() {
   // 1. Flat singles by odds band, edge ≥ 3%, best bet per match.
   const valueCheck: Record<string, unknown> = {};
   console.log('\n== Flat €1 singles, edge ≥ 3%, best per match (ROI ± SE | CLV ± SE) ==');
-  for (const v of grid.filter((g) => g.key.endsWith('/all4/both/r0.03') || g.key.endsWith('/B365/1x2/r0.03') || g.key.endsWith('/B365/1x2/r0.08'))) {
+  for (const v of grid.filter(
+    (g) =>
+      g.key.endsWith('/all4/both/r0.03') ||
+      g.key.endsWith('/B365/1x2/r0.03') ||
+      g.key.endsWith('/B365/1x2/r0.08'),
+  )) {
     for (const [season, matches] of [
       [tuneSeason, tune],
       [testSeason, test],
