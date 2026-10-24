@@ -157,7 +157,7 @@ footer { color: var(--muted); font-size: 0.88rem; border-top: 1px solid var(--ru
     <h1>Value Slate Guide</h1>
     <p class="lede">Every word from the replay page in plain language, with small examples. In the middle there is a calculator that shows why “7 games” and “one winner gets my money back” pull against each other. At the end: what we do next.</p>
     <nav class="toc" aria-label="On this page">
-      <a href="#idea">The idea</a><a href="#odds">Odds and chance</a><a href="#value">Value</a><a href="#proof">Is it real?</a><a href="#money">Money words</a><a href="#strategies">The strategies</a><a href="#calculator">Calculator</a><a href="#more">More bets a week</a><a href="#next">Next steps</a>
+      <a href="#idea">The idea</a><a href="#odds">Odds and chance</a><a href="#value">Value</a><a href="#proof">Is it real?</a><a href="#money">Money words</a><a href="#strategies">The strategies</a><a href="#calculator">Calculator</a><a href="#more">More bets a week</a><a href="#scale">€10k–€20k?</a><a href="#next">Next steps</a>
     </nav>
   </header>
 
@@ -307,8 +307,32 @@ footer { color: var(--muted); font-size: 0.88rem; border-top: 1px solid var(--ru
     </dl>
   </section>
 
+  <section id="scale">
+    <div class="head">
+      <h2>Can it make €10,000 to €20,000 in half a season?</h2>
+      <p>Judged over half a season, with the best strategy (Pinnacle short odds, the best of 12 bookmakers, about 135 bets per half-season). Assumes the edge is as real as the closing-price test says (+3.3%).</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Goal per half-season</th><th class="r">Stake on every bet</th><th class="r">Total bet in the half</th><th class="r">Chance of losing money</th><th class="r">Bad half (1 in 20)</th></tr></thead>
+        <tbody>
+          <tr><td>€10,000 expected</td><td class="r">about €2,100</td><td class="r">about €290,000</td><td class="r">39%</td><td class="r">−€47,000</td></tr>
+          <tr><td>€20,000 expected</td><td class="r">about €4,300</td><td class="r">about €580,000</td><td class="r">39%</td><td class="r">−€94,000</td></tr>
+          <tr><td>€10,000 with one account</td><td class="r">about €6,000</td><td class="r">about €420,000</td><td class="r">45%</td><td class="r">−€112,000</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <dl class="terms">
+      <div class="term"><dt>What actually happened</dt><dd><p>Over the 12 real half-seasons from 2019 to 2025, the strategy made money in 8. The last four (2023–2025) made money only once, even though the bets still beat the closing price.</p></dd></div>
+      <div class="term"><dt>Why bigger stakes don’t work</dt><dd><p>Soft bookmakers don’t accept €2,000–€6,000 bets from people who win. UK regulator data: winning accounts are 1.8 times as likely to be restricted, and most restricted accounts can stake under a tenth of the normal maximum. There are only about seven licensed bookmakers in Lithuania.</p></dd></div>
+      <div class="term"><dt>Why no formula fixes it</dt><dd><p>No way of splitting or sizing stakes changes the average result. The average of any staking plan is the sum of the averages of its bets. Staking only decides how bumpy the ride is.</p></dd></div>
+      <div class="term"><dt>Other approaches</dt><dd><p>Everything with a real edge in betting is one of: value bets against a sharp price (this), arbitrage (rare, small), bookmaker promotions (small), or your own model that beats the sharpest prices (very hard). All of them are capped by how much bookmakers let a winner stake, or need bookmakers you can’t fund from Lithuania.</p></dd></div>
+    </dl>
+    <p class="callout"><strong>Verdict.</strong> As a way to make €10,000–€20,000 a half-season without big exposure, this idea can be dropped. The edge looks real but small, and it only works at stakes bookmakers will accept, which caps it at side-income size.</p>
+  </section>
+
   <section id="next">
-    <div class="head"><h2>Next steps</h2></div>
+    <div class="head"><h2>Next steps</h2><p>Only worth doing if you want to keep this as a small side activity. For the €10,000–€20,000 goal, stop here.</p></div>
     <ol class="steps">
       <li><span class="who">You · 5 minutes</span><strong>Add the OddsPapi key to the environment.</strong> Save it as <span class="mono">ODDSPAPI_API_KEY</span> under the environment’s settings (don’t paste it in chat). It gives live <strong>Pinnacle</strong> prices (the referee the winning rule needs) plus 7bet and Betsson prices across football, basketball, tennis and hockey.</li>
       <li><span class="who">You</span><strong>Tell me which Lithuanian bookmakers you have or can open.</strong> Every extra account multiplies the value bets found.</li>

@@ -317,6 +317,52 @@ What this says:
 4. **Tennis:** tennis-data.co.uk refuses automated downloads (site-side 403). Not worked around;
    needs the user to download the files manually, or OddsPapi.
 
+**R8 — Half-season test and scaling to €10k–€20k (2026-10-24). User's frame: judge over half a
+season; goal €10–20k profit; moderate exposure; "can I dump this idea?"**
+Pinnacle short-odds rule, flat €1 per bet, actual half-seasons (H1 = Aug–Dec, H2 = Jan–May):
+
+| half | 12 books: bets, profit | Bet365 only: bets, profit |
+|---|---|---|
+| Aug–Dec 2019 | 190, +6.4% | 129, −1.1% |
+| Jan–May 2020 | 121, +2.7% | 79, +12.3% |
+| Aug–Dec 2020 | 145, −5.4% | 76, +6.1% |
+| Jan–May 2021 | 188, +12.1% | 81, +23.6% |
+| Aug–Dec 2021 | 177, +14.8% | 91, +13.1% |
+| Jan–May 2022 | 206, +18.2% | 81, +32.1% |
+| Aug–Dec 2022 | 100, +0.8% | 51, +3.8% |
+| Jan–May 2023 | 124, +19.3% | 53, +28.5% |
+| Aug–Dec 2023 | 91, −1.3% | 38, −11.0% |
+| Jan–May 2024 | 113, −12.3% | 54, +0.2% |
+| Aug–Dec 2024 | 95, +7.2% | 48, +13.1% |
+| Jan–May 2025 | 69, −10.9% | 45, −43.7% |
+| **in profit** | **8 of 12** | **9 of 12** |
+
+The last four halves (2023–25) were profitable only once with 12 books, even though CLV stayed
+positive (+3.3%) — luck, a shrinking edge, or both (Buchdahl's record also decayed after 2022).
+
+Monte Carlo of one half-season (bets resampled from history, true edge = measured CLV):
+- 12 books, ~135 bets, edge 3.3%: P(losing money) **39%**; to *expect* €10,000 needs **€2,140 per bet**
+  (≈ €290,000 turnover), worst 1-in-20 half-season **−€47,000**; for €20,000: €4,290/bet, worst
+  1-in-20 −€94,000. Even at a 5% edge: €1,440/bet for €10k, P(loss) 34%, worst 1-in-20 −€29,000.
+- Bet365 only, ~69 bets, edge 2.3%: €6,040/bet for €10k, P(loss) 45%, worst 1-in-20 −€112,000.
+
+**Verdict on the user's goal: dump it as a way to make €10–20k a half-season.**
+1. Half a season is too short for this edge: even if the edge is real, roughly 4 halves in 10 lose.
+2. The stakes needed (€1.5k–6k per bet, €200k–400k turnover per half) are far beyond what soft
+   bookmakers accept from winning accounts. UKGC data: winners are 1.8× more likely to be
+   restricted, and most restricted accounts are cut to <10% of the normal maximum. LT books will
+   behave the same or worse (unverified, but there is no reason to expect otherwise), and there are
+   only ~7 of them.
+3. No staking formula fixes this: the expected value of any staking plan is the sum of the bets'
+   expected values (optional stopping), so no system turns a small edge into a large, safe profit.
+4. Everything with a real edge in this space — value betting against a sharp price (this work),
+   arbitrage (STATUS §7), bonus/promotion extraction, or a model that beats the sharpest prices —
+   is limited by how much soft bookmakers let a winner stake, or needs sharp books/exchanges that
+   can't be funded from Lithuania under the 2025 payment-blocking law. None meets "€10–20k per half
+   season with limited exposure" from LT-licensed books.
+5. What remains true: the edge looks real at small stakes (CLV +3.3% over 1,619 bets). Viable only
+   as a small side activity, at stakes the books will take, until accounts get limited.
+
 **Published page:** https://claude.ai/artifact/Mn9pnZ8tzUpUHgwCjAp1oP (private to the user;
 source `docs/value-slate/report.html`, regenerate with `pnpm --filter @quest/backtest report`
 then republish).

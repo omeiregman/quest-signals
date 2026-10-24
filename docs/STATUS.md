@@ -31,6 +31,12 @@ Bet365 alone 826 bets (~3/wk), CLV +2.3%. €10/bet from €1,000 → €1,832 o
 strategy to build live is "Pinnacle short odds" with per-bet flat stakes; it needs a live Pinnacle
 feed (OddsPapi) and LT prices.
 
+**DECISION POINT 2026-10-24 (FINDINGS R8):** the user's goal is €10–20k profit per half-season with
+moderate exposure. The backtest says that can't be reached: ~39% of half-seasons lose even with a real edge,
+expecting €10k needs ~€2.1k per bet (€290k turnover; worst 1-in-20 half ≈ −€47k), and soft/LT books
+won't accept those stakes from a winner. Recommended: drop the idea at that scale; at most a small
+side activity. Last four half-seasons (2023–25) were weaker (1 of 4 in profit, 12 books).
+
 **Verdict before the six-season test:** the staking rule works as designed, but against a liquid Betfair Exchange
 price the big UK books offer only ~1–2 real value bets (edge ≥2%) per week across 22 leagues
 (~0.4 with one account) and no edge is proven overall (CLV ≈ 0). One hopeful sign: the "Strict"
