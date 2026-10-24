@@ -392,6 +392,28 @@ User floated betting via non-LT payment routes / Nigerian identity while living 
 gambling rules and bookmaker KYC follow residence; not pursued, and it wouldn't fix soft-book
 limits anyway (sharp books that take big stakes are the reference this method can't beat).
 
+**R11 — Arbitrage count and profit, 2023/24–2025/26 (2026-10-24).** Best price per outcome across a
+book set, 1X2 + O/U 2.5, arb if Σ1/best < 1; profit = 1/Σ − 1 per € total stake; >10% dropped as
+data errors. Friday pre-match snapshot (the bettable moment in this data):
+
+| books | 23/24 arbs (median) | 24/25 | 25/26 | profit/season at €5k per arb | at €10k |
+|---|---|---|---|---|---|
+| 12 UK/EU soft books | 16 (1.9%) | 6 (2.4%) | 11 (0.3%) | €540–1,900 | €1,070–3,800 |
+| + Pinnacle | 60 (0.6%) | 29 (1.1%) | 31 (1.4%) | €2,000–3,600 | €4,100–7,200 |
+| + Betfair Exchange (net of 5% commission) | 16 | 25 (0.6%) | 22 (0.6%) | €1,100–1,900 | €2,300–3,800 |
+| market best price "Max" (dozens of books, has bad values; upper bound) | 785 (0.4%) | 386 (0.5%) | 76 (0.9%) | €5,500–27,000 | €11,000–54,000 |
+
+- Closing-price snapshots show more (55–377 a season) but include impossible single-book "arbs"
+  (e.g. Bet365's own closing prices) → timing artifacts across books; not trustworthy.
+- One snapshot per match undercounts arbs that appear and vanish within minutes; a live scanner
+  across 100+ books finds more, mostly under 1%.
+- Real constraints: €5–10k on one leg is beyond what soft books accept from a known arber; arbing is
+  the fastest route to limits; arb legs are often "obvious error" prices that get voided; price can
+  move before the second leg. LT: only 7bet.lt + betsson in feeds; live polling (Jun–Jul 2026)
+  found 2 arbs in 3 weeks (1.3–1.45%), both stale/unplaceable.
+- ⇒ Same capacity wall as value betting: a few hundred to a few thousand € a season from UK-type
+  books, not €10–20k, and not risk-free in practice.
+
 **Published page:** https://claude.ai/artifact/Mn9pnZ8tzUpUHgwCjAp1oP (private to the user;
 source `docs/value-slate/report.html`, regenerate with `pnpm --filter @quest/backtest report`
 then republish).
