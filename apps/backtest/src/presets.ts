@@ -45,6 +45,14 @@ export const PRESETS: Preset[] = [
     rules: slate(0.02),
   },
   {
+    id: 'short',
+    name: 'Short odds',
+    summary:
+      'Rule taken from published evidence, not from this data: edge 3–12% against a liquid Betfair Exchange price, odds 1.5–4 only (Buchdahl’s 20,380 live value bets made +4.4% under odds 4 and lost above it), best of four accounts, one winner covers the week.',
+    candidates: liquidBfe([...SOFT_BOOKS]),
+    rules: slate(0.03, { maxEdge: 0.12, maxOdds: 4 }),
+  },
+  {
     id: 'loose',
     name: 'Loose value',
     summary: 'Same as Strict but accepts edges from 1%: more bets, thinner edges.',

@@ -776,8 +776,84 @@
       <h2 id="res-h">What others have found</h2>
     </div>
     <div class="prose" id="research-body">
-      <p>Research summary pending.</p>
+      <p>
+        A separate research pass read the published evidence and re-ran the key numbers. Full notes
+        with every source: <span class="mono">docs/value-slate/research.md</span>. Each point below
+        says where it comes from.
+      </p>
     </div>
+    <ol class="steps">
+      <li>
+        <strong>Value betting against a sharp price has worked, at short odds.</strong> Joseph
+        Buchdahl published 20,380 live value bets (2% or more over de-vigged Pinnacle, 2015–2025).
+        Under odds 4 they returned <strong>+4.4%</strong> (15,385 bets); at odds 4 and above they
+        returned <strong>−0.7%</strong> against +5.4% expected. Since 2022 the short-odds bets still
+        made +4.2%, while long odds lost 13.1%. Re-computed here from
+        <a
+          href="https://www.football-data.co.uk/Wisdom_of_crowd_bets.xlsx"
+          target="_blank"
+          rel="noopener"
+          >his public archive</a
+        >.
+      </li>
+      <li>
+        <strong>The best-known academic test bet short.</strong> Kaunitz, Zhong &amp; Kreiner (2017,
+        <a href="https://arxiv.org/abs/1710.02824" target="_blank" rel="noopener"
+          >arXiv 1710.02824</a
+        >) beat the bookmakers’ average price by a 5-point probability gap. Their bets averaged odds
+        of 2.30. Real-money results were +8.5% over 265 bets, not statistically significant, and
+        bookmakers limited their accounts within months.
+      </li>
+      <li>
+        <strong>Longshots are overpriced, and more so at soft books.</strong> Across the same 22
+        leagues, the lowest-probability bets lose about 17% at closing odds against about 2% for
+        favourites (<a href="https://mpra.ub.uni-muenchen.de/116925/" target="_blank" rel="noopener"
+          >Hegarty &amp; Whelan, IJF 2025</a
+        >). Our recomputation on 2022–26 closing prices: Bet365 loses 11% at odds 4–6 and 21% at
+        odds 6–10.
+      </li>
+      <li>
+        <strong>Edge size matters at both ends.</strong> In Buchdahl’s archive, 2–3% edges returned
+        almost nothing (+0.1%), 3–8% edges did best, and edges over 8% lost (they sit at long odds
+        or on stale prices). Treat anything above about 15% as a data error.
+      </li>
+      <li>
+        <strong>Stake much smaller than feels natural.</strong> For a weekly slate the
+        growth-maximising total stake is about 1.25 times the edge: 2.5% of bankroll a week at a 2%
+        edge, under 4% at 3%. Staking twice that wipes out growth, and because the edge is
+        uncertain, half of it (1.5–2% a week, about €15–20 on €1,000) is the safer setting. At a
+        true 2% edge, €100 a week from €1,000 carries about an 18% chance of going broke within
+        three seasons; €50 a week, about 2% (Monte Carlo in the research notes; see
+        <a
+          href="https://ideas.repec.org/a/inm/ordeca/v10y2013i3p189-199.html"
+          target="_blank"
+          rel="noopener"
+          >Baker &amp; McHale 2013</a
+        >
+        on shrinking stakes when the edge is uncertain).
+      </li>
+      <li>
+        <strong>Winning accounts get limited.</strong> UK Gambling Commission data on 14.9 million
+        accounts: restricted accounts were 1.8 times as likely to be in profit, and most restricted
+        accounts could stake under 10% of the normal maximum (<a
+          href="https://www.gamblingcommission.gov.uk/blog/post/commercial-restrictions-by-betting-operators"
+          target="_blank"
+          rel="noopener"
+          >UKGC</a
+        >). No independent evidence was found on how Lithuanian books treat winners, or on their
+        margins.
+      </li>
+      <li>
+        <strong>Judge by closing-line value.</strong> Proving a 3% edge from profit alone takes
+        about 9,000–22,000 bets at odds 3–6. Closing-line value tracks long-run profit almost
+        one-for-one and needs a few hundred bets at short odds (<a
+          href="https://www.football-data.co.uk/blog/pinnacle_efficiency.php"
+          target="_blank"
+          rel="noopener"
+          >Buchdahl</a
+        >).
+      </li>
+    </ol>
   </section>
 
   <section id="next" aria-labelledby="next-h">
@@ -829,12 +905,13 @@
     var D = window.DATA;
     var BOOKS = { B365: 'Bet365', BW: 'bwin', BV: 'BetVictor', BFD: 'Betfair Sportsbook' };
     var BUDGETS = [
+      { id: 'f20', label: '€20', kind: 'fixed', amount: 20 },
       { id: 'f50', label: '€50', kind: 'fixed', amount: 50 },
       { id: 'f100', label: '€100', kind: 'fixed', amount: 100 },
       { id: 'f200', label: '€200', kind: 'fixed', amount: 200 },
-      { id: 'p5', label: '5% of bankroll', kind: 'fraction', fraction: 0.05 },
+      { id: 'p2', label: '2% of bankroll', kind: 'fraction', fraction: 0.02 },
+      { id: 'p5', label: '5%', kind: 'fraction', fraction: 0.05 },
       { id: 'p10', label: '10%', kind: 'fraction', fraction: 0.1 },
-      { id: 'p20', label: '20%', kind: 'fraction', fraction: 0.2 },
     ];
     var BANDS = [
       { id: 'model', label: 'Range if the edges are real' },

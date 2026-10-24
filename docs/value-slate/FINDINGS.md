@@ -214,6 +214,36 @@ What this says:
 5. **Bigger weekly budgets magnify whatever happens** (€200/wk: Strict €2,497, One account €59,
    Thin €223 with a 92% drawdown). % of bankroll staking softens busts but not the sign.
 
+**R4 — Research cross-check (`docs/value-slate/research.md`; key number re-verified 2026-10-24).**
+- Buchdahl's public archive of 20,380 live value bets (≥2% vs de-vigged Pinnacle, Aug 2015 –
+  Jun 2025; `football-data.co.uk/Wisdom_of_crowd_bets.xlsx`), re-computed independently:
+  odds <4 **+4.36%** (n=15,385, exp +3.64%); odds ≥4 **−0.68%** (n=4,995, exp +5.35%);
+  since Jul 2022: odds <4 **+4.17%** (n=3,147), odds ≥4 **−13.1%** (n=1,084). Profit column checks
+  out against level-stake results. ⇒ the edge that exists is at **short odds**; the one-winner rule's
+  pull toward odds 4–10 points straight at where value has historically failed.
+- Edge size: 2–3% edges ≈ break-even (+0.1%), 3–8% best, >8% lose (longshots/stale). Cap ≈ 12–15%.
+- De-vig: additive ≡ Buchdahl's margin-proportional-to-odds; additive/power calibrate far better
+  than multiplicative in the tails (our code defaults to power).
+- Staking: growth-optimal weekly total ≈ 1.25 × edge (2.5% of bankroll at a 2% edge); use
+  ~half: **1.5–2% of bankroll per week** (€15–20 on €1,000). At a true 2% edge, €100/wk from
+  €1,000 → ~18% chance of ruin within 3 seasons; €50/wk → ~2% (agent's Monte Carlo).
+- Limits: UKGC — restricted accounts 1.8× as likely to be in profit; most cut to <10% of normal
+  max stake. Kaunitz et al. limited within ~5 months. No evidence either way for LT books.
+- **Volume discrepancy to keep in mind:** the research agent, using *Pinnacle* Friday fair odds
+  (additive, 2019–26) with the same four books, found a median of ~8 eligible ≥2% picks per week;
+  our *BFE ≤3% overround* reference gives ~1.6/week. The reference filter drives volume. Pinnacle
+  is gone from football-data after Jan 2026, but OddsPapi still carries a `pinnacle` feed for
+  live use — compare both references on live data.
+
+**R5 — "Short odds" strategy (added after R4; rules from Buchdahl's evidence, not our data).**
+Edge 3–12%, odds 1.5–4, liquid BFE ref, 4 books, one-winner rule. 2025/26: 21 bets in 13 of 45
+weeks, CLV **+2.27%**; 2026/27: 7 bets, CLV **+5.07%**. Right direction, far too few bets — real
+short-odds value at UK books appears about once every two weeks.
+
+**Published page:** https://claude.ai/artifact/Mn9pnZ8tzUpUHgwCjAp1oP (private to the user;
+source `docs/value-slate/report.html`, regenerate with `pnpm --filter @quest/backtest report`
+then republish).
+
 ## 6. Decisions & open questions
 
 - Defaults chosen while the user's answers are pending (2026-10-24): football 1X2 + O/U 2.5; one
@@ -221,3 +251,18 @@ What this says:
   scenarios; equal-return vs equal staking both tested.
 - Open (user): which LT books they hold; weekly budget/bankroll beyond the €1,000 simulation;
   other sports.
+
+## 7. Next steps (in order)
+
+1. **LT prices.** Add `ODDSPAPI_API_KEY` to the environment → pull `/v4/historical-odds` for
+   recent fixtures with `7bet.lt,betsson,pinnacle` (3 books = 1 request per fixture, ~200
+   fixtures/month on the free tier) → add an OddsPapi loader that emits `HistoricalMatch` (results
+   from football-data by team/date) → rerun `census` on LT books. This decides whether the plan
+   can work at all.
+2. **Short-odds rule as the default**: odds ≤ 4, edge 3–12%, additive/power de-vig, liquid sharp
+   reference, one pick per match; weekly total stake ≈ 2% of bankroll.
+3. **Wire it live**: reuse the existing poller + CLV capture; generate a weekly slate from
+   live LT prices; log every placed bet's CLV. Gate: ≥300 bets with mean CLV > 0 at p < 0.05
+   before raising stakes.
+4. **Poll more often** if the budget allows: Friday snapshots keep only ~a third of the edge.
+5. Expect account limits; spread across the LT books the user can fund.
